@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A313C30E-A16F-4EAE-AD8A-521B686AF737}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Product", "Product", "{DB55CDB4-4D4F-4455-8E77-C697E5522C7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Domain", "src\Product\ProperNutritionDiary.Product.Domain\ProperNutritionDiary.Product.Domain.csproj", "{CBD80FDE-DB60-480D-8E0A-7AD6BF5053EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Persistence", "src\Product\ProperNutritionDiary.Product.Persistence\ProperNutritionDiary.Product.Persistence.csproj", "{788B7B4E-39B2-4606-8661-B9DB4D13C4C0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{96F5A8A4-9965-4A2F-9CDD-89E96186E613}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Product", "Product", "{15EDAB10-BB95-4366-94BB-8382D27EF063}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Test.Product.Test", "test\Product\ProperNutritionDiary.Test.Product.Test\ProperNutritionDiary.Test.Product.Test.csproj", "{FE1C429A-0B8E-429C-AACA-F91CEA9F025A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{093C4B44-27B2-45AC-A510-DC9C9F67E9E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.BuildingBlocks.PersistencePackages", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PersistencePackages\ProperNutritionDiary.BuildingBlocks.PersistencePackages.csproj", "{29F833B1-5C61-4B87-9217-0D4125609A32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBD80FDE-DB60-480D-8E0A-7AD6BF5053EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBD80FDE-DB60-480D-8E0A-7AD6BF5053EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBD80FDE-DB60-480D-8E0A-7AD6BF5053EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBD80FDE-DB60-480D-8E0A-7AD6BF5053EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{788B7B4E-39B2-4606-8661-B9DB4D13C4C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{788B7B4E-39B2-4606-8661-B9DB4D13C4C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{788B7B4E-39B2-4606-8661-B9DB4D13C4C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{788B7B4E-39B2-4606-8661-B9DB4D13C4C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE1C429A-0B8E-429C-AACA-F91CEA9F025A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE1C429A-0B8E-429C-AACA-F91CEA9F025A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE1C429A-0B8E-429C-AACA-F91CEA9F025A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE1C429A-0B8E-429C-AACA-F91CEA9F025A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29F833B1-5C61-4B87-9217-0D4125609A32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29F833B1-5C61-4B87-9217-0D4125609A32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29F833B1-5C61-4B87-9217-0D4125609A32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29F833B1-5C61-4B87-9217-0D4125609A32}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DB55CDB4-4D4F-4455-8E77-C697E5522C7C} = {A313C30E-A16F-4EAE-AD8A-521B686AF737}
+		{CBD80FDE-DB60-480D-8E0A-7AD6BF5053EC} = {DB55CDB4-4D4F-4455-8E77-C697E5522C7C}
+		{788B7B4E-39B2-4606-8661-B9DB4D13C4C0} = {DB55CDB4-4D4F-4455-8E77-C697E5522C7C}
+		{15EDAB10-BB95-4366-94BB-8382D27EF063} = {96F5A8A4-9965-4A2F-9CDD-89E96186E613}
+		{FE1C429A-0B8E-429C-AACA-F91CEA9F025A} = {15EDAB10-BB95-4366-94BB-8382D27EF063}
+		{093C4B44-27B2-45AC-A510-DC9C9F67E9E5} = {A313C30E-A16F-4EAE-AD8A-521B686AF737}
+		{29F833B1-5C61-4B87-9217-0D4125609A32} = {093C4B44-27B2-45AC-A510-DC9C9F67E9E5}
+	EndGlobalSection
+EndGlobal

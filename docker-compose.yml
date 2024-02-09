@@ -1,0 +1,33 @@
+networks:
+  app:
+
+volumes:
+  mysql-v:
+
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: dev
+      MYSQL_ROOT_PASSWORD: secret
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    links:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    depends_on:
+      - mysql
+    ports:
+      - 8081:80

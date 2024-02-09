@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PersistencePackages\ProperNutritionDiary.BuildingBlocks.PersistencePackages.csproj" />
+    <ProjectReference Include="..\ProperNutritionDiary.Product.Domain\ProperNutritionDiary.Product.Domain.csproj" />
+    <InternalsVisibleTo Include="ProperNutritionDiary.Test.Product.Test" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
