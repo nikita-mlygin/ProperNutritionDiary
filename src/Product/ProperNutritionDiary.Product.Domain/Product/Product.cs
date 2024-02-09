@@ -3,13 +3,15 @@ using DomainDesignLib.Abstractions.Result;
 
 namespace ProperNutritionDiary.Product.Domain.Product;
 
+using DomainDesignLib.Abstractions.Entity;
+using Mapster;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product.Create;
 using ProperNutritionDiary.Product.Domain.Product.Remove;
 using ProperNutritionDiary.Product.Domain.Product.Update;
 using ProperNutritionDiary.Product.Domain.User;
 
-public class Product : Entity<ProductId>
+public class Product : Entity<ProductId>, IAuditable
 {
     private Product(ProductId id, string name, Macronutrients macronutrients, ProductOwner owner)
         : base(id)
@@ -32,7 +34,7 @@ public class Product : Entity<ProductId>
             .Success(() =>
             {
                 var product = new Product(
-                    new ProductId(Guid.NewGuid()),
+                    id,
                     name,
                     macronutrients,
                     creator.Role == UserRole.Admin
@@ -74,8 +76,14 @@ public class Product : Entity<ProductId>
     }
 
     public string Name { get; private set; }
+
     public Macronutrients Macronutrients { get; private set; }
+
     public ProductOwner Owner { get; private set; }
+
+    public DateTime CreatedAt { get; private set; }
+
+    public DateTime? UpdatedAt { get; private set; }
 
     private bool CheckUpdater(User updater) =>
         (Owner.IsSystem && updater.Role == UserRole.Admin) || (updater.Id != this.Owner.Owner);
@@ -85,6 +93,24 @@ public class Product : Entity<ProductId>
 
     public static Product FromSnapshot(ProductSnapshot product)
     {
-        throw new NotImplementedException();
+        return new Product(
+            new ProductId(product.Id),
+            product.Name,
+            Macronutrients.FromSnapshot(product.Macronutrients),
+            product.Owner is null
+                ? ProductOwner.BySystem()
+                : ProductOwner.ByUser(new UserId((Guid)product.Owner))
+        );
+    }
+
+    public ProductSnapshot ToSnapshot()
+    {
+        return new ProductSnapshot()
+        {
+            Id = this.Id.Value,
+            Name = this.Name,
+            Owner = this.Owner.Owner?.Value,
+            Macronutrients = this.Macronutrients.ToSnapshot()
+        };
     }
 }

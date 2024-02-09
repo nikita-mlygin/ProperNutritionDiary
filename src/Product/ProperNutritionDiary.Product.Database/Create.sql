@@ -13,5 +13,16 @@ CREATE TABLE `product`
     fats decimal not null,
     carbohydrates decimal not null,
     owner binary(16) null,
+    created_at datetime not null,
+    updated_at datetime null default null,
     primary key (id)
+);
+
+CREATE TABLE `favorite_product`
+(
+    user_id binary(16) not null,
+    product_id binary(16) not null,
+    added_at binary(16) not null,
+    primary key(user_id, product_id),
+    foreign key (product_id) references product (id)
 );

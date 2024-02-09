@@ -1,11 +1,12 @@
 using System.Security.Cryptography.X509Certificates;
 using DomainDesignLib.Abstractions.Result;
+using Mapster;
 
 namespace ProperNutritionDiary.Product.Domain.Macronutrients;
 
 public record Macronutrients
 {
-    private Macronutrients(double calories, double proteins, double fats, double carbohydrates)
+    private Macronutrients(decimal calories, decimal proteins, decimal fats, decimal carbohydrates)
     {
         Calories = calories;
         Proteins = proteins;
@@ -14,10 +15,10 @@ public record Macronutrients
     }
 
     public static Result<Macronutrients> Create(
-        double calories,
-        double proteins,
-        double fats,
-        double carbohydrates
+        decimal calories,
+        decimal proteins,
+        decimal fats,
+        decimal carbohydrates
     )
     {
         return Result
@@ -28,12 +29,12 @@ public record Macronutrients
             .Success(() => new Macronutrients(calories, proteins, fats, carbohydrates));
     }
 
-    private static bool CheckValueByNotLessZero(double value) => value < 0;
+    private static bool CheckValueByNotLessZero(decimal value) => value < 0;
 
-    public double Calories { get; init; }
-    public double Proteins { get; init; }
-    public double Fats { get; init; }
-    public double Carbohydrates { get; init; }
+    public decimal Calories { get; init; }
+    public decimal Proteins { get; init; }
+    public decimal Fats { get; init; }
+    public decimal Carbohydrates { get; init; }
 
     public static Macronutrients operator +(Macronutrients left, Macronutrients right)
     {
@@ -55,7 +56,7 @@ public record Macronutrients
         );
     }
 
-    public static Macronutrients operator -(Macronutrients left, double right)
+    public static Macronutrients operator -(Macronutrients left, decimal right)
     {
         return new(
             left.Calories - right,
@@ -65,7 +66,7 @@ public record Macronutrients
         );
     }
 
-    public static Macronutrients operator +(Macronutrients left, double right)
+    public static Macronutrients operator +(Macronutrients left, decimal right)
     {
         return new(
             left.Calories + right,
@@ -75,7 +76,7 @@ public record Macronutrients
         );
     }
 
-    public static Macronutrients operator *(Macronutrients left, double right)
+    public static Macronutrients operator *(Macronutrients left, decimal right)
     {
         return new(
             left.Calories * right,
@@ -85,7 +86,7 @@ public record Macronutrients
         );
     }
 
-    public static Macronutrients operator /(Macronutrients left, double right)
+    public static Macronutrients operator /(Macronutrients left, decimal right)
     {
         return new(
             left.Calories / right,
@@ -98,5 +99,10 @@ public record Macronutrients
     public static Macronutrients FromSnapshot(MacronutrientsSnapshot snapshot)
     {
         return new(snapshot.Calories, snapshot.Proteins, snapshot.Fats, snapshot.Carbohydrates);
+    }
+
+    public MacronutrientsSnapshot ToSnapshot()
+    {
+        return this.Adapt<MacronutrientsSnapshot>();
     }
 }

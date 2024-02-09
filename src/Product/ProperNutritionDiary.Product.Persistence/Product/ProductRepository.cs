@@ -2,8 +2,10 @@ namespace ProperNutritionDiary.Product.Persistence.Product;
 
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Dapper;
+using DomainDesignLib.Persistence.Repository;
 using ProperNutritionDiary.BuildingBlocks.PersistencePackages.Connection;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product;
@@ -11,6 +13,15 @@ using ProperNutritionDiary.Product.Domain.User;
 
 internal class ProductRepository(IConnectionProvider connectionProvider) : IProductRepository
 {
+    private const string table = "product";
+    private const string id = "id";
+    private const string name = "name";
+    private const string calories = "calories";
+    private const string proteins = "proteins";
+    private const string fats = "fats";
+    private const string carbohydrates = "carbohydrates";
+    private const string owner = "owner";
+
     private readonly IConnectionProvider connectionProvider = connectionProvider;
 
     public Task AddProductToFavoriteList(FavoriteProductLineItem favoriteProductListItem)
@@ -20,24 +31,39 @@ internal class ProductRepository(IConnectionProvider connectionProvider) : IProd
 
     public async Task CreateAsync(Product entity)
     {
-        var ownerColumDef = entity.Owner.IsUser ? ", `creator`" : "";
-        var ownerValueDef = entity.Owner.IsUser ? ", @creator" : "";
+        var ownerColumDef = entity.Owner.IsUser ? $",\n\t`{owner}`" : "";
+        var ownerValueDef = entity.Owner.IsUser ? $",\n\t@{nameof(ProductSnapshot.Owner)}" : "";
         var sql = $"""
-INSERT INTO `product` (`id`, `name`, `calories`, `proteins`, `fats`, `carbohydrates`{ownerColumDef}) 
-values (@id, @name, @calories, @proteins, @fats, @carbohydrates{ownerValueDef});
+INSERT INTO `{table}` (
+    `{id}`, 
+    `{name}`, 
+    `{calories}`, 
+    `{proteins}`, 
+    `{fats}`, 
+    `{carbohydrates}`{ownerColumDef}) 
+VALUES (
+    @{nameof(ProductSnapshot.Id)}, 
+    @{nameof(ProductSnapshot.Name)}, 
+    @{nameof(MacronutrientsSnapshot.Calories)}, 
+    @{nameof(MacronutrientsSnapshot.Proteins)}, 
+    @{nameof(MacronutrientsSnapshot.Fats)},
+    @{nameof(MacronutrientsSnapshot.Carbohydrates)}{ownerValueDef}
+);
 """;
 
-        await (await connectionProvider.GetConnection()).ExecuteAsync(
+        var productSnapshot = entity.ToSnapshot();
+
+        await (await connectionProvider.Get()).ExecuteAsync(
             sql,
             new
             {
-                id = entity.Id.Value,
-                creator = entity.Owner.Owner?.Value,
-                name = entity.Name,
-                calories = entity.Macronutrients.Calories,
-                proteins = entity.Macronutrients.Proteins,
-                fats = entity.Macronutrients.Fats,
-                carbohydrates = entity.Macronutrients.Carbohydrates,
+                id = productSnapshot.Id,
+                owner = productSnapshot.Owner,
+                name = productSnapshot.Name,
+                calories = productSnapshot.Macronutrients.Calories,
+                proteins = productSnapshot.Macronutrients.Proteins,
+                fats = productSnapshot.Macronutrients.Fats,
+                carbohydrates = productSnapshot.Macronutrients.Carbohydrates,
             }
         );
     }
@@ -46,17 +72,17 @@ values (@id, @name, @calories, @proteins, @fats, @carbohydrates{ownerValueDef});
     {
         var sql = $"""
 SELECT 
-    `id` as {nameof(Product.Id)}, 
-    `name` as {nameof(Product.Name)}, 
-    `calories` as {nameof(Macronutrients.Calories)}, 
-    `proteins` as {nameof(Macronutrients.Proteins)}, 
-    `fats` as {nameof(Macronutrients.Fats)}, 
-    `carbohydrates` as {nameof(Macronutrients.Carbohydrates)}, 
-    `creator` as {nameof(Product.Create)}
-FROM `product`;
+    `{id}` as {nameof(ProductSnapshot.Id)}, 
+    `{name}` as {nameof(ProductSnapshot.Name)}, 
+    `{owner}` as {nameof(ProductSnapshot.Owner)},
+    `{calories}` as {nameof(MacronutrientsSnapshot.Calories)}, 
+    `{proteins}` as {nameof(MacronutrientsSnapshot.Proteins)}, 
+    `{fats}` as {nameof(MacronutrientsSnapshot.Fats)}, 
+    `{carbohydrates}` as {nameof(MacronutrientsSnapshot.Carbohydrates)}
+FROM `{table}`;
 """;
 
-        return await (await connectionProvider.GetConnection()).QueryAsync<
+        return await (await connectionProvider.Get()).QueryAsync<
             ProductSnapshot,
             MacronutrientsSnapshot,
             Product
@@ -68,32 +94,27 @@ FROM `product`;
 
                 return Product.FromSnapshot(product);
             },
-            splitOn: nameof(Macronutrients.Calories)
+            splitOn: nameof(MacronutrientsSnapshot.Calories)
         );
-    }
-
-    public Task<IEnumerable<Product>> GetAllWithoutTracking()
-    {
-        throw new NotImplementedException();
     }
 
     public async Task<Product?> GetByIdAsync(ProductId id)
     {
         var sql = $"""
 SELECT 
-    `id` as {nameof(Product.Id)}, 
-    `name` as {nameof(Product.Name)}, 
-    `calories` as {nameof(Macronutrients.Calories)}, 
-    `proteins` as {nameof(Macronutrients.Proteins)}, 
-    `fats` as {nameof(Macronutrients.Fats)}, 
-    `carbohydrates` as {nameof(Macronutrients.Carbohydrates)}, 
-    `creator` as {nameof(Product.Create)}
-FROM `product`
-WHERE `id` = @id;
+    `{ProductRepository.id}` as {nameof(ProductSnapshot.Id)}, 
+    `{name}` as {nameof(ProductSnapshot.Name)}, 
+    `{owner}` as {nameof(ProductSnapshot.Owner)},
+    `{calories}` as {nameof(MacronutrientsSnapshot.Calories)}, 
+    `{proteins}` as {nameof(MacronutrientsSnapshot.Proteins)}, 
+    `{fats}` as {nameof(MacronutrientsSnapshot.Fats)}, 
+    `{carbohydrates}` as {nameof(MacronutrientsSnapshot.Carbohydrates)}
+FROM `{table}`
+WHERE `{ProductRepository.id}` = @{nameof(ProductSnapshot.Id)};
 """;
 
         return (
-            await (await connectionProvider.GetConnection()).QueryAsync<
+            await (await connectionProvider.Get()).QueryAsync<
                 ProductSnapshot,
                 MacronutrientsSnapshot,
                 Product
@@ -105,24 +126,26 @@ WHERE `id` = @id;
 
                     return Product.FromSnapshot(product);
                 },
-                new { id = id.Value }
+                new { id = id.Value },
+                splitOn: nameof(MacronutrientsSnapshot.Calories)
             )
         ).FirstOrDefault();
     }
 
-    public Task<Product> GetByIdAsyncWithoutTracking(ProductId id)
+    public Task<IEnumerable<Product>> GetFavoriteProductListAsync(UserId user)
     {
         throw new NotImplementedException();
     }
 
-    public List<Product> GetFavoriteProductList(UserId user)
+    public async Task RemoveAsync(Product entity)
     {
-        throw new NotImplementedException();
-    }
+        var productSnapshot = entity.ToSnapshot();
 
-    public Task RemoveAsync(Product entity)
-    {
-        throw new NotImplementedException();
+        var sql = $"""
+DELETE FROM `{table}` where `{id}` = @{nameof(ProductSnapshot.Id)};
+""";
+
+        await (await connectionProvider.Get()).ExecuteAsync(sql, new { id = productSnapshot.Id, });
     }
 
     public Task RemoveProductFromFavoriteList(UserId user, ProductId product)
@@ -130,8 +153,36 @@ WHERE `id` = @id;
         throw new NotImplementedException();
     }
 
-    public Task UpdateAsync(Product entity)
+    public async Task UpdateAsync(Product entity)
     {
-        throw new NotImplementedException();
+        var ownerSetDef = entity.Owner.IsSystem
+            ? ""
+            : $",\n\t`{owner}` = @{nameof(ProductSnapshot.Owner)}";
+        var productSnapshot = entity.ToSnapshot();
+
+        var sql = $"""
+UPDATE `{table}`
+SET 
+    `{name}` = @{nameof(ProductSnapshot.Name)},
+    `{calories}` = @{nameof(MacronutrientsSnapshot.Calories)},
+    `{proteins}` = @{nameof(MacronutrientsSnapshot.Proteins)},
+    `{fats}` = @{nameof(MacronutrientsSnapshot.Fats)},
+    `{carbohydrates}` = @{nameof(MacronutrientsSnapshot.Carbohydrates)}{ownerSetDef}
+    where `{id}` = @{nameof(ProductSnapshot.Id)};
+""";
+
+        await (await connectionProvider.Get()).ExecuteAsync(
+            sql,
+            new
+            {
+                productSnapshot.Id,
+                productSnapshot.Name,
+                productSnapshot.Owner,
+                productSnapshot.Macronutrients.Calories,
+                productSnapshot.Macronutrients.Proteins,
+                productSnapshot.Macronutrients.Fats,
+                productSnapshot.Macronutrients.Carbohydrates
+            }
+        );
     }
 }

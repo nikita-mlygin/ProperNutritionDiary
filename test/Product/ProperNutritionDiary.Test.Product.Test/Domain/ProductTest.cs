@@ -34,6 +34,11 @@ public class ProductTest
 
         var product = productResult.Value;
 
+        product.Id.Should().Be(productId);
+        product.Name.Should().Be(name);
+        product.Macronutrients.Should().Be(macronutrients);
+        product.Owner.Owner.Should().Be(plainUser.Id);
+
         var productCreated = product.DomainEvents.OfType<ProductCreated>().First();
 
         productCreated.Should().NotBeNull();

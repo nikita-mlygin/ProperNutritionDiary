@@ -1,14 +1,14 @@
 namespace ProperNutritionDiary.Product.Domain.Macronutrients;
 
 public class MacronutrientsSnapshot(
-    double calories,
-    double proteins,
-    double fats,
-    double carbohydrates
+    decimal calories,
+    decimal proteins,
+    decimal fats,
+    decimal carbohydrates
 )
 {
-    public double Calories { get; set; } = calories;
-    public double Proteins { get; set; } = proteins;
-    public double Fats { get; set; } = fats;
-    public double Carbohydrates { get; set; } = carbohydrates;
+    public decimal Calories { get; set; } = calories;
+    public decimal Proteins { get; set; } = proteins;
+    public decimal Fats { get; set; } = fats;
+    public decimal Carbohydrates { get; set; } = carbohydrates;
 }
