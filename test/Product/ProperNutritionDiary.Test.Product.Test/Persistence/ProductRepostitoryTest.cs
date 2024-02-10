@@ -27,9 +27,11 @@ public class ProductRepositoryTest
     private readonly Macronutrients newMacronutrients = Macronutrients.Create(10, 10, 10, 10).Value;
 
     private readonly IProductRepository productRepository;
+    private readonly DateTime createdAt = DateTime.UtcNow;
+    private readonly DateTime updatedAt = DateTime.UtcNow.AddMinutes(2);
     private const string connectionString = "server=localhost;uid=user;pwd=secret;database=dev";
 
-    public ServiceProvider ServiceProvider { get; set; } = default!;
+    public ServiceProvider ServiceProvider { get; set; }
 
     protected IServiceCollection Services { get; set; }
 
@@ -73,13 +75,14 @@ public class ProductRepositoryTest
 
         ServiceProvider = Services.BuildServiceProvider();
 
-        this.productRepository = ServiceProvider.GetService<IProductRepository>();
+        this.productRepository =
+            ServiceProvider.GetService<IProductRepository>() ?? throw new Exception();
     }
 
     [Fact]
     public async Task CreateAndGetByIdAsync_MustExec()
     {
-        var product = Product.Create(id, name, macronutrients, plainUserCreator).Value;
+        var product = Product.Create(id, name, macronutrients, plainUserCreator, createdAt).Value;
 
         try
         {
@@ -95,7 +98,7 @@ public class ProductRepositoryTest
             var productList = await productRepository.GetAll();
             productList.Should().NotBeEmpty();
 
-            resultProduct.Update(newName, newMacronutrients, plainUserCreator);
+            resultProduct.Update(newName, newMacronutrients, plainUserCreator, updatedAt);
             await productRepository.UpdateAsync(resultProduct);
 
             await productRepository.RemoveAsync(resultProduct);
@@ -104,5 +107,57 @@ public class ProductRepositoryTest
         {
             throw;
         }
+    }
+
+    [Fact]
+    private async Task FavoriteListActions_MustExec()
+    {
+        var id1 = new ProductId(Guid.NewGuid());
+        var id2 = new ProductId(Guid.NewGuid());
+        var id3 = new ProductId(Guid.NewGuid());
+
+        var name1 = "name1";
+        var name2 = "name2";
+        var name3 = "name3";
+
+        var systemCreator = new User(new UserId(Guid.NewGuid()), UserRole.Admin);
+
+        var firstProduct = Product
+            .Create(id1, name1, macronutrients, plainUserCreator, createdAt)
+            .Value;
+        var secondProduct = Product
+            .Create(id2, name2, macronutrients, systemCreator, createdAt)
+            .Value;
+        var thirdProduct = Product
+            .Create(id3, name3, macronutrients, plainUserCreator, createdAt)
+            .Value;
+
+        await productRepository.CreateAsync(firstProduct);
+        await productRepository.CreateAsync(secondProduct);
+        await productRepository.CreateAsync(thirdProduct);
+
+        await productRepository.AddProductToFavoriteList(
+            plainUserCreator.Id,
+            firstProduct.Id,
+            DateTime.UtcNow
+        );
+
+        await productRepository.AddProductToFavoriteList(
+            plainUserCreator.Id,
+            secondProduct.Id,
+            DateTime.UtcNow
+        );
+
+        await productRepository.AddProductToFavoriteList(
+            plainUserCreator.Id,
+            thirdProduct.Id,
+            DateTime.UtcNow
+        );
+
+        (await productRepository.GetFavoriteProductListAsync(plainUserCreator.Id))
+            .Should()
+            .Contain(firstProduct)
+            .And.Contain(secondProduct)
+            .And.Contain(thirdProduct);
     }
 }

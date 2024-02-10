@@ -13,19 +13,29 @@ using ProperNutritionDiary.Product.Domain.User;
 
 public class Product : Entity<ProductId>, IAuditable
 {
-    private Product(ProductId id, string name, Macronutrients macronutrients, ProductOwner owner)
+    private Product(
+        ProductId id,
+        string name,
+        Macronutrients macronutrients,
+        ProductOwner owner,
+        DateTime createdAt,
+        DateTime? updatedAt
+    )
         : base(id)
     {
         Name = name;
         Macronutrients = macronutrients;
         Owner = owner;
+        CreatedAt = createdAt;
+        UpdatedAt = updatedAt;
     }
 
     public static Result<Product> Create(
         ProductId id,
         string name,
         Macronutrients macronutrients,
-        User creator
+        User creator,
+        DateTime createdAt
     )
     {
         return Result
@@ -39,7 +49,9 @@ public class Product : Entity<ProductId>, IAuditable
                     macronutrients,
                     creator.Role == UserRole.Admin
                         ? ProductOwner.BySystem()
-                        : ProductOwner.ByUser(creator.Id)
+                        : ProductOwner.ByUser(creator.Id),
+                    createdAt,
+                    null
                 );
 
                 product.Raise(new ProductCreated(Guid.NewGuid(), product));
@@ -48,7 +60,12 @@ public class Product : Entity<ProductId>, IAuditable
             });
     }
 
-    public Result Update(string name, Macronutrients macronutrients, User updater)
+    public Result Update(
+        string name,
+        Macronutrients macronutrients,
+        User updater,
+        DateTime updateTime
+    )
     {
         return Result
             .Check(name, string.IsNullOrEmpty, ProductErrors.NameIsNullOrEmpty)
@@ -60,6 +77,7 @@ public class Product : Entity<ProductId>, IAuditable
 
                 Name = name;
                 Macronutrients = macronutrients;
+                UpdatedAt = updateTime;
 
                 Raise(new ProductUpdated(Guid.NewGuid(), oldName, oldMacronutrients, this));
             });
@@ -99,7 +117,9 @@ public class Product : Entity<ProductId>, IAuditable
             Macronutrients.FromSnapshot(product.Macronutrients),
             product.Owner is null
                 ? ProductOwner.BySystem()
-                : ProductOwner.ByUser(new UserId((Guid)product.Owner))
+                : ProductOwner.ByUser(new UserId((Guid)product.Owner)),
+            product.CreatedAt,
+            product.UpdatedAt
         );
     }
 
@@ -110,7 +130,9 @@ public class Product : Entity<ProductId>, IAuditable
             Id = this.Id.Value,
             Name = this.Name,
             Owner = this.Owner.Owner?.Value,
-            Macronutrients = this.Macronutrients.ToSnapshot()
+            Macronutrients = this.Macronutrients.ToSnapshot(),
+            CreatedAt = this.CreatedAt,
+            UpdatedAt = this.UpdatedAt,
         };
     }
 }
