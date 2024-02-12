@@ -16,6 +16,7 @@ using ProperNutritionDiary.Product.Persistence;
 using Serilog;
 using Xunit.Abstractions;
 
+[Collection("main")]
 public class ProductRepositoryTest
 {
     private readonly ProductId id = new(Guid.NewGuid());
@@ -29,51 +30,13 @@ public class ProductRepositoryTest
     private readonly IProductRepository productRepository;
     private readonly DateTime createdAt = DateTime.UtcNow;
     private readonly DateTime updatedAt = DateTime.UtcNow.AddMinutes(2);
-    private const string connectionString = "server=localhost;uid=user;pwd=secret;database=dev";
 
     public ServiceProvider ServiceProvider { get; set; }
 
-    protected IServiceCollection Services { get; set; }
-
-    public ProductRepositoryTest(ITestOutputHelper output)
+    public ProductRepositoryTest(PersistenceContext context, ITestOutputHelper output)
     {
-        Services = new ServiceCollection();
-        Services.AddLogging(
-            (builder) =>
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .Enrich.FromLogContext()
-                    .WriteTo.TestOutput(output)
-                    .CreateLogger();
-
-                builder.AddSerilog();
-
-                builder.Services.AddSingleton<ILoggerProvider>(
-                    serviceProvider => new XUnitLoggerProvider(output)
-                );
-            }
-        );
-
-        Services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(_ =>
-            XUnitLogger.CreateLogger(output)
-        );
-
-        Services.AddSingleton(_ =>
-        {
-            var factory = new LoggerFactory();
-            factory.AddSerilog(Log.Logger);
-            return factory;
-        });
-
-        Services.AddScoped<IConnectionProvider, MySqlConnectionProvider>(
-            _ => new MySqlConnectionProvider(connectionString)
-        );
-        Services.AddSingleton((_) => DbLoggingConfiguration.Default);
-        Services.Decorate<IConnectionProvider, ConnectionProviderDecorator>();
-
-        Services.AddPersistence();
-
-        ServiceProvider = Services.BuildServiceProvider();
+        context.InjectLogging(output);
+        this.ServiceProvider = context.ServiceProvider;
 
         this.productRepository =
             ServiceProvider.GetService<IProductRepository>() ?? throw new Exception();
@@ -110,7 +73,7 @@ public class ProductRepositoryTest
     }
 
     [Fact]
-    private async Task FavoriteListActions_MustExec()
+    public async Task FavoriteListActions_MustExec()
     {
         var id1 = new ProductId(Guid.NewGuid());
         var id2 = new ProductId(Guid.NewGuid());
@@ -159,5 +122,35 @@ public class ProductRepositoryTest
             .Contain(firstProduct)
             .And.Contain(secondProduct)
             .And.Contain(thirdProduct);
+    }
+
+    [Fact]
+    public async Task IsInFavoriteList_MustReturnFalse_WhenIsNotInFavoriteList()
+    {
+        var product = Product.Create(id, name, macronutrients, plainUserCreator, createdAt).Value;
+
+        await productRepository.CreateAsync(product);
+
+        (await productRepository.IsProductInFavoriteList(plainUserCreator.Id, product.Id))
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public async Task IsInFavoriteList_MustReturnTrue_WhenIsInFavoriteList()
+    {
+        var product = Product.Create(id, name, macronutrients, plainUserCreator, createdAt).Value;
+
+        await productRepository.CreateAsync(product);
+
+        await productRepository.AddProductToFavoriteList(
+            plainUserCreator.Id,
+            product.Id,
+            createdAt
+        );
+
+        (await productRepository.IsProductInFavoriteList(plainUserCreator.Id, product.Id))
+            .Should()
+            .BeTrue();
     }
 }

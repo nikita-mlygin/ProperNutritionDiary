@@ -7,10 +7,11 @@ using DomainDesignLib.Persistence.Repository;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.User;
+using ProperNutritionDiary.Product.Persistence.Connection;
 using ProperNutritionDiary.Product.Persistence.Product.Extensions;
 using ProperNutritionDiary.Product.Persistence.Product.Favorite;
 
-internal class ProductRepository(IConnectionProvider connectionProvider) : IProductRepository
+internal class ProductRepository(ISqlConnectionProvider connectionProvider) : IProductRepository
 {
     private const string table = "product";
     private const string favoriteTable = "favorite_product";
@@ -179,6 +180,25 @@ WHERE {userId} = @{nameof(FavoriteProductSnapshot.UserId)};
             param,
             splitOn: nameof(MacronutrientsSnapshot.Calories)
         );
+    }
+
+    public async Task<bool> IsProductInFavoriteList(UserId user, ProductId product)
+    {
+        var sql = $"""
+SELECT count(*) 
+FROM `{favoriteTable}` 
+WHERE 
+    `{favoriteProductRef}` = @{nameof(FavoriteProductSnapshot.ProductId)}
+    AND `{userId}` = @{nameof(FavoriteProductSnapshot.UserId)};
+""";
+
+        var param = new Dictionary<string, object>()
+        {
+            { nameof(FavoriteProductSnapshot.ProductId), product.Value },
+            { nameof(FavoriteProductSnapshot.UserId), user.Value },
+        };
+
+        return (await (await connectionProvider.Get()).ExecuteScalarAsync<int>(sql, param)) == 1;
     }
 
     public async Task RemoveAsync(Product entity)

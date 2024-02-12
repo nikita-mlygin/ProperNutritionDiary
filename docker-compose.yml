@@ -1,8 +1,7 @@
+version: "3.4"
+
 networks:
   app:
-
-volumes:
-  mysql-v:
 
 services:
   mysql:
@@ -11,6 +10,8 @@ services:
       MYSQL_DATABASE: dev
       MYSQL_ROOT_PASSWORD: secret
     container_name: mysql
+    networks:
+      - app
     ports:
       - "3306:3306"
     expose:
@@ -26,8 +27,33 @@ services:
       PMA_HOST: mysql
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
+    networks:
+      - app
     restart: always
     depends_on:
       - mysql
     ports:
       - 8081:80
+
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    networks:
+      - app
+    ports:
+      - 9042:9042
+    expose:
+      - 9042
+    volumes:
+      - ./cassandra/config/cassandra.yaml:/etc/cassandra/cassandra.yaml
+
+  cassandra-init:
+    image: cassandra:latest
+    container_name: cassandra-init
+    networks:
+      - app
+    depends_on:
+      - cassandra
+    volumes:
+      - ./cassandra/sql:/dump/
+    command: /bin/bash -c "sleep 60 && cqlsh cassandra -u cassandra -p cassandra -f /dump/init-cassandra-product.sql"

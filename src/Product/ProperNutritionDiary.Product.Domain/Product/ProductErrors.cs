@@ -24,4 +24,10 @@ public static class ProductErrors
             $"{nameof(Product)}.{nameof(RemoveNotAllowedToNoOwner)}",
             "Remove product can only owner"
         );
+
+    public static readonly Error ProductAlreadyInList =
+        new(
+            $"{nameof(Product)}.{nameof(ProductAlreadyInList)}",
+            "Product can't be added in favorite list if it already in it"
+        );
 }

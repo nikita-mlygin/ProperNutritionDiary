@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ProperNutritionDiary.Test.Product.Test": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
