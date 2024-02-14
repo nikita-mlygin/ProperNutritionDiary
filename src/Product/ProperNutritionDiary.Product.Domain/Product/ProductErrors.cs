@@ -25,9 +25,27 @@ public static class ProductErrors
             "Remove product can only owner"
         );
 
-    public static readonly Error ProductAlreadyInList =
+    public static readonly Error RemoveNotAllowedWhenInFavoriteList =
         new(
-            $"{nameof(Product)}.{nameof(ProductAlreadyInList)}",
+            $"{nameof(Product)}.{nameof(RemoveNotAllowedWhenInFavoriteList)}",
+            "Can't remove if product in any favorite list"
+        );
+
+    public static readonly Error AdminUserNotAllowedAddToFavoriteList =
+        new(
+            $"{nameof(Product)}.{nameof(AdminUserNotAllowedAddToFavoriteList)}",
+            "Admin user can't add product in the favorite list."
+        );
+
+    public static readonly Error ProductAlreadyInFavoriteList =
+        new(
+            $"{nameof(Product)}.{nameof(ProductAlreadyInFavoriteList)}",
             "Product can't be added in favorite list if it already in it"
+        );
+
+    public static readonly Error ProductNotInFavoriteList =
+        new(
+            $"{nameof(Product)}.{nameof(ProductNotInFavoriteList)}",
+            "Product can't be removed from favorite list if it not in"
         );
 }

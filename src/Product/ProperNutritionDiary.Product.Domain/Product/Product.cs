@@ -83,10 +83,11 @@ public class Product : Entity<ProductId>, IAuditable
             });
     }
 
-    public Result Remove(User remover)
+    public Result Remove(User remover, bool isInFavoriteList)
     {
         return Result
             .Check(remover, CheckRemover, ProductErrors.RemoveNotAllowedToNoOwner)
+            .Check(isInFavoriteList, (v) => v, ProductErrors.RemoveNotAllowedWhenInFavoriteList)
             .Success(() =>
             {
                 Raise(new ProductRemoved(Guid.NewGuid(), this));

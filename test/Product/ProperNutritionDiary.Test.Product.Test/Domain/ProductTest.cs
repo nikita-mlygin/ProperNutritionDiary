@@ -4,6 +4,7 @@ using FluentAssertions;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.Product.Create;
+using ProperNutritionDiary.Product.Domain.Product.Remove;
 using ProperNutritionDiary.Product.Domain.Product.Update;
 using ProperNutritionDiary.Product.Domain.User;
 
@@ -66,7 +67,7 @@ public class ProductTest
     {
         var product = Product.Create(productId, name, macronutrients, adminUser, createdAt).Value;
 
-        var result = product.Remove(plainUser);
+        var result = product.Remove(plainUser, false);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(ProductErrors.RemoveNotAllowedToNoOwner);
@@ -77,10 +78,33 @@ public class ProductTest
     {
         var product = Product.Create(productId, name, macronutrients, plainUser, createdAt).Value;
 
-        var result = product.Remove(anotherPlainUser);
+        var result = product.Remove(anotherPlainUser, false);
 
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(ProductErrors.RemoveNotAllowedToNoOwner);
+    }
+
+    [Fact]
+    public void RemoveProduct_MustReturnFailed_WhenRemoveProductInFavoriteList()
+    {
+        var product = Product.Create(productId, name, macronutrients, plainUser, createdAt).Value;
+
+        var result = product.Remove(plainUser, true);
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ProductErrors.RemoveNotAllowedWhenInFavoriteList);
+    }
+
+    [Fact]
+    public void RemoveProduct_MustReturnSuccess_WhenOk()
+    {
+        var product = Product.Create(productId, name, macronutrients, plainUser, createdAt).Value;
+
+        var result = product.Remove(plainUser, false);
+
+        result.IsFailure.Should().BeFalse();
+
+        product.DomainEvents.OfType<ProductRemoved>().FirstOrDefault().Should().NotBeNull();
     }
 
     [Fact]

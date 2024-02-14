@@ -1,12 +1,14 @@
 using System.Data.Common;
 using Dapper;
 using Dapper.Transaction;
+using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.Product.Get;
 using ProperNutritionDiary.Product.Domain.User;
 using ProperNutritionDiary.Product.Persistence.Connection;
 using ProperNutritionDiary.Product.Persistence.Product.Summary.Add;
 using ProperNutritionDiary.Product.Persistence.Product.Summary.View;
+using ProperNutritionDiary.Product.Persistence.Product.TableDefinition;
 
 namespace ProperNutritionDiary.Product.Persistence.Product.Summary;
 
@@ -17,10 +19,6 @@ public class ProductSummaryRepository(
 {
     private readonly ISqlConnectionProvider sqlConnectionProvider = sqlConnectionProvider;
     private readonly INoSqlConnectionProvider noSqlConnectionProvider = noSqlConnectionProvider;
-    private string productId = "id";
-    private const string productTable = "product";
-    private const string viewCount = "view_count";
-    private const string addCount = "add_count";
 
     public async Task AddUse(UserId user, ProductId product, DateTime addedAt)
     {
@@ -35,9 +33,9 @@ public class ProductSummaryRepository(
         await (await noSqlConnectionProvider.Get()).InsertAsync(snapshot);
 
         var addTotalViewSql = $"""
-UPDATE `{productTable}` 
-SET `{addCount}` = `{addCount}` + 1 
-WHERE `{productId}` = @{nameof(ProductSnapshot.Id)};
+UPDATE `{ProductTable.table}` 
+SET `{ProductTable.addCount}` = `{ProductTable.addCount}` + 1 
+WHERE `{ProductTable.id}` = @{nameof(ProductSnapshot.Id)};
 """;
 
         using var connection = await sqlConnectionProvider.Get();
@@ -67,9 +65,9 @@ WHERE `{productId}` = @{nameof(ProductSnapshot.Id)};
         await (await noSqlConnectionProvider.Get()).InsertAsync(snapshot);
 
         var sql = $"""
-UPDATE `{productTable}` 
-SET `{viewCount}` = `{viewCount}` + 1 
-WHERE `{productId}` = @{nameof(ProductSnapshot.Id)};
+UPDATE `{ProductTable.table}` 
+SET `{ProductTable.viewCount}` = `{ProductTable.viewCount}` + 1 
+WHERE `{ProductTable.id}` = @{nameof(ProductSnapshot.Id)};
 """;
         using var connection = await sqlConnectionProvider.Get();
         await connection.OpenAsync();
@@ -95,15 +93,50 @@ WHERE `{productId}` = @{nameof(ProductSnapshot.Id)};
         throw new NotImplementedException();
     }
 
-    public Task<ProductSummary> GetById(Guid id)
+    public async Task<ProductSummary?> GetById(ProductId id)
     {
-        throw new NotImplementedException();
+        var sql = $"""
+SELECT 
+    {ProductTable.id} as {nameof(ProductSummarySnapshot.Id)},
+    {ProductTable.name} as {nameof(ProductSummarySnapshot.Name)},
+    {ProductTable.owner} as {nameof(ProductSummarySnapshot.Owner)},
+    {ProductTable.viewCount} as {nameof(ProductSummarySnapshot.ViewCount)},
+    {ProductTable.addCount} as {nameof(ProductSummarySnapshot.AddCount)},
+    {ProductTable.calories} as {nameof(ProductSummarySnapshot.Macronutrients.Calories)},
+    {ProductTable.proteins} as {nameof(ProductSummarySnapshot.Macronutrients.Proteins)},
+    {ProductTable.fats} as {nameof(ProductSummarySnapshot.Macronutrients.Fats)},
+    {ProductTable.carbohydrates} as {nameof(ProductSummarySnapshot.Macronutrients.Carbohydrates)}
+FROM {ProductTable.table} 
+WHERE 
+    {ProductTable.id} = @{nameof(ProductSummarySnapshot.Id)}
+""";
+
+        return (
+            await (await sqlConnectionProvider.Get()).QueryAsync<
+                ProductSummarySnapshot,
+                MacronutrientsSnapshot,
+                ProductSummary
+            >(
+                sql,
+                (product, macronutrients) =>
+                {
+                    product.Macronutrients = macronutrients;
+
+                    return ProductSummary.FromSnapshot(product);
+                },
+                new Dictionary<string, object>()
+                {
+                    { nameof(ProductSummarySnapshot.Id), id.Value }
+                },
+                splitOn: nameof(ProductSummarySnapshot.Macronutrients.Calories)
+            )
+        ).FirstOrDefault();
     }
 
     private static async Task<bool> HasStatisticsRow(
         Guid userId,
         Guid productId,
-        DbConnection connection
+        DbTransaction transaction
     )
     {
         var sql = $"""
@@ -120,7 +153,7 @@ WHERE
             { nameof(UserStatisticsSnapshot.UserId), userId },
         };
 
-        return (await connection.ExecuteScalarAsync<int>(sql, param)) > 0;
+        return (await transaction.ExecuteScalarAsync<int>(sql, param)) > 0;
     }
 
     private static async Task AddViewToUserStatistics(
@@ -130,7 +163,7 @@ WHERE
     )
     {
         await (
-            await HasStatisticsRow(userId, productId, transaction.Connection!)
+            await HasStatisticsRow(userId, productId, transaction)
                 ? UpdateViewInUserStatistics(userId, productId, transaction)
                 : CreateUserStatistics(
                     new UserStatisticsSnapshot()
@@ -152,7 +185,7 @@ WHERE
     )
     {
         await (
-            await HasStatisticsRow(userId, productId, transaction.Connection!)
+            await HasStatisticsRow(userId, productId, transaction)
                 ? UpdateUseInUserStatistics(userId, productId, transaction)
                 : CreateUserStatistics(
                     new UserStatisticsSnapshot()

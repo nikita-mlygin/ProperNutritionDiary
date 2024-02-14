@@ -1,4 +1,4 @@
-namespace ProperNutritionDiary.Product.Persistence.Product.Summary;
+namespace ProperNutritionDiary.Product.Persistence.Product.TableDefinition;
 
 public static class UserStatisticsTableColumns
 {

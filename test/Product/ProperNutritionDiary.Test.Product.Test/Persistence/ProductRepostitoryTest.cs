@@ -99,19 +99,19 @@ public class ProductRepositoryTest
         await productRepository.CreateAsync(secondProduct);
         await productRepository.CreateAsync(thirdProduct);
 
-        await productRepository.AddProductToFavoriteList(
+        await productRepository.AddProductToFavoriteListAsync(
             plainUserCreator.Id,
             firstProduct.Id,
             DateTime.UtcNow
         );
 
-        await productRepository.AddProductToFavoriteList(
+        await productRepository.AddProductToFavoriteListAsync(
             plainUserCreator.Id,
             secondProduct.Id,
             DateTime.UtcNow
         );
 
-        await productRepository.AddProductToFavoriteList(
+        await productRepository.AddProductToFavoriteListAsync(
             plainUserCreator.Id,
             thirdProduct.Id,
             DateTime.UtcNow
@@ -143,7 +143,7 @@ public class ProductRepositoryTest
 
         await productRepository.CreateAsync(product);
 
-        await productRepository.AddProductToFavoriteList(
+        await productRepository.AddProductToFavoriteListAsync(
             plainUserCreator.Id,
             product.Id,
             createdAt
@@ -152,5 +152,52 @@ public class ProductRepositoryTest
         (await productRepository.IsProductInFavoriteList(plainUserCreator.Id, product.Id))
             .Should()
             .BeTrue();
+    }
+
+    [Fact]
+    public async Task GetUserWhichFavoriteListContainsProduct_MustReturnUsers()
+    {
+        var id1 = new ProductId(Guid.NewGuid());
+        var id2 = new ProductId(Guid.NewGuid());
+
+        var name1 = "Name1";
+        var name2 = "Name2";
+
+        var plainUserCreator2 = new User(new UserId(Guid.NewGuid()), UserRole.PlainUser);
+        var systemCreator = new User(new UserId(Guid.NewGuid()), UserRole.Admin);
+
+        var product1 = Product.Create(id1, name1, macronutrients, systemCreator, createdAt).Value;
+        var product2 = Product.Create(id2, name2, macronutrients, systemCreator, createdAt).Value;
+
+        await productRepository.CreateAsync(product1);
+        await productRepository.CreateAsync(product2);
+
+        await productRepository.AddProductToFavoriteListAsync(
+            plainUserCreator.Id,
+            product1.Id,
+            DateTime.UtcNow
+        );
+        await productRepository.AddProductToFavoriteListAsync(
+            plainUserCreator2.Id,
+            product1.Id,
+            DateTime.UtcNow
+        );
+
+        await productRepository.AddProductToFavoriteListAsync(
+            plainUserCreator.Id,
+            product2.Id,
+            DateTime.UtcNow
+        );
+
+        var users1 = await productRepository.GetUserWhichFavoriteListContainsProduct(product1);
+        var users2 = await productRepository.GetUserWhichFavoriteListContainsProduct(product2);
+
+        users1.Count().Should().Be(2);
+        users2.Count().Should().Be(1);
+
+        users1.FirstOrDefault(x => x == plainUserCreator.Id).Should().NotBeNull();
+        users1.FirstOrDefault(x => x == plainUserCreator2.Id).Should().NotBeNull();
+
+        users2.FirstOrDefault(x => x == plainUserCreator.Id).Should().NotBeNull();
     }
 }

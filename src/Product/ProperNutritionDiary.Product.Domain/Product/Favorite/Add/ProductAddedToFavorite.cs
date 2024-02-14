@@ -3,8 +3,8 @@ using ProperNutritionDiary.Product.Domain.User;
 
 namespace ProperNutritionDiary.Product.Domain.Product.Favorite.Add;
 
-public class ProductAddedToFavorite(Guid id, FavoriteProductLineItem favoriteProduct)
-    : DomainEvent(id)
+public class ProductAddedToFavorite(Guid id, UserId user, ProductId product) : DomainEvent(id)
 {
-    public FavoriteProductLineItem FavoriteProduct { get; init; } = favoriteProduct;
+    public UserId User { get; } = user;
+    public ProductId Product { get; } = product;
 }

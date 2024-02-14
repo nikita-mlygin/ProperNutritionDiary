@@ -50,6 +50,14 @@ public class ProductSummaryRepositoryTest
         await productRepository.CreateAsync(product);
 
         await productSummaryRepository.AddView(user.Id, product.Id, DateTime.UtcNow);
+        await productSummaryRepository.AddView(user.Id, product.Id, DateTime.UtcNow);
+        await productSummaryRepository.AddView(user.Id, product.Id, DateTime.UtcNow);
+        await productSummaryRepository.AddView(user.Id, product.Id, DateTime.UtcNow);
+
+        var productSummary = await productSummaryRepository.GetById(product.Id);
+
+        productSummary.Should().NotBeNull();
+        productSummary!.ViewCount.Should().Be(4);
 
         true.Should().Be(true);
     }
