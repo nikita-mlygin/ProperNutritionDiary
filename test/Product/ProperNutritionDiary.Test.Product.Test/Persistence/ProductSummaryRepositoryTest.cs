@@ -136,4 +136,18 @@ public class ProductSummaryRepositoryTest
 
         // TODO написать дополнения для теста
     }
+
+    [Fact]
+    public async Task GetList_MustExec()
+    {
+        var res = await productSummaryRepository.GetProductList("", null);
+
+        res.Should().NotBeNullOrEmpty();
+
+        var nRes = await productSummaryRepository.GetProductList("", res[2].Id);
+
+        nRes.Should().NotBeNullOrEmpty();
+
+        res[2].Should().Be(nRes[0]);
+    }
 }

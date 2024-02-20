@@ -3,6 +3,7 @@ namespace ProperNutritionDiary.Product.Persistence.Product.TableDefinition;
 public static class ProductTable
 {
     public const string table = "product";
+    public const string num = "num";
     public const string id = "id";
     public const string name = "name";
     public const string calories = "calories";

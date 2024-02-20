@@ -8,6 +8,7 @@ using ProperNutritionDiary.Product.Domain.User;
 using ProperNutritionDiary.Product.Persistence.Connection;
 using ProperNutritionDiary.Product.Persistence.Product.Extensions;
 using ProperNutritionDiary.Product.Persistence.Product.Summary.Add;
+using ProperNutritionDiary.Product.Persistence.Product.Summary.List;
 using ProperNutritionDiary.Product.Persistence.Product.Summary.View;
 using ProperNutritionDiary.Product.Persistence.Product.TableDefinition;
 
@@ -370,8 +371,59 @@ VALUES (
         await transaction.ExecuteAsync(sql, snapshot);
     }
 
-    public Task<List<ProductListSummary>> GetProductList(string nameFilter, ProductId lastProduct)
+    public async Task<List<ProductListSummary>> GetProductList(
+        string nameFilter,
+        ProductId? lastProduct
+    )
     {
-        throw new NotImplementedException();
+        string sql;
+        var param = new DynamicParameters();
+
+        if (lastProduct is not null)
+        {
+            sql = $"""
+SELECT
+    {ProductTable.id} as {nameof(ProductListSummarySnapshot.Id)},
+    {ProductTable.name} as {nameof(ProductListSummarySnapshot.Name)},
+    {ProductTable.owner} as {nameof(ProductListSummarySnapshot.Owner)}
+FROM {ProductTable.table}
+WHERE
+    {ProductTable.name} like @{nameof(nameFilter)}
+    AND {ProductTable.num} > (
+        SELECT {ProductTable.num}
+        FROM {ProductTable.table}
+        WHERE {ProductTable.id} = @{nameof(ProductSnapshot.Id)})
+ORDER BY {ProductTable.name}, {ProductTable.num}
+LIMIT @{nameof(pageSize)};
+""";
+
+            param.Add(nameof(ProductSnapshot.Id), lastProduct.Value);
+        }
+        else
+        {
+            sql = $"""
+SELECT
+    {ProductTable.id} as {nameof(ProductListSummarySnapshot.Id)},
+    {ProductTable.name} as {nameof(ProductListSummarySnapshot.Name)},
+    {ProductTable.owner} as {nameof(ProductListSummarySnapshot.Owner)}
+FROM {ProductTable.table}
+WHERE
+    {ProductTable.name} like @{nameof(nameFilter)}
+ORDER BY {ProductTable.name}, {ProductTable.num}
+LIMIT @{nameof(pageSize)};
+""";
+        }
+
+        param.Add(nameof(nameFilter), $"%{nameFilter}%");
+        param.Add(nameof(pageSize), pageSize);
+
+        return (
+            await (await sqlConnectionProvider.Get()).QueryAsync<ProductListSummarySnapshot>(
+                sql,
+                param
+            )
+        )
+            .Select(s => s.To())
+            .ToList();
     }
 }
