@@ -48,4 +48,9 @@ public static class ProductErrors
             $"{nameof(Product)}.{nameof(ProductNotInFavoriteList)}",
             "Product can't be removed from favorite list if it not in"
         );
+
+    public static readonly Error ProductNotFound = new(
+            $"{nameof(Product)}.{nameof(ProductNotFound)}",
+            "Product with this id is not found."
+        );
 }

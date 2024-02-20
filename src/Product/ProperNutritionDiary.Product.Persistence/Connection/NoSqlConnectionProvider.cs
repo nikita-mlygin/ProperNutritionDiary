@@ -1,6 +1,4 @@
-using System.Data.Common;
 using Cassandra;
-using Cassandra.Data;
 using Cassandra.Mapping;
 
 namespace ProperNutritionDiary.Product.Persistence.Connection;

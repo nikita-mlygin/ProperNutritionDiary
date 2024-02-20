@@ -1,4 +1,3 @@
-using System.Data;
 using System.Data.Common;
 using DomainDesignLib.Persistence.Repository;
 using MySqlConnector;

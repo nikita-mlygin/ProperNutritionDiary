@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\..\src\Product\ProperNutritionDiary.Product.Domain\ProperNutritionDiary.Product.Domain.csproj" />
     <ProjectReference Include="..\..\Packages\ProperNutritionDiary.Test.Packages\ProperNutritionDiary.Test.Packages.csproj" />
     <ProjectReference Include="..\..\..\src\Product\ProperNutritionDiary.Product.Persistence\ProperNutritionDiary.Product.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\src\Product\ProperNutritionDiary.Product.Application\ProperNutritionDiary.Product.Application.csproj" />
   </ItemGroup>
 
 </Project>

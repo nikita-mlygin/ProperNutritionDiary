@@ -1,6 +1,6 @@
 namespace ProperNutritionDiary.Product.Persistence.Product.TableDefinition;
 
-public static class UserStatisticsTableColumns
+public static class UserStatisticsTable
 {
     public const string table = "user_product_statistics";
     public const string userId = "user_id";

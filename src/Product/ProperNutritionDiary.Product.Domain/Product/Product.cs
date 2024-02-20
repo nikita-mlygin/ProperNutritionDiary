@@ -4,7 +4,6 @@ using DomainDesignLib.Abstractions.Result;
 namespace ProperNutritionDiary.Product.Domain.Product;
 
 using DomainDesignLib.Abstractions.Entity;
-using Mapster;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product.Create;
 using ProperNutritionDiary.Product.Domain.Product.Remove;

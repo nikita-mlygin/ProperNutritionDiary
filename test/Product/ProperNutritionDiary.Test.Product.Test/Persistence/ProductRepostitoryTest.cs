@@ -1,19 +1,11 @@
-using ProperNutritionDiary.BuildingBlocks.PersistencePackages.Connection;
-
 namespace ProperNutritionDiary.Test.Product.Test.Persistence;
 
 using System;
-using DomainDesignLib.Persistence.Repository;
-using DomainDesignLib.Persistence.Repository.Hooks;
 using FluentAssertions;
-using Meziantou.Extensions.Logging.Xunit;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.User;
-using ProperNutritionDiary.Product.Persistence;
-using Serilog;
 using Xunit.Abstractions;
 
 [Collection("main")]

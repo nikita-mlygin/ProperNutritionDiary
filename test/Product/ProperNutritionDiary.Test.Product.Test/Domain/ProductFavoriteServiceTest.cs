@@ -9,19 +9,17 @@ using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.Product.Favorite;
 using ProperNutritionDiary.Product.Domain.Product.Favorite.Add;
 using ProperNutritionDiary.Product.Domain.User;
-using ProperNutritionDiary.Product.Persistence.Product;
-using ProperNutritionDiary.Product.Persistence.Product.Favorite;
 
 public class ProductFavoriteServiceTest
 {
-    private ProductFavoriteService productFavoriteService;
-    private IProductRepository productRepository;
-    private IEventDispatcher eventDispatcher;
+    private readonly ProductFavoriteService productFavoriteService;
+    private readonly IProductRepository productRepository;
+    private readonly IEventDispatcher eventDispatcher;
 
-    private User adminUser = new User(new UserId(Guid.NewGuid()), UserRole.Admin);
-    private User plainUser = new User(new UserId(Guid.NewGuid()), UserRole.PlainUser);
+    private readonly User adminUser = new(new UserId(Guid.NewGuid()), UserRole.Admin);
+    private readonly User plainUser = new(new UserId(Guid.NewGuid()), UserRole.PlainUser);
 
-    private Product testProduct;
+    private readonly Product testProduct;
 
     public ProductFavoriteServiceTest()
     {

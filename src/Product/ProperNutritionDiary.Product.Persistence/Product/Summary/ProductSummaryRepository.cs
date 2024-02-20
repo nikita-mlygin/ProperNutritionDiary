@@ -6,6 +6,7 @@ using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.Product.Get;
 using ProperNutritionDiary.Product.Domain.User;
 using ProperNutritionDiary.Product.Persistence.Connection;
+using ProperNutritionDiary.Product.Persistence.Product.Extensions;
 using ProperNutritionDiary.Product.Persistence.Product.Summary.Add;
 using ProperNutritionDiary.Product.Persistence.Product.Summary.View;
 using ProperNutritionDiary.Product.Persistence.Product.TableDefinition;
@@ -20,6 +21,8 @@ public class ProductSummaryRepository(
     private readonly ISqlConnectionProvider sqlConnectionProvider = sqlConnectionProvider;
     private readonly INoSqlConnectionProvider noSqlConnectionProvider = noSqlConnectionProvider;
 
+    private readonly int pageSize = 20;
+
     public async Task AddUse(UserId user, ProductId product, DateTime addedAt)
     {
         var snapshot = new AddedProductSnapshot()
@@ -33,8 +36,8 @@ public class ProductSummaryRepository(
         await (await noSqlConnectionProvider.Get()).InsertAsync(snapshot);
 
         var addTotalViewSql = $"""
-UPDATE `{ProductTable.table}` 
-SET `{ProductTable.addCount}` = `{ProductTable.addCount}` + 1 
+UPDATE `{ProductTable.table}`
+SET `{ProductTable.addCount}` = `{ProductTable.addCount}` + 1
 WHERE `{ProductTable.id}` = @{nameof(ProductSnapshot.Id)};
 """;
 
@@ -65,8 +68,8 @@ WHERE `{ProductTable.id}` = @{nameof(ProductSnapshot.Id)};
         await (await noSqlConnectionProvider.Get()).InsertAsync(snapshot);
 
         var sql = $"""
-UPDATE `{ProductTable.table}` 
-SET `{ProductTable.viewCount}` = `{ProductTable.viewCount}` + 1 
+UPDATE `{ProductTable.table}`
+SET `{ProductTable.viewCount}` = `{ProductTable.viewCount}` + 1
 WHERE `{ProductTable.id}` = @{nameof(ProductSnapshot.Id)};
 """;
         using var connection = await sqlConnectionProvider.Get();
@@ -83,20 +86,10 @@ WHERE `{ProductTable.id}` = @{nameof(ProductSnapshot.Id)};
         await transaction.CommitAsync();
     }
 
-    public Task<ProductSummary> GetAllPopular()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ProductSummary> GetAllPopular(UserId user)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<ProductSummary?> GetById(ProductId id)
+    public async Task<IEnumerable<ProductSummary>> GetAllPopular(int pageNumber)
     {
         var sql = $"""
-SELECT 
+SELECT
     {ProductTable.id} as {nameof(ProductSummarySnapshot.Id)},
     {ProductTable.name} as {nameof(ProductSummarySnapshot.Name)},
     {ProductTable.owner} as {nameof(ProductSummarySnapshot.Owner)},
@@ -106,8 +99,118 @@ SELECT
     {ProductTable.proteins} as {nameof(ProductSummarySnapshot.Macronutrients.Proteins)},
     {ProductTable.fats} as {nameof(ProductSummarySnapshot.Macronutrients.Fats)},
     {ProductTable.carbohydrates} as {nameof(ProductSummarySnapshot.Macronutrients.Carbohydrates)}
-FROM {ProductTable.table} 
-WHERE 
+FROM {ProductTable.table}
+ORDER BY
+    {ProductTable.addCount} DESC, {ProductTable.viewCount} DESC, {ProductTable.id}
+LIMIT
+    @{nameof(this.pageSize)}
+OFFSET
+    @{nameof(pageNumber)};
+""";
+
+        var param = new DynamicParameters();
+
+        param.Add(nameof(this.pageSize), pageSize);
+        param.Add(nameof(pageNumber), (pageNumber - 1) * pageSize);
+
+        return (
+            await (await sqlConnectionProvider.Get()).QueryAsync<
+                ProductSummarySnapshot,
+                MacronutrientsSnapshot,
+                ProductSummary
+            >(
+                sql,
+                (product, macronutrients) =>
+                {
+                    product.Macronutrients = macronutrients;
+
+                    return ProductSummaryExtensions.FromSnapshot(product);
+                },
+                param,
+                splitOn: nameof(ProductSummarySnapshot.Macronutrients.Calories)
+            )
+        );
+    }
+
+    public async Task<IEnumerable<ProductSummary>> GetAllPopular(UserId user, int pageNumber)
+    {
+        var sql = $"""
+SELECT
+    `{ProductTable.table}`.`{ProductTable.id}`
+        as `{nameof(ProductSummarySnapshot.Id)}`,
+    `{ProductTable.table}`.`{ProductTable.name}`
+        as `{nameof(ProductSummarySnapshot.Name)}`,
+    `{ProductTable.table}`.`{ProductTable.owner}`
+        as `{nameof(ProductSummarySnapshot.Owner)}`,
+    `{ProductTable.table}`.`{ProductTable.viewCount}`
+        as `{nameof(ProductSummarySnapshot.ViewCount)}`,
+    `{ProductTable.table}`.`{ProductTable.addCount}`
+        as `{nameof(ProductSummarySnapshot.AddCount)}`,
+    `{ProductTable.table}`.`{ProductTable.calories}`
+        as `{nameof(ProductSummarySnapshot.Macronutrients.Calories)}`,
+    `{ProductTable.table}`.`{ProductTable.proteins}`
+        as `{nameof(ProductSummarySnapshot.Macronutrients.Proteins)}`,
+    `{ProductTable.table}`.`{ProductTable.fats}`
+        as `{nameof(ProductSummarySnapshot.Macronutrients.Fats)}`,
+    `{ProductTable.table}`.`{ProductTable.carbohydrates}`
+        as `{nameof(ProductSummarySnapshot.Macronutrients.Carbohydrates)}`
+FROM `{ProductTable.table}`
+LEFT JOIN `{UserStatisticsTable.table}` ON
+    `{UserStatisticsTable.table}`.`{UserStatisticsTable.productId}` = `{ProductTable.id}`
+    AND `{UserStatisticsTable.table}`.`{UserStatisticsTable.userId}`
+        = @{nameof(UserStatisticsSnapshot.UserId)}
+ORDER BY
+    `{UserStatisticsTable.table}`.`{UserStatisticsTable.addCount}` DESC,
+    `{UserStatisticsTable.table}`.`{UserStatisticsTable.viewCount}` DESC,
+    `{ProductTable.table}`.`{ProductTable.addCount}` DESC,
+    `{ProductTable.table}`.`{ProductTable.viewCount}` DESC,
+    `{ProductTable.table}`.`{ProductTable.id}`
+LIMIT
+    @{nameof(this.pageSize)}
+OFFSET
+    @{nameof(pageNumber)};
+""";
+
+        var param = new DynamicParameters();
+
+        param.Add(nameof(this.pageSize), pageSize);
+        param.Add(nameof(pageNumber), (pageNumber - 1) * pageSize);
+        param.Add(nameof(UserStatisticsSnapshot.UserId), user.Value);
+
+        return (
+            await (await sqlConnectionProvider.Get()).QueryAsync<
+                ProductSummarySnapshot,
+                MacronutrientsSnapshot,
+                ProductSummary
+            >(
+                sql,
+                (product, macronutrients) =>
+                {
+                    product.Macronutrients = macronutrients;
+
+                    return ProductSummaryExtensions.FromSnapshot(product);
+                },
+                param,
+                splitOn: nameof(ProductSummarySnapshot.Macronutrients.Calories)
+            )
+        );
+    }
+
+    public async Task<ProductSummary?> GetById(ProductId id)
+    {
+        var sql = $"""
+SELECT
+    {ProductTable.id} as {nameof(ProductSummarySnapshot.Id)},
+    {ProductTable.name} as {nameof(ProductSummarySnapshot.Name)},
+    {ProductTable.owner} as {nameof(ProductSummarySnapshot.Owner)},
+    {ProductTable.viewCount} as {nameof(ProductSummarySnapshot.ViewCount)},
+    {ProductTable.addCount} as {nameof(ProductSummarySnapshot.AddCount)},
+    {ProductTable.calories} as {nameof(ProductSummarySnapshot.Macronutrients.Calories)},
+    {ProductTable.proteins} as {nameof(ProductSummarySnapshot.Macronutrients.Proteins)},
+    {ProductTable.fats} as {nameof(ProductSummarySnapshot.Macronutrients.Fats)},
+    {ProductTable.carbohydrates} as {nameof(ProductSummarySnapshot.Macronutrients.Carbohydrates)}
+FROM {ProductTable.table}
+WHERE
     {ProductTable.id} = @{nameof(ProductSummarySnapshot.Id)}
 """;
 
@@ -122,7 +225,7 @@ WHERE
                 {
                     product.Macronutrients = macronutrients;
 
-                    return ProductSummary.FromSnapshot(product);
+                    return ProductSummaryExtensions.FromSnapshot(product);
                 },
                 new Dictionary<string, object>()
                 {
@@ -140,11 +243,11 @@ WHERE
     )
     {
         var sql = $"""
-SELECT COUNT(*) 
-FROM {UserStatisticsTableColumns.table} 
-WHERE 
-    {UserStatisticsTableColumns.userId} = @{nameof(UserStatisticsSnapshot.UserId)} 
-    AND {UserStatisticsTableColumns.productId} = @{nameof(UserStatisticsSnapshot.ProductId)};
+SELECT COUNT(*)
+FROM {UserStatisticsTable.table}
+WHERE
+    {UserStatisticsTable.userId} = @{nameof(UserStatisticsSnapshot.UserId)}
+    AND {UserStatisticsTable.productId} = @{nameof(UserStatisticsSnapshot.ProductId)};
 """;
 
         var param = new Dictionary<string, object>()
@@ -207,11 +310,11 @@ WHERE
     )
     {
         var sql = $"""
-UPDATE {UserStatisticsTableColumns.table} 
-SET {UserStatisticsTableColumns.viewCount} = {UserStatisticsTableColumns.viewCount} + 1 
+UPDATE {UserStatisticsTable.table}
+SET {UserStatisticsTable.viewCount} = {UserStatisticsTable.viewCount} + 1
 WHERE
-    {UserStatisticsTableColumns.userId} = @{nameof(UserStatisticsSnapshot.UserId)} 
-    AND {UserStatisticsTableColumns.productId} = @{nameof(UserStatisticsSnapshot.ProductId)}
+    {UserStatisticsTable.userId} = @{nameof(UserStatisticsSnapshot.UserId)}
+    AND {UserStatisticsTable.productId} = @{nameof(UserStatisticsSnapshot.ProductId)}
 """;
         var param = new Dictionary<string, object>()
         {
@@ -229,11 +332,11 @@ WHERE
     )
     {
         var sql = $"""
-UPDATE {UserStatisticsTableColumns.table} 
-SET {UserStatisticsTableColumns.addCount} = {UserStatisticsTableColumns.addCount} + 1 
+UPDATE {UserStatisticsTable.table}
+SET {UserStatisticsTable.addCount} = {UserStatisticsTable.addCount} + 1
 WHERE
-    {UserStatisticsTableColumns.userId} = @{nameof(UserStatisticsSnapshot.UserId)} 
-    AND {UserStatisticsTableColumns.productId} = @{nameof(UserStatisticsSnapshot.ProductId)}
+    {UserStatisticsTable.userId} = @{nameof(UserStatisticsSnapshot.UserId)}
+    AND {UserStatisticsTable.productId} = @{nameof(UserStatisticsSnapshot.ProductId)}
 """;
         var param = new Dictionary<string, object>()
         {
@@ -250,11 +353,11 @@ WHERE
     )
     {
         var sql = $"""
-INSERT INTO {UserStatisticsTableColumns.table} (
-    {UserStatisticsTableColumns.userId},
-    {UserStatisticsTableColumns.productId},
-    {UserStatisticsTableColumns.viewCount},
-    {UserStatisticsTableColumns.addCount}
+INSERT INTO {UserStatisticsTable.table} (
+    {UserStatisticsTable.userId},
+    {UserStatisticsTable.productId},
+    {UserStatisticsTable.viewCount},
+    {UserStatisticsTable.addCount}
 )
 VALUES (
     @{nameof(UserStatisticsSnapshot.UserId)},
@@ -265,5 +368,10 @@ VALUES (
 """;
 
         await transaction.ExecuteAsync(sql, snapshot);
+    }
+
+    public Task<List<ProductListSummary>> GetProductList(string nameFilter, ProductId lastProduct)
+    {
+        throw new NotImplementedException();
     }
 }

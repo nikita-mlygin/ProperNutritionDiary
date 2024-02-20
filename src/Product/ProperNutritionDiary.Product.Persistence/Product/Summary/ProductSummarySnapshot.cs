@@ -1,8 +1,8 @@
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 
-namespace ProperNutritionDiary.Product.Domain.Product.Get;
+namespace ProperNutritionDiary.Product.Persistence.Product.Summary;
 
-public class ProductSummarySnapshot
+internal class ProductSummarySnapshot
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;

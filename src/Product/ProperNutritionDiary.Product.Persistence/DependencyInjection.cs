@@ -1,5 +1,4 @@
 using Cassandra.Mapping;
-using DomainDesignLib.Persistence.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using ProperNutritionDiary.BuildingBlocks.PersistencePackages;
 using ProperNutritionDiary.Product.Domain.Product;

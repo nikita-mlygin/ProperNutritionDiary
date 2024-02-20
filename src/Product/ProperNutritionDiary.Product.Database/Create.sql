@@ -6,6 +6,7 @@ USE dev;
 
 CREATE TABLE `product`
 (
+    num int not null auto_increment,
     id binary(16) not null,
     name varchar(255) not null,
     calories decimal not null,
@@ -17,7 +18,8 @@ CREATE TABLE `product`
     updated_at datetime null default null,
     view_count int default 0,
     add_count int default 0,
-    primary key (id)
+    primary key (id),
+    unique (num)
 );
 
 CREATE TABLE `favorite_product`
