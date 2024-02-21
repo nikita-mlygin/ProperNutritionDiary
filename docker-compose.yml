@@ -1,17 +1,21 @@
-version: "3.4"
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
 
 networks:
-  app:
+  app-product:
+
+version: "3.4"
 
 services:
-  mysql:
+  product.mysql:
     image: mysql:latest
     environment:
       MYSQL_DATABASE: dev
       MYSQL_ROOT_PASSWORD: secret
-    container_name: mysql
+    container_name: product.mysql
+    volumes:
+      - ./mysql/sql/init-mysql-product.sql:/docker-entrypoint-initdb.d/1.sql
     networks:
-      - app
+      - app-product
     ports:
       - "3306:3306"
     expose:
@@ -22,24 +26,24 @@ services:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
     links:
-      - mysql
+      - product.mysql
     environment:
-      PMA_HOST: mysql
+      PMA_HOST: product.mysql
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
     networks:
-      - app
+      - app-product
     restart: always
     depends_on:
-      - mysql
+      - product.mysql
     ports:
       - 8081:80
 
-  cassandra:
+  product.cassandra:
     image: cassandra:latest
-    container_name: cassandra
+    container_name: cassandra-product
     networks:
-      - app
+      - app-product
     ports:
       - 9042:9042
     expose:
@@ -47,13 +51,13 @@ services:
     volumes:
       - ./cassandra/config/cassandra.yaml:/etc/cassandra/cassandra.yaml
 
-  cassandra-init:
+  product.cassandra-init:
     image: cassandra:latest
-    container_name: cassandra-init
+    container_name: product.cassandra-init
     networks:
-      - app
+      - app-product
     depends_on:
-      - cassandra
+      - product.cassandra
     volumes:
       - ./cassandra/sql:/dump/
-    command: /bin/bash -c "sleep 60 && cqlsh cassandra -u cassandra -p cassandra -f /dump/init-cassandra-product.sql"
+    command: /bin/bash -c "sleep 60 && cqlsh product.cassandra -u cassandra -p cassandra -f /dump/init-cassandra-product.sql"

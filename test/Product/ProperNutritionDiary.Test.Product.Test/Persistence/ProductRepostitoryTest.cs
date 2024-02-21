@@ -39,29 +39,22 @@ public class ProductRepositoryTest
     {
         var product = Product.Create(id, name, macronutrients, plainUserCreator, createdAt).Value;
 
-        try
-        {
-            await productRepository.CreateAsync(product);
+        await productRepository.CreateAsync(product);
 
-            var resultProduct = await productRepository.GetByIdAsync(product.Id);
-            resultProduct.Should().NotBeNull();
-            resultProduct!.Id.Should().Be(id);
-            resultProduct.Name.Should().Be(name);
-            resultProduct.Macronutrients.Should().Be(macronutrients);
-            resultProduct.Owner.Owner.Should().Be(plainUserCreator.Id);
+        var resultProduct = await productRepository.GetByIdAsync(product.Id);
+        resultProduct.Should().NotBeNull();
+        resultProduct!.Id.Should().Be(id);
+        resultProduct.Name.Should().Be(name);
+        resultProduct.Macronutrients.Should().Be(macronutrients);
+        resultProduct.Owner.Owner.Should().Be(plainUserCreator.Id);
 
-            var productList = await productRepository.GetAll();
-            productList.Should().NotBeEmpty();
+        var productList = await productRepository.GetAll();
+        productList.Should().NotBeEmpty();
 
-            resultProduct.Update(newName, newMacronutrients, plainUserCreator, updatedAt);
-            await productRepository.UpdateAsync(resultProduct);
+        resultProduct.Update(newName, newMacronutrients, plainUserCreator, updatedAt);
+        await productRepository.UpdateAsync(resultProduct);
 
-            await productRepository.RemoveAsync(resultProduct);
-        }
-        catch (Exception _)
-        {
-            throw;
-        }
+        await productRepository.RemoveAsync(resultProduct);
     }
 
     [Fact]

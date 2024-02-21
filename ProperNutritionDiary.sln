@@ -34,6 +34,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Buildi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Application", "src\Product\ProperNutritionDiary.Product.Application\ProperNutritionDiary.Product.Application.csproj", "{B4470E49-94FE-4D68-854C-3FF50791644C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Presentation", "src\Product\ProperNutritionDiary.Product.Presentation\ProperNutritionDiary.Product.Presentation.csproj", "{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.BuildingBlocks.PresentationPackages", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PresentationPackages\ProperNutritionDiary.BuildingBlocks.PresentationPackages.csproj", "{0A45E9A0-0687-44EA-8BEA-5EE205F803B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Api", "src\Product\ProperNutritionDiary.Product.Api\ProperNutritionDiary.Product.Api.csproj", "{3E40DE43-3DD8-405E-A5B3-6C9EACD35686}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "User", "User", "{279D57D4-EFCD-4C02-96FE-82BCF26576A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.User.Api", "src\User\ProperNutritionDiary.User.Api\ProperNutritionDiary.User.Api.csproj", "{26966233-9713-4B8E-BD74-86EF9616F10A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +82,22 @@ Global
 		{B4470E49-94FE-4D68-854C-3FF50791644C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4470E49-94FE-4D68-854C-3FF50791644C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4470E49-94FE-4D68-854C-3FF50791644C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A45E9A0-0687-44EA-8BEA-5EE205F803B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A45E9A0-0687-44EA-8BEA-5EE205F803B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A45E9A0-0687-44EA-8BEA-5EE205F803B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A45E9A0-0687-44EA-8BEA-5EE205F803B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E40DE43-3DD8-405E-A5B3-6C9EACD35686}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E40DE43-3DD8-405E-A5B3-6C9EACD35686}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E40DE43-3DD8-405E-A5B3-6C9EACD35686}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E40DE43-3DD8-405E-A5B3-6C9EACD35686}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26966233-9713-4B8E-BD74-86EF9616F10A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26966233-9713-4B8E-BD74-86EF9616F10A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26966233-9713-4B8E-BD74-86EF9616F10A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26966233-9713-4B8E-BD74-86EF9616F10A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +114,11 @@ Global
 		{149DC197-6007-4915-BEB0-18F884B8EE2F} = {4C0AABFD-B528-40DE-8238-5B3EF74B433E}
 		{3B428F2C-0AD5-49EE-ADF9-65BBA26D8AE5} = {093C4B44-27B2-45AC-A510-DC9C9F67E9E5}
 		{B4470E49-94FE-4D68-854C-3FF50791644C} = {DB55CDB4-4D4F-4455-8E77-C697E5522C7C}
+		{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18} = {DB55CDB4-4D4F-4455-8E77-C697E5522C7C}
+		{0A45E9A0-0687-44EA-8BEA-5EE205F803B8} = {093C4B44-27B2-45AC-A510-DC9C9F67E9E5}
+		{3E40DE43-3DD8-405E-A5B3-6C9EACD35686} = {DB55CDB4-4D4F-4455-8E77-C697E5522C7C}
+		{279D57D4-EFCD-4C02-96FE-82BCF26576A3} = {A313C30E-A16F-4EAE-AD8A-521B686AF737}
+		{26966233-9713-4B8E-BD74-86EF9616F10A} = {279D57D4-EFCD-4C02-96FE-82BCF26576A3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E0178E4B-CEE3-4525-B588-97EB41A57AA9}
