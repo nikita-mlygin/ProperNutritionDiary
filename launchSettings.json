@@ -1,0 +1,19 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "LaunchBrowser",
+      "composeLaunchServiceName": "propernutritiondiary.product.api",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}",
+      "serviceActions": {
+        "propernutritiondiary.product.api": "StartDebugging",
+        "propernutritiondiary.user.api": "StartDebugging",
+        "phpmyadmin": "StartWithoutDebugging",
+        "product.cassandra": "StartWithoutDebugging",
+        "product.cassandra-init": "StartWithoutDebugging",
+        "product.mysql": "StartWithoutDebugging"
+      }
+    }
+  }
+}

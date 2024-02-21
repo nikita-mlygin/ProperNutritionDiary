@@ -1,9 +1,8 @@
-# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+version: '3.4'
 
 networks:
   app-product:
-
-version: "3.4"
+    name: app-product
 
 services:
   product.mysql:
@@ -61,3 +60,16 @@ services:
     volumes:
       - ./cassandra/sql:/dump/
     command: /bin/bash -c "sleep 60 && cqlsh product.cassandra -u cassandra -p cassandra -f /dump/init-cassandra-product.sql"
+
+  propernutritiondiary.product.api:
+    image: ${DOCKER_REGISTRY-}propernutritiondiaryproductapi
+    build:
+      context: .
+      dockerfile: src/Product/ProperNutritionDiary.Product.Api/Dockerfile
+
+  propernutritiondiary.user.api:
+    image: ${DOCKER_REGISTRY-}propernutritiondiaryuserapi
+    build:
+      context: .
+      dockerfile: src/User/ProperNutritionDiary.User.Api/Dockerfile
+

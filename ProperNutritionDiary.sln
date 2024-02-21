@@ -30,19 +30,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.BuildingBlocks.ApplicationPackage", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.ApplicationPackage\ProperNutritionDiary.BuildingBlocks.ApplicationPackage.csproj", "{3B428F2C-0AD5-49EE-ADF9-65BBA26D8AE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProperNutritionDiary.BuildingBlocks.ApplicationPackage", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.ApplicationPackage\ProperNutritionDiary.BuildingBlocks.ApplicationPackage.csproj", "{3B428F2C-0AD5-49EE-ADF9-65BBA26D8AE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Application", "src\Product\ProperNutritionDiary.Product.Application\ProperNutritionDiary.Product.Application.csproj", "{B4470E49-94FE-4D68-854C-3FF50791644C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProperNutritionDiary.Product.Application", "src\Product\ProperNutritionDiary.Product.Application\ProperNutritionDiary.Product.Application.csproj", "{B4470E49-94FE-4D68-854C-3FF50791644C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Presentation", "src\Product\ProperNutritionDiary.Product.Presentation\ProperNutritionDiary.Product.Presentation.csproj", "{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProperNutritionDiary.Product.Presentation", "src\Product\ProperNutritionDiary.Product.Presentation\ProperNutritionDiary.Product.Presentation.csproj", "{AD8C4B75-52BD-4A75-B746-1A1E80E1CF18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.BuildingBlocks.PresentationPackages", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PresentationPackages\ProperNutritionDiary.BuildingBlocks.PresentationPackages.csproj", "{0A45E9A0-0687-44EA-8BEA-5EE205F803B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProperNutritionDiary.BuildingBlocks.PresentationPackages", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PresentationPackages\ProperNutritionDiary.BuildingBlocks.PresentationPackages.csproj", "{0A45E9A0-0687-44EA-8BEA-5EE205F803B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Product.Api", "src\Product\ProperNutritionDiary.Product.Api\ProperNutritionDiary.Product.Api.csproj", "{3E40DE43-3DD8-405E-A5B3-6C9EACD35686}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProperNutritionDiary.Product.Api", "src\Product\ProperNutritionDiary.Product.Api\ProperNutritionDiary.Product.Api.csproj", "{3E40DE43-3DD8-405E-A5B3-6C9EACD35686}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "User", "User", "{279D57D4-EFCD-4C02-96FE-82BCF26576A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.User.Api", "src\User\ProperNutritionDiary.User.Api\ProperNutritionDiary.User.Api.csproj", "{26966233-9713-4B8E-BD74-86EF9616F10A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProperNutritionDiary.User.Api", "src\User\ProperNutritionDiary.User.Api\ProperNutritionDiary.User.Api.csproj", "{26966233-9713-4B8E-BD74-86EF9616F10A}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{29051DFA-E793-432C-9585-A20D27FBE8FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,10 +72,6 @@ Global
 		{149DC197-6007-4915-BEB0-18F884B8EE2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{149DC197-6007-4915-BEB0-18F884B8EE2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{149DC197-6007-4915-BEB0-18F884B8EE2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B387FD15-5692-4601-A199-42DAAC3F66C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B387FD15-5692-4601-A199-42DAAC3F66C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B387FD15-5692-4601-A199-42DAAC3F66C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B387FD15-5692-4601-A199-42DAAC3F66C2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3B428F2C-0AD5-49EE-ADF9-65BBA26D8AE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3B428F2C-0AD5-49EE-ADF9-65BBA26D8AE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B428F2C-0AD5-49EE-ADF9-65BBA26D8AE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -98,6 +96,10 @@ Global
 		{26966233-9713-4B8E-BD74-86EF9616F10A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26966233-9713-4B8E-BD74-86EF9616F10A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26966233-9713-4B8E-BD74-86EF9616F10A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29051DFA-E793-432C-9585-A20D27FBE8FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29051DFA-E793-432C-9585-A20D27FBE8FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29051DFA-E793-432C-9585-A20D27FBE8FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29051DFA-E793-432C-9585-A20D27FBE8FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
