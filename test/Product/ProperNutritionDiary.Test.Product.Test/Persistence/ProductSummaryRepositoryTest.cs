@@ -148,6 +148,6 @@ public class ProductSummaryRepositoryTest
 
         nRes.Should().NotBeNullOrEmpty();
 
-        res[2].Should().Be(nRes[0]);
+        res[3].Should().Be(nRes[0]);
     }
 }

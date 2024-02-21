@@ -16,7 +16,7 @@ public sealed class GetProductListHandler(IProductSummaryRepository productSumma
     {
         return await productSummaryRepository.GetProductList(
             request.Query,
-            new ProductId(request.LastProduct)
+            request.LastProduct is not null ? new ProductId((Guid)request.LastProduct) : null
         );
     }
 }

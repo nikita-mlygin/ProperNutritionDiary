@@ -53,7 +53,12 @@ public class GetProductListHandlerTest
 
         await productRepository
             .Received(1)
-            .GetProductList(Arg.Is(query.Query), Arg.Is(new ProductId(query.LastProduct)));
+            .GetProductList(
+                Arg.Is(query.Query),
+                Arg.Is(
+                    query.LastProduct is not null ? new ProductId((Guid)query.LastProduct) : null
+                )
+            );
 
         res.Should().NotBeNullOrEmpty();
     }
