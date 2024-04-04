@@ -1,0 +1,11 @@
+@startuml
+class ProductRepositoryTest {
+    + ProductRepositoryTest(context:PersistenceContext, output:ITestOutputHelper)
+    + <<async>> CreateAndGetByIdAsync_MustExec() : Task
+    + <<async>> FavoriteListActions_MustExec() : Task
+    + <<async>> IsInFavoriteList_MustReturnFalse_WhenIsNotInFavoriteList() : Task
+    + <<async>> IsInFavoriteList_MustReturnTrue_WhenIsInFavoriteList() : Task
+    + <<async>> GetUserWhichFavoriteListContainsProduct_MustReturnUsers() : Task
+}
+ProductRepositoryTest --> "ServiceProvider" ServiceProvider
+@enduml

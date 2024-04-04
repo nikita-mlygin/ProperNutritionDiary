@@ -1,0 +1,9 @@
+@startuml
+class UserStatisticsTable <<static>> {
+    + <<const>> table : string = "user_product_statistics"
+    + <<const>> userId : string = "user_id"
+    + <<const>> productId : string = "product_id"
+    + <<const>> viewCount : string = "view_count"
+    + <<const>> addCount : string = "add_count"
+}
+@enduml

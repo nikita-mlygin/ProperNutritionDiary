@@ -1,0 +1,17 @@
+@startuml
+class ProductTable <<static>> {
+    + <<const>> table : string = "product"
+    + <<const>> num : string = "num"
+    + <<const>> id : string = "id"
+    + <<const>> name : string = "name"
+    + <<const>> calories : string = "calories"
+    + <<const>> proteins : string = "proteins"
+    + <<const>> fats : string = "fats"
+    + <<const>> carbohydrates : string = "carbohydrates"
+    + <<const>> owner : string = "owner"
+    + <<const>> createdAt : string = "created_at"
+    + <<const>> updatedAt : string = "updated_at"
+    + <<const>> viewCount : string = "view_count"
+    + <<const>> addCount : string = "add_count"
+}
+@enduml

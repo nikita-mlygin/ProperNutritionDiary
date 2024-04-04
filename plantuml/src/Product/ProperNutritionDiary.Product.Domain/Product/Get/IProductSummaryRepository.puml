@@ -1,0 +1,10 @@
+@startuml
+interface IProductSummaryRepository {
+    + GetById(id:ProductId) : Task<ProductSummary?>
+    + GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
+    + AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
+    + AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
+}
+@enduml

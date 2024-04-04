@@ -1,0 +1,11 @@
+@startuml
+class ProductSummaryRepositoryTest {
+    + ProductSummaryRepositoryTest(context:PersistenceContext, output:ITestOutputHelper)
+    + <<async>> AddView_MustExec() : Task
+    + <<async>> AddUse_MustExec() : Task
+    + <<async>> GetAllPopular_MustExec_WhenAllPopular() : Task
+    + <<async>> GetAllPopular_MustExec_WhenUserPopular() : Task
+    + <<async>> GetList_MustExec() : Task
+}
+ProductSummaryRepositoryTest --> "ServiceProvider" ServiceProvider
+@enduml

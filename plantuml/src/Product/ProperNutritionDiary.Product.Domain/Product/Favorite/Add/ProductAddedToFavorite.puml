@@ -1,0 +1,7 @@
+@startuml
+class ProductAddedToFavorite {
+}
+DomainEvent <|-- ProductAddedToFavorite
+ProductAddedToFavorite o-> "User" UserId
+ProductAddedToFavorite o-> "Product" ProductId
+@enduml

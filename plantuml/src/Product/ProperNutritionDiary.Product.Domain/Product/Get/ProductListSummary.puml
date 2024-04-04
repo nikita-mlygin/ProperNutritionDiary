@@ -1,0 +1,7 @@
+@startuml
+class ProductListSummary <<record>> {
+    + Name : string <<get>> <<init>>
+}
+ProductListSummary --> "Id" ProductId
+ProductListSummary --> "Owner" ProductOwner
+@enduml

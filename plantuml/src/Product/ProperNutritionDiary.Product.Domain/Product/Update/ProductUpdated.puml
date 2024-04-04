@@ -1,0 +1,8 @@
+@startuml
+class ProductUpdated {
+    + OldName : string <<get>> <<init>>
+}
+DomainEvent <|-- ProductUpdated
+ProductUpdated o-> "OldMacronutrients" Macronutrients
+ProductUpdated o-> "TargetProduct" Product
+@enduml

@@ -1,0 +1,8 @@
+@startuml
+class ProductCreatedEvent <<record>> {
+    + Name : string <<get>> <<init>>
+    + Owner : ProductOwner? <<get>> <<init>>
+}
+ProductCreatedEvent --> "ProductId" ProductId
+ProductCreatedEvent --> "Macronutrients" Macronutrients
+@enduml

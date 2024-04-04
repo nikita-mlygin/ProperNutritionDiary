@@ -1,0 +1,6 @@
+@startuml
+class GetProductByIdHandlerTest {
+    + GetProductByIdHandlerTest()
+    + <<async>> Handle_MustExec() : Task
+}
+@enduml

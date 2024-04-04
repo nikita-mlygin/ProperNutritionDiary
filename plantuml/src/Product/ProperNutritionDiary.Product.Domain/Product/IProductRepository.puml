@@ -1,0 +1,12 @@
+@startuml
+interface IProductRepository {
+    + GetFavoriteProductListAsync(user:UserId) : Task<IEnumerable<Product>>
+    + AddProductToFavoriteListAsync(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + RemoveProductFromFavoriteListAsync(user:UserId, product:ProductId) : Task
+    + GetUserWhichFavoriteListContainsProduct(product:Product) : Task<IEnumerable<UserId>>
+    + IsProductInFavoriteList(user:UserId, product:ProductId) : Task<bool>
+}
+class "IRepository`2"<T1,T2> {
+}
+"IRepository`2" "<Product,ProductId>" <|-- IProductRepository
+@enduml

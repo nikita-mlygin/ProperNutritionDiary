@@ -165,6 +165,7 @@ PublishScripts/
 **/packages/*
 # except build/, which is used as an MSBuild target.
 !**/packages/build/
+!src/*/Packages/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/packages/repositories.config
 # NuGet v3's project.json files produces more ignoreable files
@@ -546,3 +547,6 @@ obj/
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,dotnetcore,aspnetcore,csharp
+
+!test/*/Packages/
+!test/Packages/*

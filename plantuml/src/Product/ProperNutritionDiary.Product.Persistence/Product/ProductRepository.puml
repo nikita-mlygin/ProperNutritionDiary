@@ -1,0 +1,15 @@
+@startuml
+class ProductRepository {
+    + <<async>> AddProductToFavoriteListAsync(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + <<async>> CreateAsync(entity:Product) : Task
+    + <<async>> GetAll() : Task<IEnumerable<Product>>
+    + <<async>> GetByIdAsync(id:ProductId) : Task<Product?>
+    + <<async>> GetFavoriteProductListAsync(user:UserId) : Task<IEnumerable<Product>>
+    + <<async>> GetUserWhichFavoriteListContainsProduct(product:Product) : Task<IEnumerable<UserId>>
+    + <<async>> IsProductInFavoriteList(user:UserId, product:ProductId) : Task<bool>
+    + <<async>> RemoveAsync(entity:Product) : Task
+    + <<async>> RemoveProductFromFavoriteListAsync(user:UserId, product:ProductId) : Task
+    + <<async>> UpdateAsync(entity:Product) : Task
+}
+IProductRepository <|-- ProductRepository
+@enduml

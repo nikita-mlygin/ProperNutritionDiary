@@ -1,0 +1,13 @@
+@startuml
+class ProductErrors <<static>> {
+}
+ProductErrors o-> "NameIsNullOrEmpty" Error
+ProductErrors o-> "CreatorIsGuest" Error
+ProductErrors o-> "UpdateNotAllowedToNoOwner" Error
+ProductErrors o-> "RemoveNotAllowedToNoOwner" Error
+ProductErrors o-> "RemoveNotAllowedWhenInFavoriteList" Error
+ProductErrors o-> "AdminUserNotAllowedAddToFavoriteList" Error
+ProductErrors o-> "ProductAlreadyInFavoriteList" Error
+ProductErrors o-> "ProductNotInFavoriteList" Error
+ProductErrors o-> "ProductNotFound" Error
+@enduml

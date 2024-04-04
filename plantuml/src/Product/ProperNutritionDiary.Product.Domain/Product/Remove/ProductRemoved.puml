@@ -1,0 +1,6 @@
+@startuml
+class ProductRemoved {
+}
+DomainEvent <|-- ProductRemoved
+ProductRemoved o-> "RemovedProduct" Product
+@enduml

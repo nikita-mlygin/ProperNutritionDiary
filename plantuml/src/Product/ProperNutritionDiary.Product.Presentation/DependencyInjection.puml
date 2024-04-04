@@ -1,0 +1,6 @@
+@startuml
+class DependencyInjection <<static>> {
+    + {static} AddPresentation(services:IServiceCollection, configuration:IConfiguration) : IServiceCollection
+    + {static} AddPresentation(app:WebApplication) : WebApplication
+}
+@enduml

@@ -1,0 +1,8 @@
+@startuml
+class ViewedProductSnapshot {
+}
+ViewedProductSnapshot --> "UserId" Guid
+ViewedProductSnapshot --> "ProductId" Guid
+ViewedProductSnapshot --> "Id" Guid
+ViewedProductSnapshot --> "ViewedAt" DateTime
+@enduml

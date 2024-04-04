@@ -1,0 +1,5 @@
+@startuml
+class ProductSummaryExtensions <<static>> {
+    + {static} FromSnapshot(snapshot:ProductSummarySnapshot) : ProductSummary
+}
+@enduml

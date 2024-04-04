@@ -1,0 +1,11 @@
+@startuml
+class GetProductList <<sealed>> <<record>> {
+    + Query : string <<get>> <<init>>
+    + LastProduct : Guid? <<get>> <<init>>
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<List<ProductListSummary>>" <|-- GetProductList
+GetProductList --> "User" Guid
+GetProductList --> "UserRole" UserRole
+@enduml

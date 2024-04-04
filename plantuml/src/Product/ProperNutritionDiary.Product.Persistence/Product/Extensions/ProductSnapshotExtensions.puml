@@ -1,0 +1,5 @@
+@startuml
+class ProductSnapshotExtensions <<static>> {
+    + {static} GetParam(product:ProductSnapshot) : Dictionary<string, object?>
+}
+@enduml

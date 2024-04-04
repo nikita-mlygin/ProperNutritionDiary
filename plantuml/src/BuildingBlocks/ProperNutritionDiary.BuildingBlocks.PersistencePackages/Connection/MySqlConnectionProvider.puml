@@ -1,0 +1,6 @@
+@startuml
+class MySqlConnectionProvider {
+    + Get() : Task<DbConnection>
+}
+IConnectionProvider <|-- MySqlConnectionProvider
+@enduml

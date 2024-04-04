@@ -1,0 +1,10 @@
+@startuml
+class ProductSummary <<record>> {
+    + Name : string <<get>> <<init>>
+    + ViewCount : int <<get>> <<init>>
+    + UseCount : int <<get>> <<init>>
+}
+ProductSummary --> "Id" ProductId
+ProductSummary --> "Macronutrients" Macronutrients
+ProductSummary --> "Owner" ProductOwner
+@enduml

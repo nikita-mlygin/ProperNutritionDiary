@@ -1,0 +1,7 @@
+@startuml
+class ProductListSummarySnapshot {
+    + Name : string <<get>> <<set>>
+}
+ProductListSummarySnapshot --> "Id" Guid
+ProductListSummarySnapshot --> "Owner" Guid
+@enduml

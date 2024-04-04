@@ -1,0 +1,5 @@
+@startuml
+class MySqlConnectionProvider {
+}
+ISqlConnectionProvider <|-- MySqlConnectionProvider
+@enduml

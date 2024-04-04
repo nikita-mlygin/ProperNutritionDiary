@@ -1,0 +1,10 @@
+@startuml
+class ProductSnapshot {
+    + Name : string <<get>> <<set>>
+}
+ProductSnapshot --> "Id" Guid
+ProductSnapshot o-> "Macronutrients" MacronutrientsSnapshot
+ProductSnapshot --> "Owner" Guid
+ProductSnapshot --> "CreatedAt" DateTime
+ProductSnapshot --> "UpdatedAt" DateTime
+@enduml

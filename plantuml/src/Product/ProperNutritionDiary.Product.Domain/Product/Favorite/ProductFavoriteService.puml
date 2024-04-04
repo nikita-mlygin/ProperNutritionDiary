@@ -1,0 +1,7 @@
+@startuml
+class ProductFavoriteService {
+    + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
+    + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+}
+IProductFavoriteService <|-- ProductFavoriteService
+@enduml

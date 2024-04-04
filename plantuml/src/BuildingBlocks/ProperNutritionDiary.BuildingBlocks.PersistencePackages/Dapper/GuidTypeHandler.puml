@@ -1,0 +1,8 @@
+@startuml
+class GuidTypeHandler {
+    + <<override>> SetValue(parameter:IDbDataParameter, guid:Guid) : void
+    + <<override>> Parse(value:object) : Guid
+}
+class "TypeHandler`1"<T> {
+}
+@enduml

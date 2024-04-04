@@ -1,0 +1,7 @@
+@startuml
+class ProductRemovedFromFavoriteList {
+}
+DomainEvent <|-- ProductRemovedFromFavoriteList
+ProductRemovedFromFavoriteList o-> "User" UserId
+ProductRemovedFromFavoriteList o-> "Product" ProductId
+@enduml

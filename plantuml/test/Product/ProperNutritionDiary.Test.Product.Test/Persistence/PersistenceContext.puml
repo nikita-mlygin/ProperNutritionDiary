@@ -1,0 +1,8 @@
+@startuml
+class PersistenceContext {
+    + PersistenceContext()
+    + InjectLogging(output:ITestOutputHelper) : void
+}
+PersistenceContext --> "provider" ServiceProvider
+PersistenceContext --> "ServiceProvider" ServiceProvider
+@enduml

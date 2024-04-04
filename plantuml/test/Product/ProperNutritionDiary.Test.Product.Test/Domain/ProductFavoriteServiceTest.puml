@@ -1,0 +1,8 @@
+@startuml
+class ProductFavoriteServiceTest {
+    + ProductFavoriteServiceTest()
+    + <<async>> AddToFavoriteList_ShouldFailed_WhenUserIsAdmin() : Task
+    + <<async>> AddToFavoriteList_ShouldFailed_WhenProductAlreadyInFavoriteList() : Task
+    + <<async>> AddToFavoriteList_ShouldSuccess_WhenOk() : Task
+}
+@enduml

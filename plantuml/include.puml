@@ -1,0 +1,467 @@
+@startuml
+class DependencyInjection <<static>> {
+    + {static} AddApplication(services:IServiceCollection, assemblies:Assembly[]) : IServiceCollection
+}
+class DependencyInjection <<static>> {
+    + {static} AddPersistence(services:IServiceCollection, mysqlConnectionString:string, cassandraHost:string, cassandraKeySpace:string, cassandraUserName:string, cassandraPassword:string) : IServiceCollection
+}
+class DependencyInjection <<static>> {
+    + {static} AddPresentation(services:IServiceCollection, configuration:IConfiguration) : IServiceCollection
+    + {static} AddPresentation(app:WebApplication) : WebApplication
+}
+class Class1 {
+}
+class DependencyInjection <<static>> {
+    + {static} AddPersistenceBuildingBlocks(serviceCollection:IServiceCollection) : IServiceCollection
+}
+class ProductId <<record>> {
+}
+ProductId --> "Value" Guid
+class Product {
+    + {static} Create(id:ProductId, name:string, macronutrients:Macronutrients, creator:User, createdAt:DateTime) : Result<Product>
+    + Update(name:string, macronutrients:Macronutrients, updater:User, updateTime:DateTime) : Result
+    + Remove(remover:User, isInFavoriteList:bool) : Result
+    + Name : string <<get>>
+    + {static} FromSnapshot(product:ProductSnapshot) : Product
+    + ToSnapshot() : ProductSnapshot
+}
+class "Entity`1"<T> {
+}
+"Entity`1" "<ProductId>" <|-- Product
+IAuditable <|-- Product
+Product --> "Macronutrients" Macronutrients
+Product --> "Owner" ProductOwner
+Product --> "CreatedAt" DateTime
+Product --> "UpdatedAt" DateTime
+class ProductOwner <<record>> {
+    + IsUser : bool <<get>>
+    + IsSystem : bool <<get>>
+    + {static} ByUser(user:UserId) : ProductOwner
+    + {static} BySystem() : ProductOwner
+}
+ProductOwner --> "Owner" UserId
+class ProductSnapshot {
+    + Name : string <<get>> <<set>>
+}
+ProductSnapshot --> "Id" Guid
+ProductSnapshot o-> "Macronutrients" MacronutrientsSnapshot
+ProductSnapshot --> "Owner" Guid
+ProductSnapshot --> "CreatedAt" DateTime
+ProductSnapshot --> "UpdatedAt" DateTime
+interface IProductRepository {
+    + GetFavoriteProductListAsync(user:UserId) : Task<IEnumerable<Product>>
+    + AddProductToFavoriteListAsync(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + RemoveProductFromFavoriteListAsync(user:UserId, product:ProductId) : Task
+    + GetUserWhichFavoriteListContainsProduct(product:Product) : Task<IEnumerable<UserId>>
+    + IsProductInFavoriteList(user:UserId, product:ProductId) : Task<bool>
+}
+class "IRepository`2"<T1,T2> {
+}
+"IRepository`2" "<Product,ProductId>" <|-- IProductRepository
+class ProductErrors <<static>> {
+}
+ProductErrors o-> "NameIsNullOrEmpty" Error
+ProductErrors o-> "CreatorIsGuest" Error
+ProductErrors o-> "UpdateNotAllowedToNoOwner" Error
+ProductErrors o-> "RemoveNotAllowedToNoOwner" Error
+ProductErrors o-> "RemoveNotAllowedWhenInFavoriteList" Error
+ProductErrors o-> "AdminUserNotAllowedAddToFavoriteList" Error
+ProductErrors o-> "ProductAlreadyInFavoriteList" Error
+ProductErrors o-> "ProductNotInFavoriteList" Error
+ProductErrors o-> "ProductNotFound" Error
+class UserId <<record>> {
+}
+UserId --> "Value" Guid
+class User {
+}
+enum UserRole {
+    Guest,
+    Admin,
+    PlainUser,
+}
+class "Entity`1"<T> {
+}
+"Entity`1" "<UserId>" <|-- User
+User o-> "Role" UserRole
+class MacronutrientsSnapshot {
+    + Calories : decimal <<get>> <<set>>
+    + Proteins : decimal <<get>> <<set>>
+    + Fats : decimal <<get>> <<set>>
+    + Carbohydrates : decimal <<get>> <<set>>
+}
+class MacronutrientsErrors <<static>> {
+}
+MacronutrientsErrors o-> "ValueLessZero" Error
+class Macronutrients <<record>> {
+    + {static} Create(calories:decimal, proteins:decimal, fats:decimal, carbohydrates:decimal) : Result<Macronutrients>
+    + Calories : decimal <<get>> <<init>>
+    + Proteins : decimal <<get>> <<init>>
+    + Fats : decimal <<get>> <<init>>
+    + Carbohydrates : decimal <<get>> <<init>>
+    + {static} FromSnapshot(snapshot:MacronutrientsSnapshot) : Macronutrients
+    + ToSnapshot() : MacronutrientsSnapshot
+}
+class GlobalMappingsDefinition {
+    + GlobalMappingsDefinition()
+}
+Mappings <|-- GlobalMappingsDefinition
+class ProductRepository {
+    + <<async>> AddProductToFavoriteListAsync(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + <<async>> CreateAsync(entity:Product) : Task
+    + <<async>> GetAll() : Task<IEnumerable<Product>>
+    + <<async>> GetByIdAsync(id:ProductId) : Task<Product?>
+    + <<async>> GetFavoriteProductListAsync(user:UserId) : Task<IEnumerable<Product>>
+    + <<async>> GetUserWhichFavoriteListContainsProduct(product:Product) : Task<IEnumerable<UserId>>
+    + <<async>> IsProductInFavoriteList(user:UserId, product:ProductId) : Task<bool>
+    + <<async>> RemoveAsync(entity:Product) : Task
+    + <<async>> RemoveProductFromFavoriteListAsync(user:UserId, product:ProductId) : Task
+    + <<async>> UpdateAsync(entity:Product) : Task
+}
+IProductRepository <|-- ProductRepository
+interface INoSqlConnectionProvider {
+    + Get() : Task<IMapper>
+}
+interface ISqlConnectionProvider {
+}
+IConnectionProvider <|-- ISqlConnectionProvider
+class MySqlConnectionProvider {
+}
+ISqlConnectionProvider <|-- MySqlConnectionProvider
+class MySqlConnectionProviderDecorator {
+}
+ConnectionProviderDecorator <|-- MySqlConnectionProviderDecorator
+ISqlConnectionProvider <|-- MySqlConnectionProviderDecorator
+class NoSqlConnectionProvider {
+    + Get() : Task<IMapper>
+}
+INoSqlConnectionProvider <|-- NoSqlConnectionProvider
+class ProductController <<sealed>> {
+    + <<override>> AddRoutes(app:IEndpointRouteBuilder) : void
+    + <<async>> GetById(ctx:HttpContext, id:Guid) : Task<Results<Ok<ProductSummary>, BadRequest>>
+}
+class ProductSummaryDTO {
+}
+CarterModule <|-- ProductController
+class GuidTypeHandler {
+    + <<override>> SetValue(parameter:IDbDataParameter, guid:Guid) : void
+    + <<override>> Parse(value:object) : Guid
+}
+class "TypeHandler`1"<T> {
+}
+class MySqlConnectionProvider {
+    + Get() : Task<DbConnection>
+}
+IConnectionProvider <|-- MySqlConnectionProvider
+class ProductSummaryRepositoryTest {
+    + ProductSummaryRepositoryTest(context:PersistenceContext, output:ITestOutputHelper)
+    + <<async>> AddView_MustExec() : Task
+    + <<async>> AddUse_MustExec() : Task
+    + <<async>> GetAllPopular_MustExec_WhenAllPopular() : Task
+    + <<async>> GetAllPopular_MustExec_WhenUserPopular() : Task
+    + <<async>> GetList_MustExec() : Task
+}
+ProductSummaryRepositoryTest --> "ServiceProvider" ServiceProvider
+class PersistenceContext {
+    + PersistenceContext()
+    + InjectLogging(output:ITestOutputHelper) : void
+}
+PersistenceContext --> "provider" ServiceProvider
+PersistenceContext --> "ServiceProvider" ServiceProvider
+class ProductRepositoryTest {
+    + ProductRepositoryTest(context:PersistenceContext, output:ITestOutputHelper)
+    + <<async>> CreateAndGetByIdAsync_MustExec() : Task
+    + <<async>> FavoriteListActions_MustExec() : Task
+    + <<async>> IsInFavoriteList_MustReturnFalse_WhenIsNotInFavoriteList() : Task
+    + <<async>> IsInFavoriteList_MustReturnTrue_WhenIsInFavoriteList() : Task
+    + <<async>> GetUserWhichFavoriteListContainsProduct_MustReturnUsers() : Task
+}
+ProductRepositoryTest --> "ServiceProvider" ServiceProvider
+class PersistenceCollection {
+}
+class "ICollectionFixture`1"<T> {
+}
+"ICollectionFixture`1" "<PersistenceContext>" <|-- PersistenceCollection
+class ProductTest {
+    + CreateProduct_MustReturnFailed_WhenNameIsNullOrEmpty() : void
+    + CreateProduct_MustReturnSuccessAndRaiseEvent_WhenOk() : void
+    + UpdateProduct_MustReturnFailed_WhenUpdateSystemProductWithNotAdminUpdater() : void
+    + RemoveProduct_MustReturnFailed_WhenRemoveSystemProductWithNotAdminUpdater() : void
+    + RemoveProduct_MustReturnFailed_WhenRemoveProductWithNoOwner() : void
+    + RemoveProduct_MustReturnFailed_WhenRemoveProductInFavoriteList() : void
+    + RemoveProduct_MustReturnSuccess_WhenOk() : void
+    + UpdateProduct_MustReturnFailed_WhenUpdateProductWithNoOwner() : void
+    + UpdateProduct_MustReturnFailed_WhenUpdateProductWithNullOrEmptyName() : void
+    + UpdateProduct_MustReturnSuccessAndRaiseEvent_WhenProductUpdateOk() : void
+}
+class MacronutrientsTest {
+    + SumOfTwoMacronutrients_ShouldReturnSumOfLeftAndRight() : void
+}
+class ProductFavoriteServiceTest {
+    + ProductFavoriteServiceTest()
+    + <<async>> AddToFavoriteList_ShouldFailed_WhenUserIsAdmin() : Task
+    + <<async>> AddToFavoriteList_ShouldFailed_WhenProductAlreadyInFavoriteList() : Task
+    + <<async>> AddToFavoriteList_ShouldSuccess_WhenOk() : Task
+}
+class UpdateProductHandlerTest {
+    + UpdateProductHandlerTest()
+    + <<async>> Handle_MustReturnFailed_WhenErrInCommand() : Task
+    + <<async>> Handle_MustExec() : Task
+}
+class RemoveProductHandlerTest {
+    + RemoveProductHandlerTest()
+    + <<async>> Handle_MustReturnFailed_WhenErrInCommand() : Task
+    + <<async>> Handle_MustExec() : Task
+}
+class GetProductListHandlerTest {
+    + GetProductListHandlerTest()
+    + <<async>> Handle_MustExec() : Task
+}
+class CreateProductHandlerTest {
+    + CreateProductHandlerTest()
+    + <<async>> Handle_MustReturnFailed_WhenMacronutrientsHasError() : Task
+    + <<async>> Handle_MustReturnFailed_WhenProductHasError() : Task
+    + <<async>> Handle_MustExec() : Task
+}
+class GetProductByIdHandlerTest {
+    + GetProductByIdHandlerTest()
+    + <<async>> Handle_MustExec() : Task
+}
+class ProductRemoved {
+}
+DomainEvent <|-- ProductRemoved
+ProductRemoved o-> "RemovedProduct" Product
+class ProductUpdated {
+    + OldName : string <<get>> <<init>>
+}
+DomainEvent <|-- ProductUpdated
+ProductUpdated o-> "OldMacronutrients" Macronutrients
+ProductUpdated o-> "TargetProduct" Product
+interface IProductFavoriteService {
+    + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
+    + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+}
+class ProductFavoriteService {
+    + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
+    + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+}
+IProductFavoriteService <|-- ProductFavoriteService
+class ProductCreated {
+}
+DomainEvent <|-- ProductCreated
+ProductCreated o-> "CreatedProduct" Product
+class ProductCreatedEvent <<record>> {
+    + Name : string <<get>> <<init>>
+    + Owner : ProductOwner? <<get>> <<init>>
+}
+ProductCreatedEvent --> "ProductId" ProductId
+ProductCreatedEvent --> "Macronutrients" Macronutrients
+interface IProductSummaryRepository {
+    + GetById(id:ProductId) : Task<ProductSummary?>
+    + GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
+    + AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
+    + AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
+}
+class ProductListSummary <<record>> {
+    + Name : string <<get>> <<init>>
+}
+ProductListSummary --> "Id" ProductId
+ProductListSummary --> "Owner" ProductOwner
+class ProductReceived {
+}
+DomainEvent <|-- ProductReceived
+ProductReceived o-> "ReceivedProduct" ProductId
+ProductReceived o-> "User" UserId
+class ProductSummary <<record>> {
+    + Name : string <<get>> <<init>>
+    + ViewCount : int <<get>> <<init>>
+    + UseCount : int <<get>> <<init>>
+}
+ProductSummary --> "Id" ProductId
+ProductSummary --> "Macronutrients" Macronutrients
+ProductSummary --> "Owner" ProductOwner
+class ProductAddedToDiary {
+}
+DomainEvent <|-- ProductAddedToDiary
+ProductAddedToDiary o-> "AddedProduct" ProductId
+ProductAddedToDiary o-> "UserId" UserId
+class RemoveProductCommand <<sealed>> <<record>> {
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<Result>" <|-- RemoveProductCommand
+RemoveProductCommand --> "UserId" Guid
+RemoveProductCommand --> "UserRole" UserRole
+RemoveProductCommand --> "ProductId" Guid
+class RemoveProductCommandHandler <<sealed>> {
+    + <<async>> Handle(request:RemoveProductCommand, cancellationToken:CancellationToken) : Task<Result>
+}
+class "ILogger`1"<T> {
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<RemoveProductCommand,Result>" <|-- RemoveProductCommandHandler
+class UpdateProductCommandHandler <<sealed>> {
+    + Handle(request:UpdateProductCommand, cancellationToken:CancellationToken) : Task<Result>
+}
+class "ILogger`1"<T> {
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<UpdateProductCommand,Result>" <|-- UpdateProductCommandHandler
+class UpdateProductCommand <<sealed>> <<record>> {
+    + NewName : string <<get>> <<init>>
+    + Calories : decimal <<get>> <<init>>
+    + Proteins : decimal <<get>> <<init>>
+    + Fats : decimal <<get>> <<init>>
+    + Carbohydrates : decimal <<get>> <<init>>
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<Result>" <|-- UpdateProductCommand
+UpdateProductCommand --> "UserId" Guid
+UpdateProductCommand --> "UserRole" UserRole
+UpdateProductCommand --> "ProductId" Guid
+class CreateProductCommand <<sealed>> <<record>> {
+    + ProductName : string <<get>> <<init>>
+    + Calories : decimal <<get>> <<init>>
+    + Proteins : decimal <<get>> <<init>>
+    + Fats : decimal <<get>> <<init>>
+    + Carbohydrates : decimal <<get>> <<init>>
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<Result<Guid>>" <|-- CreateProductCommand
+CreateProductCommand --> "UserId" Guid
+CreateProductCommand --> "UserRole" UserRole
+class CreateProductCommandHandler <<sealed>> {
+    + Handle(request:CreateProductCommand, cancellationToken:CancellationToken) : Task<Result<Guid>>
+}
+class "ILogger`1"<T> {
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<CreateProductCommand,Result<Guid>>" <|-- CreateProductCommandHandler
+class ProductSummaryRepository {
+    + <<async>> AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + <<async>> AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
+    + <<async>> GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + <<async>> GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + <<async>> GetById(id:ProductId) : Task<ProductSummary?>
+    + <<async>> GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
+}
+IProductSummaryRepository <|-- ProductSummaryRepository
+class ProductSummarySnapshot {
+    + Name : string <<get>> <<set>>
+    + ViewCount : int <<get>> <<set>>
+    + AddCount : int <<get>> <<set>>
+}
+ProductSummarySnapshot --> "Id" Guid
+ProductSummarySnapshot o-> "Macronutrients" MacronutrientsSnapshot
+ProductSummarySnapshot --> "Owner" Guid
+class ProductSummaryExtensions <<static>> {
+    + {static} FromSnapshot(snapshot:ProductSummarySnapshot) : ProductSummary
+}
+class ProductSnapshotExtensions <<static>> {
+    + {static} GetParam(product:ProductSnapshot) : Dictionary<string, object?>
+}
+class FavoriteProductSnapshot {
+}
+FavoriteProductSnapshot o-> "UserId" Guid
+FavoriteProductSnapshot o-> "ProductId" Guid
+FavoriteProductSnapshot o-> "AddedAt" DateTime
+class UserStatisticsTable <<static>> {
+    + <<const>> table : string = "user_product_statistics"
+    + <<const>> userId : string = "user_id"
+    + <<const>> productId : string = "product_id"
+    + <<const>> viewCount : string = "view_count"
+    + <<const>> addCount : string = "add_count"
+}
+class FavoriteTable <<static>> {
+    + <<const>> table : string = "favorite_product"
+    + <<const>> user : string = "user_id"
+    + <<const>> product : string = "product_id"
+    + <<const>> addedAt : string = "added_at"
+}
+class ProductTable <<static>> {
+    + <<const>> table : string = "product"
+    + <<const>> num : string = "num"
+    + <<const>> id : string = "id"
+    + <<const>> name : string = "name"
+    + <<const>> calories : string = "calories"
+    + <<const>> proteins : string = "proteins"
+    + <<const>> fats : string = "fats"
+    + <<const>> carbohydrates : string = "carbohydrates"
+    + <<const>> owner : string = "owner"
+    + <<const>> createdAt : string = "created_at"
+    + <<const>> updatedAt : string = "updated_at"
+    + <<const>> viewCount : string = "view_count"
+    + <<const>> addCount : string = "add_count"
+}
+class ProductRemovedFromFavoriteList {
+}
+DomainEvent <|-- ProductRemovedFromFavoriteList
+ProductRemovedFromFavoriteList o-> "User" UserId
+ProductRemovedFromFavoriteList o-> "Product" ProductId
+class ProductAddedToFavorite {
+}
+DomainEvent <|-- ProductAddedToFavorite
+ProductAddedToFavorite o-> "User" UserId
+ProductAddedToFavorite o-> "Product" ProductId
+class GetProductList <<sealed>> <<record>> {
+    + Query : string <<get>> <<init>>
+    + LastProduct : Guid? <<get>> <<init>>
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<List<ProductListSummary>>" <|-- GetProductList
+GetProductList --> "User" Guid
+GetProductList --> "UserRole" UserRole
+class GetProductListHandler <<sealed>> {
+    + <<async>> Handle(request:GetProductList, cancellationToken:CancellationToken) : Task<List<ProductListSummary>>
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<GetProductList,List<ProductListSummary>>" <|-- GetProductListHandler
+class GetProductByIdQueryHandler <<sealed>> {
+    + <<async>> Handle(request:GetProductByIdQuery, cancellationToken:CancellationToken) : Task<ProductSummary?>
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<GetProductByIdQuery,ProductSummary?>" <|-- GetProductByIdQueryHandler
+class GetProductByIdQuery <<sealed>> <<record>> {
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<ProductSummary?>" <|-- GetProductByIdQuery
+GetProductByIdQuery --> "ProductId" Guid
+GetProductByIdQuery --> "UserId" Guid
+GetProductByIdQuery --> "UserRole" UserRole
+class ProductListSummaryExtensions <<static>> {
+    + {static} To(snapshot:ProductListSummarySnapshot) : ProductListSummary
+}
+class ProductListSummarySnapshot {
+    + Name : string <<get>> <<set>>
+}
+ProductListSummarySnapshot --> "Id" Guid
+ProductListSummarySnapshot --> "Owner" Guid
+class AddedProductSnapshot {
+}
+AddedProductSnapshot --> "UserId" Guid
+AddedProductSnapshot --> "ProductId" Guid
+AddedProductSnapshot --> "Id" Guid
+AddedProductSnapshot --> "AddedAt" DateTime
+class UserStatisticsSnapshot {
+    + ViewCount : int <<get>> <<set>>
+    + AddCount : int <<get>> <<set>>
+}
+UserStatisticsSnapshot --> "UserId" Guid
+UserStatisticsSnapshot --> "ProductId" Guid
+class ViewedProductSnapshot {
+}
+ViewedProductSnapshot --> "UserId" Guid
+ViewedProductSnapshot --> "ProductId" Guid
+ViewedProductSnapshot --> "Id" Guid
+ViewedProductSnapshot --> "ViewedAt" DateTime
+@enduml

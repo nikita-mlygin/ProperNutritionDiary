@@ -1,0 +1,10 @@
+@startuml
+class UpdateProductCommandHandler <<sealed>> {
+    + Handle(request:UpdateProductCommand, cancellationToken:CancellationToken) : Task<Result>
+}
+class "ILogger`1"<T> {
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<UpdateProductCommand,Result>" <|-- UpdateProductCommandHandler
+@enduml

@@ -1,0 +1,7 @@
+@startuml
+class RemoveProductHandlerTest {
+    + RemoveProductHandlerTest()
+    + <<async>> Handle_MustReturnFailed_WhenErrInCommand() : Task
+    + <<async>> Handle_MustExec() : Task
+}
+@enduml

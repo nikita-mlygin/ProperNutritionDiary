@@ -1,0 +1,6 @@
+@startuml
+class ProductCreated {
+}
+DomainEvent <|-- ProductCreated
+ProductCreated o-> "CreatedProduct" Product
+@enduml

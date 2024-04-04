@@ -1,0 +1,7 @@
+@startuml
+class FavoriteProductSnapshot {
+}
+FavoriteProductSnapshot o-> "UserId" Guid
+FavoriteProductSnapshot o-> "ProductId" Guid
+FavoriteProductSnapshot o-> "AddedAt" DateTime
+@enduml

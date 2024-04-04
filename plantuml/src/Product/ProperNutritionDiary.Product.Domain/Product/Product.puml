@@ -1,0 +1,18 @@
+@startuml
+class Product {
+    + {static} Create(id:ProductId, name:string, macronutrients:Macronutrients, creator:User, createdAt:DateTime) : Result<Product>
+    + Update(name:string, macronutrients:Macronutrients, updater:User, updateTime:DateTime) : Result
+    + Remove(remover:User, isInFavoriteList:bool) : Result
+    + Name : string <<get>>
+    + {static} FromSnapshot(product:ProductSnapshot) : Product
+    + ToSnapshot() : ProductSnapshot
+}
+class "Entity`1"<T> {
+}
+"Entity`1" "<ProductId>" <|-- Product
+IAuditable <|-- Product
+Product --> "Macronutrients" Macronutrients
+Product --> "Owner" ProductOwner
+Product --> "CreatedAt" DateTime
+Product --> "UpdatedAt" DateTime
+@enduml

@@ -1,0 +1,5 @@
+@startuml
+class MacronutrientsErrors <<static>> {
+}
+MacronutrientsErrors o-> "ValueLessZero" Error
+@enduml

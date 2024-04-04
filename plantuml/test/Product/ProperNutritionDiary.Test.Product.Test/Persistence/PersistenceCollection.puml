@@ -1,0 +1,7 @@
+@startuml
+class PersistenceCollection {
+}
+class "ICollectionFixture`1"<T> {
+}
+"ICollectionFixture`1" "<PersistenceContext>" <|-- PersistenceCollection
+@enduml

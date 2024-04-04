@@ -1,0 +1,5 @@
+@startuml
+interface INoSqlConnectionProvider {
+    + Get() : Task<IMapper>
+}
+@enduml

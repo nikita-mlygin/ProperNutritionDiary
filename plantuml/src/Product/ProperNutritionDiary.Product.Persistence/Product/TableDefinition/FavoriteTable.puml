@@ -1,0 +1,8 @@
+@startuml
+class FavoriteTable <<static>> {
+    + <<const>> table : string = "favorite_product"
+    + <<const>> user : string = "user_id"
+    + <<const>> product : string = "product_id"
+    + <<const>> addedAt : string = "added_at"
+}
+@enduml

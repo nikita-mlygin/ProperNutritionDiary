@@ -1,0 +1,7 @@
+@startuml
+class ProductReceived {
+}
+DomainEvent <|-- ProductReceived
+ProductReceived o-> "ReceivedProduct" ProductId
+ProductReceived o-> "User" UserId
+@enduml

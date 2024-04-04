@@ -1,0 +1,8 @@
+@startuml
+class MacronutrientsSnapshot {
+    + Calories : decimal <<get>> <<set>>
+    + Proteins : decimal <<get>> <<set>>
+    + Fats : decimal <<get>> <<set>>
+    + Carbohydrates : decimal <<get>> <<set>>
+}
+@enduml

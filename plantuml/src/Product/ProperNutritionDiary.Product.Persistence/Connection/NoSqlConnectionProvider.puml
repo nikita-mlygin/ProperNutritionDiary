@@ -1,0 +1,6 @@
+@startuml
+class NoSqlConnectionProvider {
+    + Get() : Task<IMapper>
+}
+INoSqlConnectionProvider <|-- NoSqlConnectionProvider
+@enduml

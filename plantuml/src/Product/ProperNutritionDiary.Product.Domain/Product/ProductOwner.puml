@@ -1,0 +1,9 @@
+@startuml
+class ProductOwner <<record>> {
+    + IsUser : bool <<get>>
+    + IsSystem : bool <<get>>
+    + {static} ByUser(user:UserId) : ProductOwner
+    + {static} BySystem() : ProductOwner
+}
+ProductOwner --> "Owner" UserId
+@enduml

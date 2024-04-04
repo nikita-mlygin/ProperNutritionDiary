@@ -1,0 +1,8 @@
+@startuml
+class GetProductByIdQueryHandler <<sealed>> {
+    + <<async>> Handle(request:GetProductByIdQuery, cancellationToken:CancellationToken) : Task<ProductSummary?>
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<GetProductByIdQuery,ProductSummary?>" <|-- GetProductByIdQueryHandler
+@enduml

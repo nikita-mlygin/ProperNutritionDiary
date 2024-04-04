@@ -1,0 +1,5 @@
+@startuml
+class DependencyInjection <<static>> {
+    + {static} AddPersistence(services:IServiceCollection, mysqlConnectionString:string, cassandraHost:string, cassandraKeySpace:string, cassandraUserName:string, cassandraPassword:string) : IServiceCollection
+}
+@enduml

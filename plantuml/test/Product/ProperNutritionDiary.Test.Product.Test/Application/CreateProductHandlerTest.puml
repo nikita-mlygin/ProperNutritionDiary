@@ -1,0 +1,8 @@
+@startuml
+class CreateProductHandlerTest {
+    + CreateProductHandlerTest()
+    + <<async>> Handle_MustReturnFailed_WhenMacronutrientsHasError() : Task
+    + <<async>> Handle_MustReturnFailed_WhenProductHasError() : Task
+    + <<async>> Handle_MustExec() : Task
+}
+@enduml

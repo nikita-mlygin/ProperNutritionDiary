@@ -1,0 +1,5 @@
+@startuml
+class MacronutrientsTest {
+    + SumOfTwoMacronutrients_ShouldReturnSumOfLeftAndRight() : void
+}
+@enduml

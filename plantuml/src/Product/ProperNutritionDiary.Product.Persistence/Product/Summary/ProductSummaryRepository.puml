@@ -1,0 +1,11 @@
+@startuml
+class ProductSummaryRepository {
+    + <<async>> AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + <<async>> AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
+    + <<async>> GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + <<async>> GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + <<async>> GetById(id:ProductId) : Task<ProductSummary?>
+    + <<async>> GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
+}
+IProductSummaryRepository <|-- ProductSummaryRepository
+@enduml

@@ -1,0 +1,5 @@
+@startuml
+class ProductId <<record>> {
+}
+ProductId --> "Value" Guid
+@enduml

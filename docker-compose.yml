@@ -1,4 +1,4 @@
-version: '3.4'
+version: "3.4"
 
 networks:
   app-product:
@@ -66,10 +66,15 @@ services:
     build:
       context: .
       dockerfile: src/Product/ProperNutritionDiary.Product.Api/Dockerfile
+    ports:
+      - 8083:8080
+      - 8084:8081
 
   propernutritiondiary.user.api:
     image: ${DOCKER_REGISTRY-}propernutritiondiaryuserapi
     build:
       context: .
       dockerfile: src/User/ProperNutritionDiary.User.Api/Dockerfile
-
+    ports:
+      - 8085:8080
+      - 8086:8081

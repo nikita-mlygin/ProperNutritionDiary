@@ -1,0 +1,7 @@
+@startuml
+class ProductAddedToDiary {
+}
+DomainEvent <|-- ProductAddedToDiary
+ProductAddedToDiary o-> "AddedProduct" ProductId
+ProductAddedToDiary o-> "UserId" UserId
+@enduml

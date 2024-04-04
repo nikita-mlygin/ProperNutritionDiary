@@ -1,0 +1,8 @@
+@startuml
+class GetProductListHandler <<sealed>> {
+    + <<async>> Handle(request:GetProductList, cancellationToken:CancellationToken) : Task<List<ProductListSummary>>
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<GetProductList,List<ProductListSummary>>" <|-- GetProductListHandler
+@enduml

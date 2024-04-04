@@ -1,0 +1,14 @@
+@startuml
+class ProductTest {
+    + CreateProduct_MustReturnFailed_WhenNameIsNullOrEmpty() : void
+    + CreateProduct_MustReturnSuccessAndRaiseEvent_WhenOk() : void
+    + UpdateProduct_MustReturnFailed_WhenUpdateSystemProductWithNotAdminUpdater() : void
+    + RemoveProduct_MustReturnFailed_WhenRemoveSystemProductWithNotAdminUpdater() : void
+    + RemoveProduct_MustReturnFailed_WhenRemoveProductWithNoOwner() : void
+    + RemoveProduct_MustReturnFailed_WhenRemoveProductInFavoriteList() : void
+    + RemoveProduct_MustReturnSuccess_WhenOk() : void
+    + UpdateProduct_MustReturnFailed_WhenUpdateProductWithNoOwner() : void
+    + UpdateProduct_MustReturnFailed_WhenUpdateProductWithNullOrEmptyName() : void
+    + UpdateProduct_MustReturnSuccessAndRaiseEvent_WhenProductUpdateOk() : void
+}
+@enduml

@@ -1,0 +1,10 @@
+@startuml
+class ProductSummarySnapshot {
+    + Name : string <<get>> <<set>>
+    + ViewCount : int <<get>> <<set>>
+    + AddCount : int <<get>> <<set>>
+}
+ProductSummarySnapshot --> "Id" Guid
+ProductSummarySnapshot o-> "Macronutrients" MacronutrientsSnapshot
+ProductSummarySnapshot --> "Owner" Guid
+@enduml

@@ -1,0 +1,8 @@
+@startuml
+class UserStatisticsSnapshot {
+    + ViewCount : int <<get>> <<set>>
+    + AddCount : int <<get>> <<set>>
+}
+UserStatisticsSnapshot --> "UserId" Guid
+UserStatisticsSnapshot --> "ProductId" Guid
+@enduml

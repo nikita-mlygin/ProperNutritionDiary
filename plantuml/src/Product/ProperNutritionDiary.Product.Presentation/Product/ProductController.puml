@@ -1,0 +1,9 @@
+@startuml
+class ProductController <<sealed>> {
+    + <<override>> AddRoutes(app:IEndpointRouteBuilder) : void
+    + <<async>> GetById(ctx:HttpContext, id:Guid) : Task<Results<Ok<ProductSummary>, BadRequest>>
+}
+class ProductSummaryDTO {
+}
+CarterModule <|-- ProductController
+@enduml

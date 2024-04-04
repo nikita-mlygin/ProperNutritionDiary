@@ -1,0 +1,5 @@
+@startuml
+class DependencyInjection <<static>> {
+    + {static} AddPersistenceBuildingBlocks(serviceCollection:IServiceCollection) : IServiceCollection
+}
+@enduml
