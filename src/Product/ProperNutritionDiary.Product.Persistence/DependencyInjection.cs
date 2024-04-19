@@ -1,4 +1,6 @@
 using Cassandra.Mapping;
+using DomainDesignLib.Persistence;
+using DomainDesignLib.Persistence.Repository.Hooks;
 using Microsoft.Extensions.DependencyInjection;
 using ProperNutritionDiary.BuildingBlocks.PersistencePackages;
 using ProperNutritionDiary.Product.Domain.Product;
@@ -22,6 +24,8 @@ public static class DependencyInjection
     )
     {
         services.AddPersistenceBuildingBlocks();
+        services.AddEntityTracking();
+        services.AddEventDispatcher();
 
         services.AddScoped<ISqlConnectionProvider, MySqlConnectionProvider>(
             _ => new MySqlConnectionProvider(mysqlConnectionString)
@@ -41,6 +45,8 @@ public static class DependencyInjection
         services.AddScoped<IProductSummaryRepository, ProductSummaryRepository>();
 
         MappingConfiguration.Global.Define<GlobalMappingsDefinition>();
+
+        services.AddSingleton(_ => DbLoggingConfiguration.Default);
 
         return services;
     }

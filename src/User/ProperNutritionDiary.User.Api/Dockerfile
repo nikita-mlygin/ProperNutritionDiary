@@ -1,10 +1,9 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 5063
-
-ENV ASPNETCORE_URLS=http://+:5063
-
 USER app
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG configuration=Release
 WORKDIR /src

@@ -61,20 +61,88 @@ services:
       - ./cassandra/sql:/dump/
     command: /bin/bash -c "sleep 60 && cqlsh product.cassandra -u cassandra -p cassandra -f /dump/init-cassandra-product.sql"
 
-  propernutritiondiary.product.api:
+  product.api:
     image: ${DOCKER_REGISTRY-}propernutritiondiaryproductapi
+    container_name: product.api
+    depends_on:
+      - product.cassandra
+      - product.mysql
+    networks:
+      - app-product
     build:
       context: .
       dockerfile: src/Product/ProperNutritionDiary.Product.Api/Dockerfile
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+    volumes:
+      - ~/.certs:/https:ro
     ports:
-      - 8083:8080
-      - 8084:8081
+      - 8087:8080
+      - 8088:8081
 
-  propernutritiondiary.user.api:
+  user.sql-server:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: user.sql-server
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
+
+  user.api:
     image: ${DOCKER_REGISTRY-}propernutritiondiaryuserapi
+    container_name: user.api
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
     build:
       context: .
       dockerfile: src/User/ProperNutritionDiary.User.Api/Dockerfile
     ports:
       - 8085:8080
       - 8086:8081
+    volumes:
+      - ~/.certs:/https:ro
+    depends_on:
+      - user.sql-server
+
+  diary.sql-server:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: diary.sql-server
+    ports:
+      - 1434:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
+
+  user-plan.sql-server:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: user-plan.sql-server
+    ports:
+      - 1435:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
+
+  user-stats.sql-server:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: user-stats.sql-server
+    ports:
+      - 1436:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
+
+  user-menu.sql-server:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: user-menu.sql-server
+    ports:
+      - 1437:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=STRONG!Passw0rd1

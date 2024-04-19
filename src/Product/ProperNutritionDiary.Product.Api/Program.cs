@@ -22,6 +22,5 @@ builder.Services.AddPresentation(builder.Configuration);
 var app = builder.Build();
 
 app.AddPresentation();
-app.MapGet("/", () => "Hello World!");
 
 app.Run();
