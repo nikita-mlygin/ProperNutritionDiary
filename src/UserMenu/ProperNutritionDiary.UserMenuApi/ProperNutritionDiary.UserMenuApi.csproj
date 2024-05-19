@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.EfBuildingBlocks\ProperNutritionDiary.BuildingBlocks.EfBuildingBlocks.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.ProductGlobals\ProperNutritionDiary.BuildingBlocks.ProductGlobals.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PresentationPackages\ProperNutritionDiary.BuildingBlocks.PresentationPackages.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.DomainExtensions\ProperNutritionDiary.BuildingBlocks.DomainExtensions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -10,12 +12,17 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Refit" Version="7.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
+    <PackageReference Include="Refit.Newtonsoft.Json" Version="7.0.0" />
   </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>d2ee832f-d2a0-4c6f-88c3-4e2fb975654f</UserSecretsId>
   </PropertyGroup>
 
 </Project>

@@ -12,11 +12,9 @@ public class PersistenceContext
 {
     public ServiceProvider provider;
 
-    private const string connectionString = "server=localhost;uid=user;pwd=secret;database=dev";
     private const string host = "localhost";
     private const string keySpace = "product";
     private const string name = "user";
-    private const string password = "secret";
 
     public ServiceProvider ServiceProvider
     {
@@ -28,7 +26,24 @@ public class PersistenceContext
     {
         Services = new ServiceCollection();
 
-        Services.AddPersistence(connectionString, host, keySpace, name, password);
+        var mysqlPassword = Environment.GetEnvironmentVariable(
+            "PROPER_NUTRITION_DIARY__PRODUCT_MYSQL_PASSWORD"
+        );
+        var cassandraPassword = Environment.GetEnvironmentVariable(
+            "PROPER_NUTRITION_DIARY__PRODUCT_CASSANDRA_PASSWORD"
+        );
+        var usdaApiKey = Environment.GetEnvironmentVariable(
+            "PROPER_NUTRITION_DIARY__PRODUCT_USDA_API_KEY"
+        );
+
+        Services.AddPersistence(
+            $"server=localhost;uid=user;pwd={mysqlPassword ?? throw new Exception()};database=dev",
+            host,
+            keySpace,
+            name,
+            cassandraPassword ?? throw new Exception(),
+            usdaApiKey ?? throw new Exception()
+        );
     }
 
     public void InjectLogging(ITestOutputHelper output)

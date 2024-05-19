@@ -28,6 +28,7 @@ public class GetProductByIdHandlerTest
             "name",
             Macronutrients.Create(0, 0, 0, 0).Value,
             ProductOwner.ByUser(user.Id),
+            null,
             10000,
             123
         );

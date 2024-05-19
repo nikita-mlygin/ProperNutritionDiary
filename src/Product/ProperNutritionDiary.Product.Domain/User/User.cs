@@ -11,5 +11,6 @@ public enum UserRole
 {
     Guest,
     Admin,
+    App,
     PlainUser
 }

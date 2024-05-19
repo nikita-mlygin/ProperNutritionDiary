@@ -1,6 +1,7 @@
 using System.Data.Common;
 using Dapper;
 using Dapper.Transaction;
+using Microsoft.Extensions.Logging;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.Product.Get;
@@ -16,7 +17,8 @@ namespace ProperNutritionDiary.Product.Persistence.Product.Summary;
 
 public class ProductSummaryRepository(
     ISqlConnectionProvider sqlConnectionProvider,
-    INoSqlConnectionProvider noSqlConnectionProvider
+    INoSqlConnectionProvider noSqlConnectionProvider,
+    ILogger<ProductSummaryRepository> logger
 ) : IProductSummaryRepository
 {
     private readonly ISqlConnectionProvider sqlConnectionProvider = sqlConnectionProvider;
@@ -94,6 +96,8 @@ SELECT
     {ProductTable.id} as {nameof(ProductSummarySnapshot.Id)},
     {ProductTable.name} as {nameof(ProductSummarySnapshot.Name)},
     {ProductTable.owner} as {nameof(ProductSummarySnapshot.Owner)},
+    {ProductTable.externalSourceType} as {nameof(ProductSummarySnapshot.ExternalSourceType)},
+    {ProductTable.externalSource} as {nameof(ProductSummarySnapshot.ExternalSource)},
     {ProductTable.viewCount} as {nameof(ProductSummarySnapshot.ViewCount)},
     {ProductTable.addCount} as {nameof(ProductSummarySnapshot.AddCount)},
     {ProductTable.calories} as {nameof(ProductSummarySnapshot.Macronutrients.Calories)},
@@ -143,6 +147,10 @@ SELECT
         as `{nameof(ProductSummarySnapshot.Name)}`,
     `{ProductTable.table}`.`{ProductTable.owner}`
         as `{nameof(ProductSummarySnapshot.Owner)}`,
+    `{ProductTable.table}`.`{ProductTable.externalSource}`
+        as `{nameof(ProductSummarySnapshot.ExternalSource)}`,
+    `{ProductTable.table}`.`{ProductTable.externalSourceType}`
+        as `{nameof(ProductSummarySnapshot.ExternalSourceType)}`,
     `{ProductTable.table}`.`{ProductTable.viewCount}`
         as `{nameof(ProductSummarySnapshot.ViewCount)}`,
     `{ProductTable.table}`.`{ProductTable.addCount}`
@@ -204,6 +212,8 @@ SELECT
     {ProductTable.id} as {nameof(ProductSummarySnapshot.Id)},
     {ProductTable.name} as {nameof(ProductSummarySnapshot.Name)},
     {ProductTable.owner} as {nameof(ProductSummarySnapshot.Owner)},
+    {ProductTable.externalSource} as {nameof(ProductSummarySnapshot.ExternalSource)},
+    {ProductTable.externalSourceType} as {nameof(ProductSummarySnapshot.ExternalSourceType)},
     {ProductTable.viewCount} as {nameof(ProductSummarySnapshot.ViewCount)},
     {ProductTable.addCount} as {nameof(ProductSummarySnapshot.AddCount)},
     {ProductTable.calories} as {nameof(ProductSummarySnapshot.Macronutrients.Calories)},
@@ -385,7 +395,9 @@ VALUES (
 SELECT
     {ProductTable.id} as {nameof(ProductListSummarySnapshot.Id)},
     {ProductTable.name} as {nameof(ProductListSummarySnapshot.Name)},
-    {ProductTable.owner} as {nameof(ProductListSummarySnapshot.Owner)}
+    {ProductTable.owner} as {nameof(ProductListSummarySnapshot.Owner)},
+    {ProductTable.externalSource} as {nameof(ProductListSummarySnapshot.ExternalSource)},
+    {ProductTable.externalSourceType} as {nameof(ProductListSummarySnapshot.ExternalSourceType)}
 FROM {ProductTable.table}
 WHERE
     {ProductTable.name} like @{nameof(nameFilter)}
@@ -405,7 +417,9 @@ LIMIT @{nameof(pageSize)};
 SELECT
     {ProductTable.id} as {nameof(ProductListSummarySnapshot.Id)},
     {ProductTable.name} as {nameof(ProductListSummarySnapshot.Name)},
-    {ProductTable.owner} as {nameof(ProductListSummarySnapshot.Owner)}
+    {ProductTable.owner} as {nameof(ProductListSummarySnapshot.Owner)},
+    {ProductTable.externalSource} as {nameof(ProductListSummarySnapshot.ExternalSource)},
+    {ProductTable.externalSourceType} as {nameof(ProductListSummarySnapshot.ExternalSourceType)}
 FROM {ProductTable.table}
 WHERE
     {ProductTable.name} like @{nameof(nameFilter)}
@@ -423,7 +437,11 @@ LIMIT @{nameof(pageSize)};
                 param
             )
         )
-            .Select(s => s.To())
+            .Select(s =>
+            {
+                logger.LogInformation("Product: {@Product}", s);
+                return s.To();
+            })
             .ToList();
     }
 }

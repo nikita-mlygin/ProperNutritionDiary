@@ -29,6 +29,7 @@ public class GetProductListHandlerTest
             "name",
             Macronutrients.Create(0, 0, 0, 0).Value,
             ProductOwner.ByUser(user.Id),
+            null,
             10000,
             123
         );
@@ -44,7 +45,7 @@ public class GetProductListHandlerTest
                 Task.FromResult(
                     new List<ProductListSummary>()
                     {
-                        new(productSummary.Id, productSummary.Name, productSummary.Owner)
+                        new(productSummary.Id, productSummary.Name, productSummary.Owner, null)
                     }
                 )
             );

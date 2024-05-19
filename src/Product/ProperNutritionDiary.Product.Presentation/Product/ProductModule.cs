@@ -2,26 +2,32 @@ using System.Security.Claims;
 using Carter;
 using DomainDesignLib.Abstractions;
 using DomainDesignLib.Abstractions.Result;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
+using ProperNutritionDiary.BuildingBlocks.PresentationPackages;
 using ProperNutritionDiary.Product.Application.Product.Add;
 using ProperNutritionDiary.Product.Application.Product.Get.ById;
+using ProperNutritionDiary.Product.Application.Product.Get.Search;
+using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product.Get;
+using ProperNutritionDiary.Product.Domain.User;
 
 namespace ProperNutritionDiary.Product.Presentation.Product;
 
-public sealed class ProductModule() : CarterModule("/product")
+public sealed class ProductModule() : CarterModule("/api/product")
 {
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet("test", Test).RequireAuthorization("guest");
-        app.MapGet("{id}", GetById).RequireAuthorization("guest");
-        app.MapPost("", CreateProduct).RequireAuthorization("plain");
+        app.MapGet("{id}", GetById).RequireAuthorization("canViewProduct");
+        app.MapGet("s/{query}", Search).RequireAuthorization("canViewProduct");
+        app.MapPost("", CreateProduct).RequireAuthorization("canCreateProduct");
     }
 
     private static Results<Ok, ForbidHttpResult> Test()
@@ -29,38 +35,72 @@ public sealed class ProductModule() : CarterModule("/product")
         return TypedResults.Ok();
     }
 
-    private static async Task<Results<Ok<ProductSummary>, BadRequest>> GetById(
+    private static async Task<Results<Ok<ProductSummaryDto>, BadRequest>> GetById(
         HttpContext ctx,
-        [FromQuery] Guid id,
+        [FromRoute] Guid id,
+        ILogger<ProductModule> logger,
         IMediator mediator
     )
     {
-        var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = ctx.User.GetUserId();
         var userRole = ctx.User.FindFirstValue(ClaimTypes.Role);
 
         var query = new GetProductByIdQuery(
             id,
-            Guid.Parse(userId!),
+            userId,
             userRole == "admin" ? Domain.User.UserRole.Admin : Domain.User.UserRole.PlainUser
         );
 
-        var res = await mediator.Send(query);
+        var summary = await mediator.Send(query);
 
-        return TypedResults.Ok(await mediator.Send(query));
+        logger.LogInformation("Summary received: {@Summary}", summary);
+
+        return summary.Match<ProductSummary, Results<Ok<ProductSummaryDto>, BadRequest>>(
+            summary =>
+            {
+                var res = summary.Adapt<ProductSummaryDto>();
+
+                res.Id = summary.Id.Value;
+
+                res.Owner = summary.Owner.IsSystem ? null : summary.Owner.Owner!.Value;
+
+                return TypedResults.Ok(res);
+            },
+            () => TypedResults.BadRequest()
+        );
+    }
+
+    private static async Task<Results<Ok<List<ProductListSummary>>, BadRequest>> Search(
+        [FromRoute] string query,
+        ClaimsPrincipal u,
+        IMediator mediator
+    )
+    {
+        return TypedResults.Ok(
+            (await mediator.Send(new ProductSearch(query, u.GetUserId(), UserRole.App, 1))).Value
+        );
     }
 
     private static async Task<
         Results<Ok<Guid>, BadRequest<string>, ForbidHttpResult>
     > CreateProduct(ClaimsPrincipal u, [FromBody] CreateProductRequest rq, IMediator mediator)
     {
-        var id = Guid.Parse(u.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var idString = u.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        Guid? id = idString is not null ? Guid.Parse(idString) : null;
         var role = u.FindFirstValue(ClaimTypes.Role);
 
         return (
             await mediator.Send(
                 new CreateProductCommand(
                     id,
-                    role == "admin" ? Domain.User.UserRole.Admin : Domain.User.UserRole.PlainUser,
+                    role switch
+                    {
+                        "app" => UserRole.App,
+                        "admin" => UserRole.Admin,
+                        "plain" => UserRole.PlainUser,
+                        _ => UserRole.Guest,
+                    },
                     rq.ProductName,
                     rq.Calories,
                     rq.Proteins,
@@ -84,4 +124,12 @@ public class CreateProductRequest
     public decimal Carbohydrates { get; set; }
 }
 
-public class ProductSummaryDTO { }
+public class ProductSummaryDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = "";
+    public Macronutrients Macronutrients { get; set; } = default!;
+    public Guid? Owner { get; set; }
+    public int ViewCount { get; set; }
+    public int UseCount { get; set; }
+}

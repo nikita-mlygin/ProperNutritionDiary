@@ -24,7 +24,7 @@ public sealed class GetProductByIdQueryHandler(
         var id = new ProductId(request.ProductId);
         var res = await productSummaryRepository.GetById(id);
         await eventDispatcher.AddEvent(
-            new ProductReceived(Guid.NewGuid(), id, new UserId(request.UserId))
+            new ProductReceived(Guid.NewGuid(), id, new UserId(request.UserId ?? Guid.Empty))
         );
 
         return res;

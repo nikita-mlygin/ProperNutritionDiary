@@ -13,6 +13,8 @@ CREATE TABLE `product`
     proteins decimal not null,
     fats decimal not null,
     carbohydrates decimal not null,
+    external_source_type int null,
+    external_source varchar(255),
     owner binary(16) null,
     created_at datetime not null default now(),
     updated_at datetime null default null,

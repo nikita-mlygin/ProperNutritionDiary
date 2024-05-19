@@ -3,6 +3,7 @@ using DomainDesignLib.Abstractions.Repository;
 namespace ProperNutritionDiary.Product.Domain.Product;
 
 using ProperNutritionDiary.Product.Domain.User;
+using ProperNutritionDiary.UserMenuApi.Product.Entity;
 
 public interface IProductRepository : IRepository<Product, ProductId>
 {

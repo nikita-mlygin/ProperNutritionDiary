@@ -1,10 +1,30 @@
 version: "3.4"
 
 networks:
-  app-product:
-    name: app-product
+  backend-proxy:
+    name: backend-proxy
 
 services:
+  api.gateway:
+    image: ${DOCKER_REGISTRY-}propernutritiondiaryapigateway
+    container_name: api.gateway
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+    build:
+      context: .
+      dockerfile: src/gateway/api.gateway/Dockerfile
+    ports:
+      - 8080:8080
+      - 8081:8081
+    volumes:
+      - ~/.certs:/https:ro
+      - ~./:/src/gateway/api.gateway/appsettings.json:/app/appsettings.json
+    networks:
+      - backend-proxy
+
   product.mysql:
     image: mysql:latest
     environment:
@@ -14,13 +34,13 @@ services:
     volumes:
       - ./mysql/sql/init-mysql-product.sql:/docker-entrypoint-initdb.d/1.sql
     networks:
-      - app-product
+      - backend-proxy
     ports:
       - "3306:3306"
     expose:
       - "3306"
     restart: always
-
+    
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin
@@ -31,18 +51,18 @@ services:
       PMA_PORT: 3306
       PMA_ARBITRARY: 1
     networks:
-      - app-product
+      - backend-proxy
     restart: always
     depends_on:
       - product.mysql
     ports:
-      - 8081:80
+      - 9010:80
 
   product.cassandra:
     image: cassandra:latest
     container_name: cassandra-product
     networks:
-      - app-product
+      - backend-proxy
     ports:
       - 9042:9042
     expose:
@@ -54,7 +74,7 @@ services:
     image: cassandra:latest
     container_name: product.cassandra-init
     networks:
-      - app-product
+      - backend-proxy
     depends_on:
       - product.cassandra
     volumes:
@@ -68,7 +88,7 @@ services:
       - product.cassandra
       - product.mysql
     networks:
-      - app-product
+      - backend-proxy
     build:
       context: .
       dockerfile: src/Product/ProperNutritionDiary.Product.Api/Dockerfile
@@ -77,6 +97,10 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+      - PROPER_NUTRITION_DIARY__PRODUCT_MYSQL_PASSWORD=${PROPER_NUTRITION_DIARY__PRODUCT_MYSQL_PASSWORD}
+      - PROPER_NUTRITION_DIARY__PRODUCT_CASSANDRA_PASSWORD=${PROPER_NUTRITION_DIARY__PRODUCT_CASSANDRA_PASSWORD}
+      - PROPER_NUTRITION_DIARY__PRODUCT_USDA_API_KEY=${PROPER_NUTRITION_DIARY__PRODUCT_USDA_API_KEY}
+      - PROPER_NUTRITION_DIARY__JWT_KEY=${PROPER_NUTRITION_DIARY__JWT_KEY}
     volumes:
       - ~/.certs:/https:ro
     ports:
@@ -88,6 +112,8 @@ services:
     container_name: user.sql-server
     ports:
       - 1433:1433
+    networks:
+      - backend-proxy
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
@@ -100,6 +126,8 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+      - PROPER_NUTRITION_DIARY__USER_SQL_PASSWORD=${PROPER_NUTRITION_DIARY__USER_SQL_PASSWORD}
+      - PROPER_NUTRITION_DIARY__JWT_KEY=${PROPER_NUTRITION_DIARY__JWT_KEY}
     build:
       context: .
       dockerfile: src/User/ProperNutritionDiary.User.Api/Dockerfile
@@ -110,12 +138,16 @@ services:
       - ~/.certs:/https:ro
     depends_on:
       - user.sql-server
+    networks:
+      - backend-proxy
 
   diary.sql-server:
     image: mcr.microsoft.com/mssql/server:latest
     container_name: diary.sql-server
     ports:
       - 1434:1433
+    networks:
+      - backend-proxy
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
@@ -125,6 +157,8 @@ services:
     container_name: user-plan.sql-server
     ports:
       - 1435:1433
+    networks:
+      - backend-proxy
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
@@ -134,6 +168,8 @@ services:
     container_name: user-stats.sql-server
     ports:
       - 1436:1433
+    networks:
+      - backend-proxy
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
@@ -143,6 +179,35 @@ services:
     container_name: user-menu.sql-server
     ports:
       - 1437:1433
+    networks:
+      - backend-proxy
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
+
+  user.menu.api:
+    image: ${DOCKER_REGISTRY-}propernutritiondiaryusermenuapi
+    container_name: user.menu.api
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+      - PROPER_NUTRITION_DIARY__USER_MENU_EDAMAM_MENU_API_KEY=${PROPER_NUTRITION_DIARY__USER_MENU_EDAMAM_MENU_API_KEY}
+      - PROPER_NUTRITION_DIARY__USER_MENU_EDAMAM_RECIPE_API_KEY=${PROPER_NUTRITION_DIARY__USER_MENU_EDAMAM_RECIPE_API_KEY}
+      - PROPER_NUTRITION_DIARY__EDAMAM_USER_ID=${PROPER_NUTRITION_DIARY__EDAMAM_USER_ID}
+      - PROPER_NUTRITION_DIARY__USER_MENU_SQL_PASSWORD=${PROPER_NUTRITION_DIARY__USER_MENU_SQL_PASSWORD}
+      - PROPER_NUTRITION_DIARY__JWT_KEY=${PROPER_NUTRITION_DIARY__JWT_KEY}
+      - PROPER_NUTRITION_DIARY__USER_MENU_JWT=${PROPER_NUTRITION_DIARY__USER_MENU_JWT}
+    build:
+      context: .
+      dockerfile: src/UserMenu/ProperNutritionDiary.UserMenuApi/Dockerfile
+    ports:
+      - 8090:8080
+      - 8091:8081
+    volumes:
+      - ~/.certs:/https:ro
+    depends_on:
+      - user-menu.sql-server
+    networks:
+      - backend-proxy

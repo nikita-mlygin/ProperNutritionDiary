@@ -12,6 +12,17 @@ const string MainCorsPolicy = "mainCors";
 
 var builder = WebApplication.CreateBuilder(args);
 
+var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+var config = builder
+    .Configuration.SetBasePath(System.IO.Directory.GetCurrentDirectory())
+    .AddJsonFile($"appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{env}.json", optional: true)
+    .AddEnvironmentVariables("PROPER_NUTRITION_DIARY")
+    .Build();
+
+Console.WriteLine(config.GetConnectionString("mssql"));
+
 builder.Services.AddDbContext<AppCtx>(conf =>
 {
     conf.UseSqlServer(builder.Configuration.GetConnectionString("mssql"));

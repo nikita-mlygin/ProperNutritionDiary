@@ -93,6 +93,8 @@ public static class DependencyInjection
 
         services
             .AddAuthorizationBuilder()
+            .AddPolicy("canCreateProduct", c => c.RequireRole("plain", "admin", "app"))
+            .AddPolicy("canViewProduct", c => c.RequireRole("guest", "plain", "admin", "app"))
             .AddPolicy("guest", c => c.RequireRole("guest", "plain"))
             .AddPolicy("plain", c => c.RequireRole("plain"));
 

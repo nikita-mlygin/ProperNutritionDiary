@@ -22,7 +22,44 @@ namespace ProperNutritionDiary.UserMenuApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.UserMenu", b =>
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.Product.Entity.ProductIdentity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("identityType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductIdentities");
+
+                    b.HasDiscriminator<int>("identityType");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserDailyMenu", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("DayNumber")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("MenuId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.ToTable("DailyMenus");
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserMenu", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,19 +76,23 @@ namespace ProperNutritionDiary.UserMenuApi.Migrations
                     b.ToTable("UserMenus");
                 });
 
-            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.UserMenuItem", b =>
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserMenuItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ConsumptionTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("ConsumptionNumber")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("MenuId")
+                    b.Property<Guid>("ProductIdentityId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UserMenuId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Weight")
@@ -59,18 +100,63 @@ namespace ProperNutritionDiary.UserMenuApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MenuId");
+                    b.HasIndex("ProductIdentityId");
+
+                    b.HasIndex("UserMenuId");
 
                     b.ToTable("UserMenuItems");
                 });
 
-            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.UserMenuItem", b =>
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.Product.Entity.BarcodeProductIdentity", b =>
                 {
-                    b.HasOne("ProperNutritionDiary.UserMenuApi.UserMenu.UserMenu", null)
-                        .WithMany("MenuItems")
-                        .HasForeignKey("MenuId")
+                    b.HasBaseType("ProperNutritionDiary.UserMenuApi.Product.Entity.ProductIdentity");
+
+                    b.Property<string>("Barcode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue(2);
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.Product.Entity.SystemProductIdentity", b =>
+                {
+                    b.HasBaseType("ProperNutritionDiary.UserMenuApi.Product.Entity.ProductIdentity");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasDiscriminator().HasValue(0);
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.Product.Entity.UsdaProductIdentity", b =>
+                {
+                    b.HasBaseType("ProperNutritionDiary.UserMenuApi.Product.Entity.ProductIdentity");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserDailyMenu", b =>
+                {
+                    b.HasOne("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserMenu", null)
+                        .WithMany("DailyMenus")
+                        .HasForeignKey("MenuId");
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserMenuItem", b =>
+                {
+                    b.HasOne("ProperNutritionDiary.UserMenuApi.Product.Entity.ProductIdentity", "ProductId")
+                        .WithMany()
+                        .HasForeignKey("ProductIdentityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserDailyMenu", null)
+                        .WithMany("MenuItems")
+                        .HasForeignKey("UserMenuId");
 
                     b.OwnsOne("ProperNutritionDiary.BuildingBlocks.ProductGlobals.Macronutrients.Macronutrients", "Macronutrients", b1 =>
                         {
@@ -99,11 +185,18 @@ namespace ProperNutritionDiary.UserMenuApi.Migrations
 
                     b.Navigation("Macronutrients")
                         .IsRequired();
+
+                    b.Navigation("ProductId");
                 });
 
-            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.UserMenu", b =>
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserDailyMenu", b =>
                 {
                     b.Navigation("MenuItems");
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserMenuApi.UserMenu.Entity.UserMenu", b =>
+                {
+                    b.Navigation("DailyMenus");
                 });
 #pragma warning restore 612, 618
         }

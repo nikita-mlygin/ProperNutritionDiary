@@ -11,6 +11,8 @@ public static class ProductTable
     public const string fats = "fats";
     public const string carbohydrates = "carbohydrates";
     public const string owner = "owner";
+    public const string externalSource = "external_source";
+    public const string externalSourceType = "external_source_type";
     public const string createdAt = "created_at";
     public const string updatedAt = "updated_at";
     public const string viewCount = "view_count";

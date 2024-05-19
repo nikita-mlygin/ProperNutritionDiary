@@ -25,6 +25,12 @@ public static class ProductErrors
             "Remove product can only owner"
         );
 
+    public static readonly Error RemoveFromExternalSource =
+        new(
+            $"{nameof(Product)}.{nameof(RemoveFromExternalSource)}",
+            "Can't remove product from external source"
+        );
+
     public static readonly Error RemoveNotAllowedWhenInFavoriteList =
         new(
             $"{nameof(Product)}.{nameof(RemoveNotAllowedWhenInFavoriteList)}",
@@ -49,8 +55,6 @@ public static class ProductErrors
             "Product can't be removed from favorite list if it not in"
         );
 
-    public static readonly Error ProductNotFound = new(
-            $"{nameof(Product)}.{nameof(ProductNotFound)}",
-            "Product with this id is not found."
-        );
+    public static readonly Error ProductNotFound =
+        new($"{nameof(Product)}.{nameof(ProductNotFound)}", "Product with this id is not found.");
 }

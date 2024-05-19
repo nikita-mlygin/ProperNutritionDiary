@@ -1,0 +1,69 @@
+/share/games/minecraft/TLauncher.desktop: строка 1: [Desktop: команда не найдена
+
+-------------------------------------------------------------------
+[Downloader2] Loaded configuration: normal
+[Bootstrapper] createLauncher
+[Bootstrapper] choose jvm:/home/nan/.tlauncher/jvms/jre1.8.0_281/bin/java
+[Bootstrapper] validate files
+[Bootstrapper] end validated files
+[Bootstrapper] Starting launcher...
+[Double running] clear time label
+> Loading configuration from file: /home/nan/.tlauncher/tlauncher-2.0.properties
+> [Configuration] Constant values: {}
+> [Loading] INITIALIZING
+> Starting TLauncher 2.895 RELEASE
+> For more information, visit https://tlauncher.org/
+> Startup time: 04.05.2024 17:19:24
+> Running folder /home/nan/git/ProperNutritionDiary
+> ---
+> [Loading] LOADING_CONFIGURATION
+> Machine info: -------------------------------------------------------
+> Linux 6.6.26-1-MANJARO, Java 1.8.0_281, jvm bit x64, 7385 MB RAM
+> java path=/home/nan/.tlauncher/jvms/jre1.8.0_281/bin/java
+> -------------------------------------------------------
+> Selected locale: ru
+> Locale fil doesn't contain key button.update.update
+> Locale nb_NO doesn't contain key button.update.update
+> Locale vi doesn't contain key button.update.update
+> [Loading] LOADING_CONSOLE
+> [Downloader2] Loaded configuration: good
+> [Updater] Requesting an update...
+> [Updater] Requesting from: https://repo.tlauncher.org/update/lch/release_update_2.3.json
+> [Updater] Making request: https://repo.tlauncher.org/update/lch/release_update_2.3.json?version=2.895&client=c8e4c59f-65aa-4148-88e7-c1adf963622a
+> [Updater] Request time: 309 ms
+> [Updater] Successfully requested from: https://repo.tlauncher.org/update/lch/release_update_2.3.json
+> [Browser] Loading resources...
+> [Browser] Cleaning up after loading:
+> Starting garbage collector: 104 / 395 MB
+> Garbage collector completed: 39 / 402 MB
+> [Loading] LOADING_MANAGERS
+> [LocalVersionList] Base directory: /home/nan/.minecraft
+> [ProfileManager] Refreshing profiles from: /home/nan/.minecraft/TlauncherProfiles.json
+> [AdvertisingStatusObserver]  started to get ad information
+> [GsonUtil]  request to https://repo.tlauncher.org/update/downloads/libraries/org/tlauncher/authlib/libraries-1.7.json
+> [AdvertisingStatusObserver]  finished to get add information
+> save profiles
+> [Loading] LOADING_WINDOW
+> [Swing] Favicons loaded: 256px, 128px, 96px, 64px, 48px, 32px, 24px, 16px
+> [Loading] PREPARING_MAINPANE
+> [JFXStartPageLoader]  start load page: https://page.tlauncher.org/update/downloads/configs/pages/index_ru.html
+> [Browser] Running in JavaFX Thread
+> [Browser] Preparing JavaFX...
+> [REPO][SERVER_LIST_REPO] Success: Reached the repo in 575 ms.
+> [Browser] Initializing...
+> [JFXStartPageLoader]  succeeded load page: https://page.tlauncher.org/update/downloads/configs/pages/index_ru.html during 0
+> [Browser@1239482686] Loaded successfully: "https://page.tlauncher.org/update/downloads/configs/pages/index_ru.html"
+> [Browser] add listens into server_choose
+> [Browser] finished listens into server_choose
+> [Downloader2] Loaded configuration: good
+> [Loading] POSTINIT_GUI
+> [Frame] Packing main frame...
+> [Frame] Resizing main pane...
+> Updater is already closed. Showing up...
+> Visibility set.
+> [Loading] REFRESHING_INFO
+> Started! (11027 ms.)
+> [Loading] SUCCESS
+[Bootstrapper] I can be terminated now: 0
+/share/games/minecraft/TLauncher.desktop: строка 16: X-KDE-SubstituteUID=false: команда не найдена
+/share/games/minecraft/TLauncher.desktop: строка 17: X-KDE-Username=: команда не найдена

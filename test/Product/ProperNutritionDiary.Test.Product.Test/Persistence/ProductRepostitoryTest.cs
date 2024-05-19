@@ -3,9 +3,12 @@ namespace ProperNutritionDiary.Test.Product.Test.Persistence;
 using System;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product;
 using ProperNutritionDiary.Product.Domain.User;
+using ProperNutritionDiary.Product.Persistence.Product.OpenFoodFacts;
+using ProperNutritionDiary.Product.Persistence.Product.Usda;
 using Xunit.Abstractions;
 
 [Collection("main")]
@@ -22,6 +25,14 @@ public class ProductRepositoryTest
     private readonly IProductRepository productRepository;
     private readonly DateTime createdAt = DateTime.UtcNow;
     private readonly DateTime updatedAt = DateTime.UtcNow.AddMinutes(2);
+    private readonly UsdaConverter converter;
+    private readonly IOpenFoodFactsSearchApi searchApi;
+    private readonly ILogger<ProductRepositoryTest> logger;
+
+    private readonly IExternalProductRepository externalProductRepository;
+
+    const string usdaCode = "2677671";
+    const string barcode = "3017620422003";
 
     public ServiceProvider ServiceProvider { get; set; }
 
@@ -32,6 +43,15 @@ public class ProductRepositoryTest
 
         this.productRepository =
             ServiceProvider.GetService<IProductRepository>() ?? throw new Exception();
+
+        this.externalProductRepository =
+            ServiceProvider.GetService<IExternalProductRepository>() ?? throw new Exception();
+
+        this.searchApi =
+            ServiceProvider.GetService<IOpenFoodFactsSearchApi>() ?? throw new Exception();
+        this.converter = ServiceProvider.GetService<UsdaConverter>() ?? throw new Exception();
+        this.logger =
+            ServiceProvider.GetService<ILogger<ProductRepositoryTest>>() ?? throw new Exception();
     }
 
     [Fact]
@@ -46,7 +66,7 @@ public class ProductRepositoryTest
         resultProduct!.Id.Should().Be(id);
         resultProduct.Name.Should().Be(name);
         resultProduct.Macronutrients.Should().Be(macronutrients);
-        resultProduct.Owner.Owner.Should().Be(plainUserCreator.Id);
+        resultProduct.Owner!.Owner.Should().Be(plainUserCreator.Id);
 
         var productList = await productRepository.GetAll();
         productList.Should().NotBeEmpty();
@@ -184,5 +204,21 @@ public class ProductRepositoryTest
         users1.FirstOrDefault(x => x == plainUserCreator2.Id).Should().NotBeNull();
 
         users2.FirstOrDefault(x => x == plainUserCreator.Id).Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task TestExternalSource()
+    {
+        var searchRes = await externalProductRepository.Search("Nutella");
+
+        searchRes.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task TestSearchOpenApi()
+    {
+        var res = await searchApi.Search("Nutella");
+        var products = OpenFoodFactsConverter.Convert(res.Content);
+        products.Should().NotBeNull();
     }
 }

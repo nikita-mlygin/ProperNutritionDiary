@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="CassandraCSharpDriver" Version="3.20.0" />
+    <PackageReference Include="Refit" Version="7.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
   </ItemGroup>
 

@@ -4,5 +4,5 @@ using ProperNutritionDiary.Product.Domain.User;
 
 namespace ProperNutritionDiary.Product.Application.Product.Get.ById;
 
-public sealed record GetProductByIdQuery(Guid ProductId, Guid UserId, UserRole UserRole)
+public sealed record GetProductByIdQuery(Guid ProductId, Guid? UserId, UserRole UserRole)
     : IRequest<ProductSummary?>;

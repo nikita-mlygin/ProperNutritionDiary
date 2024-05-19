@@ -37,8 +37,25 @@ VALUES (
 
     public async Task CreateAsync(Product entity)
     {
-        var ownerColumDef = entity.Owner.IsUser ? $",\n\t`{ProductTable.owner}`" : "";
-        var ownerValueDef = entity.Owner.IsUser ? $",\n\t@{nameof(ProductSnapshot.Owner)}" : "";
+        var ownerColumDef = "";
+        var ownerValueDef = "";
+
+        var externalSourceColDef = "";
+        var externalSourceValueDef = "";
+
+        if (entity.Owner is not null)
+        {
+            ownerColumDef = $",\n\t`{ProductTable.owner}`";
+            ownerValueDef = $",\n\t@{nameof(ProductSnapshot.Owner)}";
+        }
+
+        if (entity.ExternalSource is not null)
+        {
+            externalSourceColDef =
+                $",\n\t`{ProductTable.externalSource},\n\t{ProductTable.externalSourceType}`";
+            externalSourceValueDef =
+                $",\n\t@{nameof(ProductSnapshot.ExternalSource)},\n\t@{nameof(ProductSnapshot.ExternalSourceType)}";
+        }
 
         var sql = $"""
 INSERT INTO `{ProductTable.table}` (
@@ -48,7 +65,7 @@ INSERT INTO `{ProductTable.table}` (
     `{ProductTable.proteins}`, 
     `{ProductTable.fats}`, 
     `{ProductTable.carbohydrates}`,
-    `{ProductTable.createdAt}`{ownerColumDef}) 
+    `{ProductTable.createdAt}`{ownerColumDef}{externalSourceColDef}) 
 VALUES (
     @{nameof(ProductSnapshot.Id)}, 
     @{nameof(ProductSnapshot.Name)}, 
@@ -56,7 +73,7 @@ VALUES (
     @{nameof(MacronutrientsSnapshot.Proteins)}, 
     @{nameof(MacronutrientsSnapshot.Fats)},
     @{nameof(MacronutrientsSnapshot.Carbohydrates)},
-    @{nameof(ProductSnapshot.CreatedAt)}{ownerValueDef}
+    @{nameof(ProductSnapshot.CreatedAt)}{ownerValueDef}{externalSourceValueDef}
 );
 """;
 
@@ -72,6 +89,8 @@ SELECT
     `{ProductTable.id}` as {nameof(ProductSnapshot.Id)}, 
     `{ProductTable.name}` as {nameof(ProductSnapshot.Name)}, 
     `{ProductTable.owner}` as {nameof(ProductSnapshot.Owner)},
+    `{ProductTable.externalSource}` as {nameof(ProductSnapshot.ExternalSource)},
+    `{ProductTable.externalSourceType}` as {nameof(ProductSnapshot.ExternalSourceType)},
     `{ProductTable.createdAt}` as {nameof(ProductSnapshot.CreatedAt)},
     `{ProductTable.updatedAt}` as {nameof(ProductSnapshot.UpdatedAt)},
     `{ProductTable.calories}` as {nameof(MacronutrientsSnapshot.Calories)}, 
@@ -90,6 +109,7 @@ FROM `{ProductTable.table}`;
             map: (product, macronutrients) =>
             {
                 product.Macronutrients = macronutrients;
+                product.FromExternalSource = false;
 
                 return Product.FromSnapshot(product);
             },
@@ -104,6 +124,8 @@ SELECT
     `{ProductTable.id}` as {nameof(ProductSnapshot.Id)}, 
     `{ProductTable.name}` as {nameof(ProductSnapshot.Name)}, 
     `{ProductTable.owner}` as {nameof(ProductSnapshot.Owner)},
+    `{ProductTable.externalSource}` as {nameof(ProductSnapshot.ExternalSource)},
+    `{ProductTable.externalSourceType}` as {nameof(ProductSnapshot.ExternalSourceType)},
     `{ProductTable.createdAt}` as {nameof(ProductSnapshot.CreatedAt)},
     `{ProductTable.updatedAt}` as {nameof(ProductSnapshot.UpdatedAt)},
     `{ProductTable.calories}` as {nameof(MacronutrientsSnapshot.Calories)}, 
@@ -124,6 +146,7 @@ WHERE `{ProductTable.id}` = @{nameof(ProductSnapshot.Id)};
                 map: (product, macronutrients) =>
                 {
                     product.Macronutrients = macronutrients;
+                    product.FromExternalSource = false;
 
                     return Product.FromSnapshot(product);
                 },
@@ -140,6 +163,8 @@ SELECT
     `{ProductTable.id}` as {nameof(ProductSnapshot.Id)}, 
     `{ProductTable.name}` as {nameof(ProductSnapshot.Name)}, 
     `{ProductTable.owner}` as {nameof(ProductSnapshot.Owner)},
+    `{ProductTable.externalSource}` as {nameof(ProductSnapshot.ExternalSource)},
+    `{ProductTable.externalSourceType}` as {nameof(ProductSnapshot.ExternalSourceType)},
     `{ProductTable.createdAt}` as {nameof(ProductSnapshot.CreatedAt)},
     `{ProductTable.updatedAt}` as {nameof(ProductSnapshot.UpdatedAt)},
     `{ProductTable.calories}` as {nameof(MacronutrientsSnapshot.Calories)}, 
@@ -164,6 +189,7 @@ WHERE {FavoriteTable.user} = @{nameof(FavoriteProductSnapshot.UserId)};
             map: (product, macronutrients) =>
             {
                 product.Macronutrients = macronutrients;
+                product.FromExternalSource = false;
 
                 return Product.FromSnapshot(product);
             },
@@ -234,9 +260,13 @@ WHERE
 
     public async Task UpdateAsync(Product entity)
     {
-        var ownerSetDef = entity.Owner.IsSystem
-            ? ""
-            : $",\n\t`{ProductTable.owner}` = @{nameof(ProductSnapshot.Owner)}";
+        var ownerSetDef = "";
+
+        if (entity.Owner is not null && entity.Owner.IsUser)
+        {
+            ownerSetDef = $",\n\t`{ProductTable.owner}` = @{nameof(ProductSnapshot.Owner)}";
+        }
+
         var productSnapshot = entity.ToSnapshot();
 
         var sql = $"""

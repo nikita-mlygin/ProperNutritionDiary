@@ -20,7 +20,7 @@ public sealed class CreateProductCommandHandler(
         CancellationToken cancellationToken
     )
     {
-        var user = new User(new UserId(request.UserId), request.UserRole);
+        var user = new User(new UserId(request.UserId ?? Guid.Empty), request.UserRole);
         var id = Guid.NewGuid();
         Result<Macronutrients> macronutrients = null!;
         Result<Product> product = null!;

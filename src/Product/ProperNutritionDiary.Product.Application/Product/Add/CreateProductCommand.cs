@@ -5,7 +5,7 @@ using ProperNutritionDiary.Product.Domain.User;
 namespace ProperNutritionDiary.Product.Application.Product.Add;
 
 public sealed record CreateProductCommand(
-    Guid UserId,
+    Guid? UserId,
     UserRole UserRole,
     string ProductName,
     decimal Calories,

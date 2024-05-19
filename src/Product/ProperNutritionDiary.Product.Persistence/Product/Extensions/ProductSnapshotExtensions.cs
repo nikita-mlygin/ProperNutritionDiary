@@ -14,6 +14,8 @@ internal static class ProductSnapshotExtensions
             { nameof(ProductSnapshot.CreatedAt), product.CreatedAt },
             { nameof(ProductSnapshot.UpdatedAt), product.UpdatedAt },
             { nameof(ProductSnapshot.Owner), product.Owner },
+            { nameof(ProductSnapshot.ExternalSource), product.ExternalSource },
+            { nameof(ProductSnapshot.ExternalSourceType), product.ExternalSourceType },
             { nameof(MacronutrientsSnapshot.Calories), product.Macronutrients.Calories },
             { nameof(MacronutrientsSnapshot.Proteins), product.Macronutrients.Proteins },
             { nameof(MacronutrientsSnapshot.Fats), product.Macronutrients.Fats },

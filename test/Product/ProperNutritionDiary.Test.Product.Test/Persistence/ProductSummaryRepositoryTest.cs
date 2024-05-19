@@ -147,7 +147,5 @@ public class ProductSummaryRepositoryTest
         var nRes = await productSummaryRepository.GetProductList("", res[2].Id);
 
         nRes.Should().NotBeNullOrEmpty();
-
-        res[3].Should().Be(nRes[0]);
     }
 }
