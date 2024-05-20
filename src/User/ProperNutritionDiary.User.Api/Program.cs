@@ -18,7 +18,7 @@ var config = builder
     .Configuration.SetBasePath(System.IO.Directory.GetCurrentDirectory())
     .AddJsonFile($"appsettings.json", optional: false)
     .AddJsonFile($"appsettings.{env}.json", optional: true)
-    .AddEnvironmentVariables("PROPER_NUTRITION_DIARY")
+    .AddEnvironmentVariables("PROPER_NUTRITION_DIARY__")
     .Build();
 
 Console.WriteLine(config.GetConnectionString("mssql"));

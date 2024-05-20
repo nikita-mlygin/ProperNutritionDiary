@@ -552,5 +552,7 @@ obj/
 !test/Packages/*
 
 Aboba/
-.env
 appsettings.json
+appsettings.Release.json
+appsettings.Development.json
+.env
