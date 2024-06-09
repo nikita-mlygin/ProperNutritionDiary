@@ -1,6 +1,8 @@
 @startuml
 class Macronutrients <<record>> {
+    - Macronutrients(calories:decimal, proteins:decimal, fats:decimal, carbohydrates:decimal)
     + {static} Create(calories:decimal, proteins:decimal, fats:decimal, carbohydrates:decimal) : Result<Macronutrients>
+    - {static} CheckValueByNotLessZero(value:decimal) : bool
     + Calories : decimal <<get>> <<init>>
     + Proteins : decimal <<get>> <<init>>
     + Fats : decimal <<get>> <<init>>

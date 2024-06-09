@@ -26,4 +26,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PresentationPackages\ProperNutritionDiary.BuildingBlocks.PresentationPackages.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,2 +1,8 @@
 @startuml
+class "AddDbContext`1"<T> {
+}
+class "AddScoped`1"<T> {
+}
+class "Empty`1"<T> {
+}
 @enduml

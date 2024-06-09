@@ -1,10 +1,10 @@
 import React from "react";
 import NutrientInfoComponent from "./NutrientInfoComponent";
-import { Macronutrients } from "../../Features/Macronutrients/Macronutrients";
+import { Macronutrients as MacronutrientsType } from "../../Features/Macronutrients/Macronutrients";
 import { useTheme } from "@mui/material";
 
 interface MacronutrientsProps {
-  macronutrients: Macronutrients;
+  macronutrients: MacronutrientsType;
 }
 
 const Macronutrients: React.FC<MacronutrientsProps> = ({ macronutrients }) => {

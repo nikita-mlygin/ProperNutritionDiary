@@ -1,10 +1,15 @@
 @startuml
 class RemoveProductCommandHandler <<sealed>> {
     + <<async>> Handle(request:RemoveProductCommand, cancellationToken:CancellationToken) : Task<Result>
+    - OnSuccess(user:User) : Func<Product, Task<Result>>
+    - OnSuccess(product:Product, user:User, isInFavorite:bool) : Task<Result>
+    - {static} RemoveProduct(product:Product, user:User, isInFavorite:bool) : Func<Result>
 }
 class "ILogger`1"<T> {
 }
 class "IRequestHandler`2"<T1,T2> {
 }
 "IRequestHandler`2" "<RemoveProductCommand,Result>" <|-- RemoveProductCommandHandler
+RemoveProductCommandHandler o-> "productRepository" IProductRepository
+RemoveProductCommandHandler o-> "logger<RemoveProductCommandHandler>" "ILogger`1"
 @enduml

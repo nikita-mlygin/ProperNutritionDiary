@@ -12,4 +12,5 @@ class ProductRepository {
     + <<async>> UpdateAsync(entity:Product) : Task
 }
 IProductRepository <|-- ProductRepository
+ProductRepository o-> "connectionProvider" IConnectionProvider
 @enduml

@@ -1,6 +1,7 @@
 @startuml
 class ProductSummary <<record>> {
     + Name : string <<get>> <<init>>
+    + ExternalSourceIdentity : ExternalSourceIdentity? <<get>> <<init>>
     + ViewCount : int <<get>> <<init>>
     + UseCount : int <<get>> <<init>>
 }

@@ -1,0 +1,52 @@
+@startuml seq
+actor User
+participant "Web Browser" as Browser
+participant "Web Server" as Server
+participant "Database" as DB
+participant "Chat Bot" as Bot
+
+User -> Browser: Open Homepage
+Browser -> Server: Request Homepage
+Server -> DB: Fetch Products
+DB --> Server: Return Products
+Server --> Browser: Display Homepage
+
+User -> Browser: Search for a Game
+Browser -> Server: Request Search Results
+Server -> DB: Fetch Search Results
+DB --> Server: Return Search Results
+Server --> Browser: Display Search Results
+
+User -> Browser: View Game Details
+Browser -> Server: Request Game Details
+Server -> DB: Fetch Game Details
+DB --> Server: Return Game Details
+Server --> Browser: Display Game Details
+
+User -> Browser: Ask Question About Game
+Browser -> Bot: Send Question
+Bot -> DB: Retrieve Game Information
+DB --> Bot: Return Game Information
+Bot --> Browser: Display Answer
+
+User -> Browser: Add Game to Cart
+Browser -> Server: Add Game to Cart
+Server -> DB: Update Cart
+DB --> Server: Confirm Update
+Server --> Browser: Confirm Add to Cart
+
+User -> Browser: View Cart
+Browser -> Server: Request Cart Details
+Server -> DB: Fetch Cart Details
+DB --> Server: Return Cart Details
+Server --> Browser: Display Cart
+
+User -> Browser: Checkout
+Browser -> Server: Process Checkout
+Server -> DB: Verify Stock
+DB --> Server: Confirm Stock
+Server -> DB: Create Order
+DB --> Server: Confirm Order
+Server -> Browser: Display Order Confirmation
+
+@enduml

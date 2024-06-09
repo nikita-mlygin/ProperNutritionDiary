@@ -3,6 +3,8 @@ using ProperNutritionDiary.Product.Persistence;
 using ProperNutritionDiary.Product.Presentation;
 using Serilog;
 
+Serilog.Debugging.SelfLog.Enable(Console.Error);
+
 var builder = WebApplication.CreateBuilder(args);
 
 var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -13,14 +15,7 @@ builder
     .AddJsonFile($"appsettings.{env}.json", optional: true)
     .AddEnvironmentVariables("PROPER_NUTRITION_DIARY");
 
-builder.Services.AddPersistence(
-    builder.Configuration.GetConnectionString("mysql")!,
-    builder.Configuration["Cassandra:Host"]!,
-    builder.Configuration["Cassandra:KeySpace"]!,
-    builder.Configuration["Cassandra:Name"]!,
-    builder.Configuration["Cassandra:Password"]!,
-    builder.Configuration["FsdaKey"]!
-);
+builder.Services.AddPersistence(builder.Configuration);
 
 builder.Services.AddApplication(
     typeof(ProperNutritionDiary.Product.Application.DependencyInjection).Assembly,
@@ -28,6 +23,7 @@ builder.Services.AddApplication(
 );
 
 builder.Services.AddPresentation(builder.Configuration);
+builder.Services.AddSerilog();
 
 builder.Host.UseSerilog(
     (ctx, cfg) =>
@@ -37,6 +33,8 @@ builder.Host.UseSerilog(
 );
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 app.AddPresentation();
 

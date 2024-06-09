@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using ProperNutritionDiary.BuildingBlocks.PresentationPackages;
 using ProperNutritionDiary.Product.Application.Product.Add;
+using ProperNutritionDiary.Product.Application.Product.Get;
 using ProperNutritionDiary.Product.Application.Product.Get.ById;
 using ProperNutritionDiary.Product.Application.Product.Get.Search;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
@@ -26,7 +27,7 @@ public sealed class ProductModule() : CarterModule("/api/product")
     {
         app.MapGet("test", Test).RequireAuthorization("guest");
         app.MapGet("{id}", GetById).RequireAuthorization("canViewProduct");
-        app.MapGet("s/{query}", Search).RequireAuthorization("canViewProduct");
+        app.MapGet("s/{query?}", Search).RequireAuthorization("canViewProduct");
         app.MapPost("", CreateProduct).RequireAuthorization("canCreateProduct");
     }
 
@@ -70,14 +71,15 @@ public sealed class ProductModule() : CarterModule("/api/product")
         );
     }
 
-    private static async Task<Results<Ok<List<ProductListSummary>>, BadRequest>> Search(
-        [FromRoute] string query,
+    private static async Task<Results<Ok<List<ProductSearchItemDto>>, BadRequest>> Search(
+        [FromRoute] string? query,
+        [FromQuery] int? page,
         ClaimsPrincipal u,
         IMediator mediator
     )
     {
         return TypedResults.Ok(
-            (await mediator.Send(new ProductSearch(query, u.GetUserId(), UserRole.App, 1))).Value
+            (await mediator.Send(new ProductSearch(query, u.GetUserId(), UserRole.App, page))).Value
         );
     }
 

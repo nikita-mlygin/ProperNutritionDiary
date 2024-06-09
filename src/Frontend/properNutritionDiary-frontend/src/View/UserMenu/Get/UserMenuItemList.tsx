@@ -19,6 +19,11 @@ interface MenuItemListProps {
     target: [number, keyof DetailsDay]
   ) => void;
   meal: string;
+  onDeleteItem: (
+    item: MenuItemDetails,
+    target: [number, keyof DetailsDay]
+  ) => void;
+  onDragChange: (nv: boolean) => void;
   items: MenuItemDetails[];
 }
 
@@ -27,9 +32,15 @@ const MainMenuItemList: FC<
     isEquals: (item1: MenuItemDetails, item2: MenuItemDetails) => boolean;
   }
 > = React.memo(
-  ({ sectionIndex, meal, items, onDrop, setItems }) => {
-    console.log("itemListUpdated");
-
+  ({
+    sectionIndex,
+    meal,
+    items,
+    onDrop,
+    setItems,
+    onDeleteItem,
+    onDragChange,
+  }) => {
     const [, drop] = useDrop(
       () => ({
         accept: "UserItem",
@@ -52,15 +63,24 @@ const MainMenuItemList: FC<
     };
 
     return (
-      <Stack spacing={2} ref={drop} style={{ height: "100%" }}>
+      <Stack
+        spacing={2}
+        ref={drop}
+        sx={{
+          height: "100%",
+        }}
+      >
         <Typography variant="subtitle2">{meal}</Typography>
         {items.map((item, index) => (
           <MenuItem
+            onDragChange={onDragChange}
             srcIndex={sectionIndex}
             key={item.id}
             item={item}
             setItem={(newItem) => updateItem(index, newItem(item))}
-            onDelete={() => {}}
+            onDelete={() => {
+              onDeleteItem(item, sectionIndex);
+            }}
           />
         ))}
       </Stack>
@@ -78,6 +98,8 @@ const MainMenuItemList: FC<
 );
 
 const MenuItemList: FC<MenuItemListProps> = (props) => {
+  console.log("List updated", props.sectionIndex);
+
   const { isMenuItemDeepEquals } = useUserMenuItemEquals();
 
   return <MainMenuItemList {...props} isEquals={isMenuItemDeepEquals} />;

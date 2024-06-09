@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import {
   DetailsDay,
   MenuItemDetails,
@@ -29,10 +29,13 @@ interface MenuItemProps {
     prevMutateFunction: (prev: MenuItemDetails) => MenuItemDetails
   ) => void;
   onDelete: () => void; // Обработчик для удаления продукта
+  onDragChange: (nv: boolean) => void;
 }
 
 const MenuItem: FC<MenuItemProps> = React.memo(
-  ({ item, srcIndex, setItem, onDelete }) => {
+  ({ item, srcIndex, setItem, onDelete, onDragChange }) => {
+    console.log("Item updated", srcIndex);
+
     const {
       weight,
       tempWeight,
@@ -50,16 +53,21 @@ const MenuItem: FC<MenuItemProps> = React.memo(
 
     const { toggleViewMode, viewMode } = useNutrientCalculation(item.weight);
 
-    const [, drag] = useDrag(
+    const [{ isDragging }, drag] = useDrag(
       () => ({
         type: "UserItem",
         item: {
           item: () => item,
           source: () => srcIndex,
         },
+        collect: (monitor) => ({ isDragging: monitor.isDragging() }),
       }),
       [item, srcIndex]
     );
+
+    useEffect(() => {
+      onDragChange(isDragging);
+    }, [isDragging, onDragChange]);
 
     return (
       <Paper>

@@ -1,6 +1,8 @@
 @startuml
 class MySqlConnectionProviderDecorator {
 }
+class "ILogger`1"<T> {
+}
 ConnectionProviderDecorator <|-- MySqlConnectionProviderDecorator
 ISqlConnectionProvider <|-- MySqlConnectionProviderDecorator
 @enduml

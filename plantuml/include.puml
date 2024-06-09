@@ -1,99 +1,111 @@
-@startuml
+@startuml include
+
+' skinparam dpi 900
+
+scale 32000 width
+' scale 4000 height
+
+
 class DependencyInjection <<static>> {
-    + {static} AddApplication(services:IServiceCollection, assemblies:Assembly[]) : IServiceCollection
+    + {static} AddPersistenceBuildingBlocks(serviceCollection:IServiceCollection) : IServiceCollection
 }
+class LinqExtensions <<static>> {
+    + {static} Chunk(source:IEnumerable<T>, chunkSize:int) : IEnumerable<IEnumerable<T>>
+}
+class Class1 {
+}
+class ClaimsPrincipalExtensions <<static>> {
+    + {static} GetUserId(u:ClaimsPrincipal) : Guid?
+    + {static} TryGetGuid(idStr:string) : Guid?
+}
+class "AddDbContext`1"<T> {
+}
+class "AddScoped`1"<T> {
+}
+class "Empty`1"<T> {
+}
+class "AddDbContext`1"<T> {
+}
+class "AddRefitClient`1"<T> {
+}
+class "GetRequiredService`1"<T> {
+}
+class "AddDbContext`1"<T> {
+}
+class "AddScoped`1"<T> {
+}
+class "Empty`1"<T> {
+}
+class "AddDbContext`1"<T> {
+}
+class "AddDbContext`1"<T> {
+}
+class HttpLoggingHandler {
+    # <<override>> <<async>> SendAsync(request:HttpRequestMessage, cancellationToken:CancellationToken) : Task<HttpResponseMessage>
+}
+class "ILogger`1"<T> {
+}
+DelegatingHandler <|-- HttpLoggingHandler
 class DependencyInjection <<static>> {
-    + {static} AddPersistence(services:IServiceCollection, mysqlConnectionString:string, cassandraHost:string, cassandraKeySpace:string, cassandraUserName:string, cassandraPassword:string) : IServiceCollection
+    - <<const>> UsdaPath : string = "https://api.nal.usda.gov/fdc/v1"
+    - <<const>> OpenApiPath : string = "https://world.openfoodfacts.net/api/v3/"
+    - <<const>> OpenApiSearchPath : string = "https://world.openfoodfacts.org/"
+    + {static} AddPersistence(services:IServiceCollection, mysqlConnectionString:string, cassandraHost:string, cassandraKeySpace:string, cassandraUserName:string, cassandraPassword:string, usdaClientApiKey:string) : IServiceCollection
 }
 class DependencyInjection <<static>> {
     + {static} AddPresentation(services:IServiceCollection, configuration:IConfiguration) : IServiceCollection
     + {static} AddPresentation(app:WebApplication) : WebApplication
 }
-class Class1 {
-}
 class DependencyInjection <<static>> {
-    + {static} AddPersistenceBuildingBlocks(serviceCollection:IServiceCollection) : IServiceCollection
+    + {static} AddApplication(services:IServiceCollection, assemblies:Assembly[]) : IServiceCollection
 }
-class ProductId <<record>> {
+class EdamamApiTest {
+    + EdamamApiTest(output:ITestOutputHelper)
+    + <<async>> TestName() : Task
+    - {static} GetLinks(sections:Dictionary<string, EdamamMenuResponse.SelectionType.Section>) : IEnumerable<string>
 }
-ProductId --> "Value" Guid
-class Product {
-    + {static} Create(id:ProductId, name:string, macronutrients:Macronutrients, creator:User, createdAt:DateTime) : Result<Product>
-    + Update(name:string, macronutrients:Macronutrients, updater:User, updateTime:DateTime) : Result
-    + Remove(remover:User, isInFavoriteList:bool) : Result
-    + Name : string <<get>>
-    + {static} FromSnapshot(product:ProductSnapshot) : Product
-    + ToSnapshot() : ProductSnapshot
+class "ILogger`1"<T> {
 }
-class "Entity`1"<T> {
+EdamamApiTest --> "edamamMenuApi" IEdamamMenuApi
+EdamamApiTest --> "edamamRecipeApi" IEdamamRecipeApi
+EdamamApiTest --> "edamamConverter" EdamamConverter
+EdamamApiTest --> "logger<EdamamApiTest>" "ILogger`1"
+class UserMenuServiceTest {
+    + UserMenuServiceTest(output:ITestOutputHelper)
+    + <<async>> TestCreatingMenu() : Task
 }
-"Entity`1" "<ProductId>" <|-- Product
-IAuditable <|-- Product
-Product --> "Macronutrients" Macronutrients
-Product --> "Owner" ProductOwner
-Product --> "CreatedAt" DateTime
-Product --> "UpdatedAt" DateTime
-class ProductOwner <<record>> {
-    + IsUser : bool <<get>>
-    + IsSystem : bool <<get>>
-    + {static} ByUser(user:UserId) : ProductOwner
-    + {static} BySystem() : ProductOwner
+class "ILogger`1"<T> {
 }
-ProductOwner --> "Owner" UserId
-class ProductSnapshot {
-    + Name : string <<get>> <<set>>
+UserMenuServiceTest --> "edamamMenuApi" IEdamamMenuApi
+UserMenuServiceTest --> "edamamRecipeApi" IEdamamRecipeApi
+UserMenuServiceTest --> "edamamConverter" EdamamConverter
+UserMenuServiceTest --> "userMenuService" UserMenuService
+UserMenuServiceTest --> "logger<UserMenuServiceTest>" "ILogger`1"
+class MySqlConnectionProvider {
+    - <<readonly>> connectionString : string
+    + Get() : Task<DbConnection>
 }
-ProductSnapshot --> "Id" Guid
-ProductSnapshot o-> "Macronutrients" MacronutrientsSnapshot
-ProductSnapshot --> "Owner" Guid
-ProductSnapshot --> "CreatedAt" DateTime
-ProductSnapshot --> "UpdatedAt" DateTime
-interface IProductRepository {
-    + GetFavoriteProductListAsync(user:UserId) : Task<IEnumerable<Product>>
-    + AddProductToFavoriteListAsync(user:UserId, product:ProductId, addedAt:DateTime) : Task
-    + RemoveProductFromFavoriteListAsync(user:UserId, product:ProductId) : Task
-    + GetUserWhichFavoriteListContainsProduct(product:Product) : Task<IEnumerable<UserId>>
-    + IsProductInFavoriteList(user:UserId, product:ProductId) : Task<bool>
+IConnectionProvider <|-- MySqlConnectionProvider
+class GuidTypeHandler {
+    + <<override>> SetValue(parameter:IDbDataParameter, guid:Guid) : void
+    + <<override>> Parse(value:object) : Guid
 }
-class "IRepository`2"<T1,T2> {
+class "TypeHandler`1"<T> {
 }
-"IRepository`2" "<Product,ProductId>" <|-- IProductRepository
-class ProductErrors <<static>> {
+class MacronutrientsErrors <<static>> {
 }
-ProductErrors o-> "NameIsNullOrEmpty" Error
-ProductErrors o-> "CreatorIsGuest" Error
-ProductErrors o-> "UpdateNotAllowedToNoOwner" Error
-ProductErrors o-> "RemoveNotAllowedToNoOwner" Error
-ProductErrors o-> "RemoveNotAllowedWhenInFavoriteList" Error
-ProductErrors o-> "AdminUserNotAllowedAddToFavoriteList" Error
-ProductErrors o-> "ProductAlreadyInFavoriteList" Error
-ProductErrors o-> "ProductNotInFavoriteList" Error
-ProductErrors o-> "ProductNotFound" Error
-class UserId <<record>> {
-}
-UserId --> "Value" Guid
-class User {
-}
-enum UserRole {
-    Guest,
-    Admin,
-    PlainUser,
-}
-class "Entity`1"<T> {
-}
-"Entity`1" "<UserId>" <|-- User
-User o-> "Role" UserRole
+MacronutrientsErrors o-> "ValueLessZero" Error
 class MacronutrientsSnapshot {
     + Calories : decimal <<get>> <<set>>
     + Proteins : decimal <<get>> <<set>>
     + Fats : decimal <<get>> <<set>>
     + Carbohydrates : decimal <<get>> <<set>>
 }
-class MacronutrientsErrors <<static>> {
-}
-MacronutrientsErrors o-> "ValueLessZero" Error
 class Macronutrients <<record>> {
+    + Macronutrients()
+    - Macronutrients(calories:decimal, proteins:decimal, fats:decimal, carbohydrates:decimal)
     + {static} Create(calories:decimal, proteins:decimal, fats:decimal, carbohydrates:decimal) : Result<Macronutrients>
+    - {static} CheckValueByNotLessZero(value:decimal) : bool
     + Calories : decimal <<get>> <<init>>
     + Proteins : decimal <<get>> <<init>>
     + Fats : decimal <<get>> <<init>>
@@ -101,10 +113,296 @@ class Macronutrients <<record>> {
     + {static} FromSnapshot(snapshot:MacronutrientsSnapshot) : Macronutrients
     + ToSnapshot() : MacronutrientsSnapshot
 }
+class StaticUserStatsConf {
+    + Configure(builder:EntityTypeBuilder<StaticUserStats>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<StaticUserStats>" <|-- StaticUserStatsConf
+class StaticUserStats {
+    + Height : decimal? <<get>> <<set>>
+    + LifeStyle : string? <<get>> <<set>>
+}
+StaticUserStats --> "Id" Guid
+StaticUserStats --> "UserId" Guid
+class AppCtx {
+    # <<override>> OnModelCreating(modelBuilder:ModelBuilder) : void
+}
+class "DbContextOptions`1"<T> {
+}
+class "DbSet`1"<T> {
+}
+DbContext <|-- AppCtx
+AppCtx --> "StaticUserStats<StaticUserStats>" "DbSet`1"
+AppCtx --> "DynamicUserStats<DynamicUserStats>" "DbSet`1"
+class DynamicUserStats {
+    + Weight : decimal <<get>> <<set>>
+}
+DynamicUserStats --> "Id" Guid
+DynamicUserStats --> "UserId" Guid
+DynamicUserStats --> "StartDateTime" DateTime
+DynamicUserStats --> "EndDateTime" DateTime
+class DynamicUserStatsConf {
+    + Configure(builder:EntityTypeBuilder<DynamicUserStats>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<DynamicUserStats>" <|-- DynamicUserStatsConf
+class Init <<partial>> {
+    # <<override>> Up(migrationBuilder:MigrationBuilder) : void
+    # <<override>> Down(migrationBuilder:MigrationBuilder) : void
+}
+Migration <|-- Init
+class Init <<partial>> {
+    # <<override>> BuildTargetModel(modelBuilder:ModelBuilder) : void
+}
+class AppCtxModelSnapshot <<partial>> {
+    # <<override>> BuildModel(modelBuilder:ModelBuilder) : void
+}
+ModelSnapshot <|-- AppCtxModelSnapshot
+class MenuConfigurationService {
+    + Create(cfg:GenerateMenuConfiguration) : Result<EdamamMenuRequest>
+    - CreateFrom(cfg:BaseGenerateMenuConfiguration) : EdamamMenuRequest.MainPredicate
+    - CreateFit(cfg:BaseGenerateMenuConfiguration, accuracyI:decimal?) : Dictionary<string, EdamamMenuRequest.Range>
+}
+class "ILogger`1"<T> {
+}
+class UserMenuModule {
+    + <<override>> AddRoutes(app:IEndpointRouteBuilder) : void
+    - {static} <<async>> Create(rq:CreateRequest, u:ClaimsPrincipal, ums:UserMenuService) : Task<Results<Ok<Guid>, BadRequest<string>, ForbidHttpResult>>
+    - {static} <<async>> GetActual(u:ClaimsPrincipal, ums:UserMenuService, date:DateTime?) : Task<Results<Ok<Details>, BadRequest<string>>>
+    - {static} Generate(cfg:GenerateMenuConfiguration, u:ClaimsPrincipal, service:UserMenuService) : Task<Results<Ok<Details>, BadRequest<string>>>
+}
+CarterModule <|-- UserMenuModule
+class UserMenuService {
+    + Create(id:Guid, userId:Guid, role:string, items:List<Dictionary<int, CreateMenuItem>>) : Task<Result<Guid>>
+    + <<async>> GetActualMenu(userId:Guid, date:DateTime) : Task<Result<Details>>
+    + CreateFromEdamam(userId:Guid, cfg:GenerateMenuConfiguration) : Task<Result<UserMenu>>
+    - <<async>> CreateResponse(rq:EdamamMenuRequest) : Task<EdamamMenuResponse?>
+    - <<async>> GetRecipes(rs:EdamamMenuResponse) : Task<Result<EdamamRecipeResponse[]>>
+    - CreateUserMenu(menuRs:EdamamMenuResponse, recipesRs:EdamamRecipeResponse[], userId:Guid) : UserMenu
+    - {static} GetLinks(sections:Dictionary<string, EdamamMenuResponse.SelectionType.Section>) : IEnumerable<string>
+    + {static} Adapt(userMenu:UserMenu) : Func<Details>
+    - {static} Adapt(x:UserMenuItem) : MenuItemDetails
+}
+class "ILogger`1"<T> {
+}
+class AppCtx {
+    # <<override>> OnModelCreating(modelBuilder:ModelBuilder) : void
+}
+class "DbContextOptions`1"<T> {
+}
+class "DbSet`1"<T> {
+}
+DbContext <|-- AppCtx
+AppCtx --> "UserMenus<UserMenu>" "DbSet`1"
+AppCtx --> "DailyMenus<UserDailyMenu>" "DbSet`1"
+AppCtx --> "UserMenuItems<UserMenuItem>" "DbSet`1"
+AppCtx --> "ProductIdentities<ProductIdentity>" "DbSet`1"
+class Roles <<static>> {
+    + {static} <<readonly>> Plain : string = "plain"
+    + {static} <<readonly>> Guest : string = "guest"
+    + {static} <<readonly>> Admin : string = "admin"
+}
+class HttpLoggingHandler {
+    # <<override>> <<async>> SendAsync(request:HttpRequestMessage, cancellationToken:CancellationToken) : Task<HttpResponseMessage>
+}
+class "ILogger`1"<T> {
+}
+DelegatingHandler <|-- HttpLoggingHandler
+class AppCtxModelSnapshot <<partial>> {
+    # <<override>> BuildModel(modelBuilder:ModelBuilder) : void
+}
+ModelSnapshot <|-- AppCtxModelSnapshot
+class Init <<partial>> {
+    # <<override>> Up(migrationBuilder:MigrationBuilder) : void
+    # <<override>> Down(migrationBuilder:MigrationBuilder) : void
+}
+Migration <|-- Init
+class Init <<partial>> {
+    # <<override>> BuildTargetModel(modelBuilder:ModelBuilder) : void
+}
+enum ProductIdentityType {
+    SystemItem,
+    USDA,
+    Barcode,
+    Edamam,
+}
+class ProductItem {
+    + Value : string <<get>> <<set>>
+}
+ProductItem --> "Type" ProductIdentityType
+interface IProductApi {
+    + CreateProduct(rq:CreateProductRequest) : Task<Guid>
+    + GetProductById(id:Guid) : Task<ProductDetails>
+}
+class ProductDetails {
+    + Name : string <<get>> <<set>> = ""
+    + ViewCount : int <<get>> <<set>>
+    + UseCount : int <<get>> <<set>>
+}
+class CreateProductRequest {
+    + ProductName : string <<get>> <<set>>
+    + Calories : decimal <<get>> <<set>>
+    + Proteins : decimal <<get>> <<set>>
+    + Fats : decimal <<get>> <<set>>
+    + Carbohydrates : decimal <<get>> <<set>>
+}
+ProductDetails --> "Id" Guid
+ProductDetails o-> "Macronutrients" Macronutrients
+ProductDetails --> "Owner" Guid
+class User {
+    + Login : string <<get>> <<set>>
+    + PasswordHash : string <<get>> <<set>>
+    + Role : string <<get>> <<set>>
+}
+User o-> "Id" Guid
+class UserModule {
+    + <<override>> AddRoutes(app:IEndpointRouteBuilder) : void
+    - {static} <<async>> GetGuest(userService:UserService, httpCtx:HttpContext) : Task<Results<Ok<TokenDto>, ForbidHttpResult>>
+    - {static} <<async>> Login(rq:LoginRequest, httpContext:HttpContext, uS:UserService) : Task<Results<Ok<TokenDto>, ForbidHttpResult>>
+    - {static} <<async>> Reg(rq:RegRequest, uS:UserService) : Task<Results<Ok, ForbidHttpResult>>
+    - {static} <<async>> Refresh(eJwt:string, httpContext:HttpContext, uS:UserService, logger:ILogger<UserModule>) : Task<Results<Ok<TokenDto>, ForbidHttpResult>>
+    - {static} OnSuccess(res:(string jwt, string rt), ctx:HttpContext) : TokenDto
+}
+CarterModule <|-- UserModule
+class UserConfiguration {
+    + Configure(builder:EntityTypeBuilder<User>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<User>" <|-- UserConfiguration
+class AppCtx {
+    # <<override>> OnModelCreating(modelBuilder:ModelBuilder) : void
+}
+class "DbContextOptions`1"<T> {
+}
+class "DbSet`1"<T> {
+}
+DbContext <|-- AppCtx
+AppCtx o-> "Users<User>" "DbSet`1"
+AppCtx o-> "Refreshes<UserRefresh>" "DbSet`1"
+class AppCtxModelSnapshot <<partial>> {
+    # <<override>> BuildModel(modelBuilder:ModelBuilder) : void
+}
+ModelSnapshot <|-- AppCtxModelSnapshot
+class Init <<partial>> {
+    # <<override>> BuildTargetModel(modelBuilder:ModelBuilder) : void
+}
+class Init <<partial>> {
+    # <<override>> Up(migrationBuilder:MigrationBuilder) : void
+    # <<override>> Down(migrationBuilder:MigrationBuilder) : void
+}
+Migration <|-- Init
+class AppCtx {
+    # <<override>> OnModelCreating(modelBuilder:ModelBuilder) : void
+}
+class "DbContextOptions`1"<T> {
+}
+class "DbSet`1"<T> {
+}
+DbContext <|-- AppCtx
+AppCtx --> "UserPlans<UserPlan>" "DbSet`1"
+class UserPlanConf {
+    + Configure(builder:EntityTypeBuilder<UserPlan>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<UserPlan>" <|-- UserPlanConf
+class UserPlan {
+}
+UserPlan --> "Id" Guid
+UserPlan --> "UserId" Guid
+UserPlan --> "DateStart" DateTime
+UserPlan --> "DateEnd" DateTime
+UserPlan o-> "MacronutrientsGoal" Macronutrients
+class Init <<partial>> {
+    # <<override>> Up(migrationBuilder:MigrationBuilder) : void
+    # <<override>> Down(migrationBuilder:MigrationBuilder) : void
+}
+Migration <|-- Init
+class Init <<partial>> {
+    # <<override>> BuildTargetModel(modelBuilder:ModelBuilder) : void
+}
+class AppCtxModelSnapshot <<partial>> {
+    # <<override>> BuildModel(modelBuilder:ModelBuilder) : void
+}
+ModelSnapshot <|-- AppCtxModelSnapshot
+class AppCtx {
+    # <<override>> OnModelCreating(modelBuilder:ModelBuilder) : void
+}
+class "DbContextOptions`1"<T> {
+}
+class "DbSet`1"<T> {
+}
+DbContext <|-- AppCtx
+AppCtx --> "Diaries<Diary>" "DbSet`1"
+AppCtx --> "DiaryEntries<DiaryEntry>" "DbSet`1"
+class AppCtxModelSnapshot <<partial>> {
+    # <<override>> BuildModel(modelBuilder:ModelBuilder) : void
+}
+ModelSnapshot <|-- AppCtxModelSnapshot
+class Init <<partial>> {
+    # <<override>> BuildTargetModel(modelBuilder:ModelBuilder) : void
+}
+class Init <<partial>> {
+    # <<override>> Up(migrationBuilder:MigrationBuilder) : void
+    # <<override>> Down(migrationBuilder:MigrationBuilder) : void
+}
+Migration <|-- Init
+class DiaryConf {
+    + Configure(builder:EntityTypeBuilder<Diary>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<Diary>" <|-- DiaryConf
+class Diary {
+}
+class "List`1"<T> {
+}
+Diary --> "Id" Guid
+Diary --> "UserId" Guid
+Diary --> "Date" DateTime
+Diary o-> "DiaryEntries<DiaryEntry>" "List`1"
+class DiaryEntry {
+    + ProductName : string <<get>> <<set>>
+    + Weight : decimal <<get>> <<set>>
+}
+DiaryEntry --> "Id" Guid
+DiaryEntry --> "ProductId" Guid
+DiaryEntry o-> "Macronutrients" Macronutrients
+DiaryEntry --> "ConsumptionTime" DateTime
+class DiaryEntryConf {
+    + Configure(builder:EntityTypeBuilder<DiaryEntry>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<DiaryEntry>" <|-- DiaryEntryConf
 class GlobalMappingsDefinition {
     + GlobalMappingsDefinition()
 }
 Mappings <|-- GlobalMappingsDefinition
+class MySqlConnectionProviderDecorator {
+}
+class "ILogger`1"<T> {
+}
+ConnectionProviderDecorator <|-- MySqlConnectionProviderDecorator
+ISqlConnectionProvider <|-- MySqlConnectionProviderDecorator
+interface INoSqlConnectionProvider {
+    + Get() : Task<IMapper>
+}
+class MySqlConnectionProvider {
+}
+ISqlConnectionProvider <|-- MySqlConnectionProvider
+interface ISqlConnectionProvider {
+}
+IConnectionProvider <|-- ISqlConnectionProvider
+class NoSqlConnectionProvider {
+    - <<readonly>> keySpace : string
+    + Get() : Task<IMapper>
+}
+INoSqlConnectionProvider <|-- NoSqlConnectionProvider
+NoSqlConnectionProvider o-> "cluster" Cluster
 class ProductRepository {
     + <<async>> AddProductToFavoriteListAsync(user:UserId, product:ProductId, addedAt:DateTime) : Task
     + <<async>> CreateAsync(entity:Product) : Task
@@ -118,40 +416,164 @@ class ProductRepository {
     + <<async>> UpdateAsync(entity:Product) : Task
 }
 IProductRepository <|-- ProductRepository
-interface INoSqlConnectionProvider {
-    + Get() : Task<IMapper>
+ProductRepository o-> "connectionProvider" IConnectionProvider
+class ExternalProductRepository {
+    + <<async>> Search(query:string, page:int) : Task<(List<Product>? products, int[] pageCounts)>
+    + GetFromExternalSource(externalSourceIdentity:ExternalSourceIdentity) : Task<Product?>
 }
-interface ISqlConnectionProvider {
+class "ILogger`1"<T> {
 }
-IConnectionProvider <|-- ISqlConnectionProvider
-class MySqlConnectionProvider {
-}
-ISqlConnectionProvider <|-- MySqlConnectionProvider
-class MySqlConnectionProviderDecorator {
-}
-ConnectionProviderDecorator <|-- MySqlConnectionProviderDecorator
-ISqlConnectionProvider <|-- MySqlConnectionProviderDecorator
-class NoSqlConnectionProvider {
-    + Get() : Task<IMapper>
-}
-INoSqlConnectionProvider <|-- NoSqlConnectionProvider
-class ProductController <<sealed>> {
+IExternalProductRepository <|-- ExternalProductRepository
+ExternalProductRepository o-> "usdaApi" IUsdaApi
+ExternalProductRepository o-> "usdaConverter" UsdaConverter
+ExternalProductRepository o-> "openFoodFactsApi" IOpenFoodFactsApi
+ExternalProductRepository o-> "openFoodFactsSearchApi" IOpenFoodFactsSearchApi
+ExternalProductRepository o-> "logger<ExternalProductRepository>" "ILogger`1"
+class ProductModule <<sealed>> {
     + <<override>> AddRoutes(app:IEndpointRouteBuilder) : void
-    + <<async>> GetById(ctx:HttpContext, id:Guid) : Task<Results<Ok<ProductSummary>, BadRequest>>
+    - {static} Test() : Results<Ok, ForbidHttpResult>
+    - {static} <<async>> GetById(ctx:HttpContext, id:Guid, logger:ILogger<ProductModule>, mediator:IMediator) : Task<Results<Ok<ProductSummaryDto>, BadRequest>>
+    - {static} <<async>> Search(query:string, page:int?, u:ClaimsPrincipal, mediator:IMediator) : Task<Results<Ok<List<ProductListItemDto>>, BadRequest>>
+    - {static} <<async>> CreateProduct(u:ClaimsPrincipal, rq:CreateProductRequest, mediator:IMediator) : Task<
+        Results<Ok<Guid>, BadRequest<string>, ForbidHttpResult>
+    >
 }
-class ProductSummaryDTO {
+class CreateProductRequest {
+    + ProductName : string <<get>> <<set>>
+    + Calories : decimal <<get>> <<set>>
+    + Proteins : decimal <<get>> <<set>>
+    + Fats : decimal <<get>> <<set>>
+    + Carbohydrates : decimal <<get>> <<set>>
 }
-CarterModule <|-- ProductController
-class GuidTypeHandler {
-    + <<override>> SetValue(parameter:IDbDataParameter, guid:Guid) : void
-    + <<override>> Parse(value:object) : Guid
+class ProductSummaryDto {
+    + Name : string <<get>> <<set>> = ""
+    + ViewCount : int <<get>> <<set>>
+    + UseCount : int <<get>> <<set>>
 }
-class "TypeHandler`1"<T> {
+CarterModule <|-- ProductModule
+ProductSummaryDto --> "Id" Guid
+ProductSummaryDto o-> "Macronutrients" Macronutrients
+ProductSummaryDto --> "Owner" Guid
+class MacronutrientsErrors <<static>> {
 }
-class MySqlConnectionProvider {
-    + Get() : Task<DbConnection>
+MacronutrientsErrors o-> "ValueLessZero" Error
+class MacronutrientsSnapshot {
+    + Calories : decimal <<get>> <<set>>
+    + Proteins : decimal <<get>> <<set>>
+    + Fats : decimal <<get>> <<set>>
+    + Carbohydrates : decimal <<get>> <<set>>
 }
-IConnectionProvider <|-- MySqlConnectionProvider
+class Macronutrients <<record>> {
+    - Macronutrients(calories:decimal, proteins:decimal, fats:decimal, carbohydrates:decimal)
+    + {static} Create(calories:decimal, proteins:decimal, fats:decimal, carbohydrates:decimal) : Result<Macronutrients>
+    - {static} CheckValueByNotLessZero(value:decimal) : bool
+    + Calories : decimal <<get>> <<init>>
+    + Proteins : decimal <<get>> <<init>>
+    + Fats : decimal <<get>> <<init>>
+    + Carbohydrates : decimal <<get>> <<init>>
+    + {static} FromSnapshot(snapshot:MacronutrientsSnapshot) : Macronutrients
+    + ToSnapshot() : MacronutrientsSnapshot
+}
+class UserId <<record>> {
+}
+UserId --> "Value" Guid
+class User {
+}
+enum UserRole {
+    Guest,
+    Admin,
+    App,
+    PlainUser,
+}
+class "Entity`1"<T> {
+}
+"Entity`1" "<UserId>" <|-- User
+User o-> "Role" UserRole
+class ProductOwner <<record>> {
+    - ProductOwner(isUser:bool, owner:UserId?)
+    - <<readonly>> isUser : bool
+    + IsUser : bool <<get>>
+    + IsSystem : bool <<get>>
+    + {static} ByUser(user:UserId) : ProductOwner
+    + {static} BySystem() : ProductOwner
+}
+ProductOwner --> "Owner" UserId
+class ProductErrors <<static>> {
+}
+ProductErrors o-> "NameIsNullOrEmpty" Error
+ProductErrors o-> "CreatorIsGuest" Error
+ProductErrors o-> "UpdateNotAllowedToNoOwner" Error
+ProductErrors o-> "RemoveNotAllowedToNoOwner" Error
+ProductErrors o-> "RemoveFromExternalSource" Error
+ProductErrors o-> "RemoveNotAllowedWhenInFavoriteList" Error
+ProductErrors o-> "AdminUserNotAllowedAddToFavoriteList" Error
+ProductErrors o-> "ProductAlreadyInFavoriteList" Error
+ProductErrors o-> "ProductNotInFavoriteList" Error
+ProductErrors o-> "ProductNotFound" Error
+interface IProductRepository {
+    + GetFavoriteProductListAsync(user:UserId) : Task<IEnumerable<Product>>
+    + AddProductToFavoriteListAsync(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + RemoveProductFromFavoriteListAsync(user:UserId, product:ProductId) : Task
+    + GetUserWhichFavoriteListContainsProduct(product:Product) : Task<IEnumerable<UserId>>
+    + IsProductInFavoriteList(user:UserId, product:ProductId) : Task<bool>
+}
+class "IRepository`2"<T1,T2> {
+}
+"IRepository`2" "<Product,ProductId>" <|-- IProductRepository
+class ProductSnapshot {
+    + Name : string <<get>> <<set>>
+    + FromExternalSource : bool <<get>> <<set>>
+    + ExternalSource : string? <<get>> <<set>>
+}
+ProductSnapshot --> "Id" Guid
+ProductSnapshot o-> "Macronutrients" MacronutrientsSnapshot
+ProductSnapshot --> "Owner" Guid
+ProductSnapshot --> "ExternalSourceType" ExternalSourceType
+ProductSnapshot --> "CreatedAt" DateTime
+ProductSnapshot --> "UpdatedAt" DateTime
+interface IExternalProductRepository {
+    + GetFromExternalSource(externalSourceIdentity:ExternalSourceIdentity) : Task<Product?>
+    + Search(query:string, page:int) : Task<(List<Product>? products, int[] pageCounts)>
+}
+class ProductId <<record>> {
+}
+ProductId --> "Value" Guid
+class Product {
+    - Product(id:ProductId, name:string, macronutrients:Macronutrients, owner:ProductOwner?, createdAt:DateTime, updatedAt:DateTime?, externalSource:ExternalSourceIdentity?)
+    + {static} Create(id:ProductId, name:string, macronutrients:Macronutrients, creator:User, createdAt:DateTime) : Result<Product>
+    + Update(name:string, macronutrients:Macronutrients, updater:User, updateTime:DateTime) : Result
+    + Remove(remover:User, isInFavoriteList:bool) : Result
+    + Name : string <<get>>
+    + IsExternalSourceProduct : bool <<get>>
+    - CheckUpdater(updater:User) : bool
+    - CheckRemover(remover:User) : bool
+    + {static} FromSnapshot(product:ProductSnapshot) : Product
+    + ToSnapshot() : ProductSnapshot
+}
+class "Entity`1"<T> {
+}
+"Entity`1" "<ProductId>" <|-- Product
+IAuditable <|-- Product
+Product --> "Macronutrients" Macronutrients
+Product --> "Owner" ProductOwner
+Product --> "ExternalSource" ExternalSourceIdentity
+Product --> "CreatedAt" DateTime
+Product --> "UpdatedAt" DateTime
+class PersistenceContext {
+    - <<const>> host : string = "localhost"
+    - <<const>> keySpace : string = "product"
+    - <<const>> name : string = "user"
+    + PersistenceContext()
+    + InjectLogging(output:ITestOutputHelper) : void
+}
+PersistenceContext --> "provider" ServiceProvider
+PersistenceContext --> "ServiceProvider" ServiceProvider
+PersistenceContext --> "Services" IServiceCollection
+class PersistenceCollection {
+}
+class "ICollectionFixture`1"<T> {
+}
+"ICollectionFixture`1" "<PersistenceContext>" <|-- PersistenceCollection
 class ProductSummaryRepositoryTest {
     + ProductSummaryRepositoryTest(context:PersistenceContext, output:ITestOutputHelper)
     + <<async>> AddView_MustExec() : Task
@@ -160,28 +582,39 @@ class ProductSummaryRepositoryTest {
     + <<async>> GetAllPopular_MustExec_WhenUserPopular() : Task
     + <<async>> GetList_MustExec() : Task
 }
+ProductSummaryRepositoryTest --> "productSummaryRepository" IProductSummaryRepository
+ProductSummaryRepositoryTest --> "productRepository" IProductRepository
 ProductSummaryRepositoryTest --> "ServiceProvider" ServiceProvider
-class PersistenceContext {
-    + PersistenceContext()
-    + InjectLogging(output:ITestOutputHelper) : void
-}
-PersistenceContext --> "provider" ServiceProvider
-PersistenceContext --> "ServiceProvider" ServiceProvider
 class ProductRepositoryTest {
+    - <<const>> name : string = "name"
+    - <<const>> newName : string = "new name"
+    <<const>> - usdaCode : string = "2677671"
+    <<const>> - barcode : string = "3017620422003"
     + ProductRepositoryTest(context:PersistenceContext, output:ITestOutputHelper)
     + <<async>> CreateAndGetByIdAsync_MustExec() : Task
     + <<async>> FavoriteListActions_MustExec() : Task
     + <<async>> IsInFavoriteList_MustReturnFalse_WhenIsNotInFavoriteList() : Task
     + <<async>> IsInFavoriteList_MustReturnTrue_WhenIsInFavoriteList() : Task
     + <<async>> GetUserWhichFavoriteListContainsProduct_MustReturnUsers() : Task
+    + <<async>> TestExternalSource() : Task
+    + <<async>> TestSearchOpenApi() : Task
 }
+class "ILogger`1"<T> {
+}
+ProductRepositoryTest o-> "id" ProductId
+ProductRepositoryTest o-> "macronutrients" Macronutrients
+ProductRepositoryTest o-> "plainUserCreator" User
+ProductRepositoryTest o-> "newMacronutrients" Macronutrients
+ProductRepositoryTest --> "productRepository" IProductRepository
+ProductRepositoryTest o-> "createdAt" DateTime
+ProductRepositoryTest o-> "updatedAt" DateTime
+ProductRepositoryTest --> "converter" UsdaConverter
+ProductRepositoryTest --> "searchApi" IOpenFoodFactsSearchApi
+ProductRepositoryTest --> "logger<ProductRepositoryTest>" "ILogger`1"
+ProductRepositoryTest --> "externalProductRepository" IExternalProductRepository
 ProductRepositoryTest --> "ServiceProvider" ServiceProvider
-class PersistenceCollection {
-}
-class "ICollectionFixture`1"<T> {
-}
-"ICollectionFixture`1" "<PersistenceContext>" <|-- PersistenceCollection
 class ProductTest {
+    - <<const>> name : string = "ProductTestName"
     + CreateProduct_MustReturnFailed_WhenNameIsNullOrEmpty() : void
     + CreateProduct_MustReturnSuccessAndRaiseEvent_WhenOk() : void
     + UpdateProduct_MustReturnFailed_WhenUpdateSystemProductWithNotAdminUpdater() : void
@@ -193,123 +626,592 @@ class ProductTest {
     + UpdateProduct_MustReturnFailed_WhenUpdateProductWithNullOrEmptyName() : void
     + UpdateProduct_MustReturnSuccessAndRaiseEvent_WhenProductUpdateOk() : void
 }
+ProductTest o-> "productId" ProductId
+ProductTest o-> "createdAt" DateTime
+ProductTest o-> "updatedAt" DateTime
+ProductTest o-> "macronutrients" Macronutrients
+ProductTest o-> "plainUser" User
+ProductTest o-> "adminUser" User
+ProductTest o-> "anotherPlainUser" User
 class MacronutrientsTest {
     + SumOfTwoMacronutrients_ShouldReturnSumOfLeftAndRight() : void
 }
+MacronutrientsTest o-> "left" Macronutrients
+MacronutrientsTest o-> "right" Macronutrients
 class ProductFavoriteServiceTest {
     + ProductFavoriteServiceTest()
     + <<async>> AddToFavoriteList_ShouldFailed_WhenUserIsAdmin() : Task
     + <<async>> AddToFavoriteList_ShouldFailed_WhenProductAlreadyInFavoriteList() : Task
     + <<async>> AddToFavoriteList_ShouldSuccess_WhenOk() : Task
 }
+ProductFavoriteServiceTest --> "productFavoriteService" ProductFavoriteService
+ProductFavoriteServiceTest --> "productRepository" IProductRepository
+ProductFavoriteServiceTest --> "eventDispatcher" IEventDispatcher
+ProductFavoriteServiceTest o-> "adminUser" User
+ProductFavoriteServiceTest o-> "plainUser" User
+ProductFavoriteServiceTest --> "testProduct" Product
 class UpdateProductHandlerTest {
+    - <<const>> newName : string = "newName"
     + UpdateProductHandlerTest()
     + <<async>> Handle_MustReturnFailed_WhenErrInCommand() : Task
     + <<async>> Handle_MustExec() : Task
 }
+class "ILogger`1"<T> {
+}
+UpdateProductHandlerTest --> "productRepository" IProductRepository
+UpdateProductHandlerTest --> "logger<UpdateProductCommandHandler>" "ILogger`1"
+UpdateProductHandlerTest --> "handler" UpdateProductCommandHandler
+UpdateProductHandlerTest o-> "newMacronutrients" Macronutrients
+UpdateProductHandlerTest o-> "user" User
+UpdateProductHandlerTest --> "product" Product
+UpdateProductHandlerTest --> "command" UpdateProductCommand
+class GetProductByIdHandlerTest {
+    + GetProductByIdHandlerTest()
+    + <<async>> Handle_MustExec() : Task
+}
+GetProductByIdHandlerTest --> "productRepository" IProductSummaryRepository
+GetProductByIdHandlerTest --> "eventDispatcher" IEventDispatcher
+GetProductByIdHandlerTest --> "handler" GetProductByIdQueryHandler
+GetProductByIdHandlerTest --> "productSummary" ProductSummary
+GetProductByIdHandlerTest --> "query" GetProductByIdQuery
+GetProductByIdHandlerTest o-> "user" User
 class RemoveProductHandlerTest {
     + RemoveProductHandlerTest()
     + <<async>> Handle_MustReturnFailed_WhenErrInCommand() : Task
     + <<async>> Handle_MustExec() : Task
 }
-class GetProductListHandlerTest {
-    + GetProductListHandlerTest()
-    + <<async>> Handle_MustExec() : Task
+class "ILogger`1"<T> {
 }
+RemoveProductHandlerTest --> "productRepository" IProductRepository
+RemoveProductHandlerTest --> "logger<RemoveProductCommandHandler>" "ILogger`1"
+RemoveProductHandlerTest --> "handler" RemoveProductCommandHandler
+RemoveProductHandlerTest --> "product" Product
+RemoveProductHandlerTest --> "command" RemoveProductCommand
+RemoveProductHandlerTest o-> "user" User
 class CreateProductHandlerTest {
+    - <<const>> productName : string = "productName"
     + CreateProductHandlerTest()
     + <<async>> Handle_MustReturnFailed_WhenMacronutrientsHasError() : Task
     + <<async>> Handle_MustReturnFailed_WhenProductHasError() : Task
     + <<async>> Handle_MustExec() : Task
 }
-class GetProductByIdHandlerTest {
-    + GetProductByIdHandlerTest()
+class "ILogger`1"<T> {
+}
+CreateProductHandlerTest --> "productSummaryRepository" IProductRepository
+CreateProductHandlerTest --> "logger<CreateProductCommandHandler>" "ILogger`1"
+CreateProductHandlerTest --> "command" CreateProductCommand
+CreateProductHandlerTest o-> "user" User
+CreateProductHandlerTest o-> "macronutrients" Macronutrients
+class GetProductListHandlerTest {
+    + GetProductListHandlerTest()
     + <<async>> Handle_MustExec() : Task
 }
-class ProductRemoved {
+GetProductListHandlerTest --> "productRepository" IProductSummaryRepository
+GetProductListHandlerTest --> "eventDispatcher" IEventDispatcher
+GetProductListHandlerTest --> "handler" GetProductListHandler
+GetProductListHandlerTest --> "productSummary" ProductSummary
+GetProductListHandlerTest --> "query" GetProductList
+GetProductListHandlerTest o-> "user" User
+class UserMenu {
 }
-DomainEvent <|-- ProductRemoved
-ProductRemoved o-> "RemovedProduct" Product
-class ProductUpdated {
-    + OldName : string <<get>> <<init>>
+class "List`1"<T> {
 }
-DomainEvent <|-- ProductUpdated
-ProductUpdated o-> "OldMacronutrients" Macronutrients
-ProductUpdated o-> "TargetProduct" Product
-interface IProductFavoriteService {
-    + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
-    + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+UserMenu --> "Id" Guid
+UserMenu --> "Date" DateTime
+UserMenu --> "UserId" Guid
+UserMenu o-> "DailyMenus<UserDailyMenu>" "List`1"
+class UserMenuItem {
+    + ProductName : string <<get>> <<set>> = ""
+    + Weight : decimal <<get>> <<set>>
+    + RecipeUrl : string? <<get>> <<set>>
+    + ConsumptionNumber : int <<get>> <<set>>
 }
-class ProductFavoriteService {
-    + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
-    + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+UserMenuItem --> "Id" Guid
+UserMenuItem --> "ProductIdentityId" Guid
+UserMenuItem o-> "ProductId" ProductIdentity
+UserMenuItem o-> "Macronutrients" Macronutrients
+UserMenuItem --> "RecipeLines<string>" "List`1"
+class UserDailyMenu {
+    + DayNumber : int <<get>> <<set>>
+    + GetTotalMacronutrients() : Macronutrients
 }
-IProductFavoriteService <|-- ProductFavoriteService
-class ProductCreated {
+class "List`1"<T> {
 }
-DomainEvent <|-- ProductCreated
-ProductCreated o-> "CreatedProduct" Product
-class ProductCreatedEvent <<record>> {
-    + Name : string <<get>> <<init>>
-    + Owner : ProductOwner? <<get>> <<init>>
+UserDailyMenu --> "Id" Guid
+UserDailyMenu o-> "MenuItems<UserMenuItem>" "List`1"
+class CreateDaily {
 }
-ProductCreatedEvent --> "ProductId" ProductId
-ProductCreatedEvent --> "Macronutrients" Macronutrients
-interface IProductSummaryRepository {
-    + GetById(id:ProductId) : Task<ProductSummary?>
-    + GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
-    + GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
-    + GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
-    + AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
-    + AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
+class "List`1"<T> {
 }
-class ProductListSummary <<record>> {
-    + Name : string <<get>> <<init>>
+CreateDaily o-> "Breakfast<CreateMenuItem>" "List`1"
+CreateDaily o-> "Lunch<CreateMenuItem>" "List`1"
+CreateDaily o-> "Dinner<CreateMenuItem>" "List`1"
+class CreateMenuItem {
+    + Weight : decimal <<get>> <<set>>
 }
-ProductListSummary --> "Id" ProductId
-ProductListSummary --> "Owner" ProductOwner
-class ProductReceived {
+CreateMenuItem o-> "Product" ProductItem
+class CreateRequest {
 }
-DomainEvent <|-- ProductReceived
-ProductReceived o-> "ReceivedProduct" ProductId
-ProductReceived o-> "User" UserId
-class ProductSummary <<record>> {
-    + Name : string <<get>> <<init>>
-    + ViewCount : int <<get>> <<init>>
-    + UseCount : int <<get>> <<init>>
+class "List`1"<T> {
 }
-ProductSummary --> "Id" ProductId
-ProductSummary --> "Macronutrients" Macronutrients
-ProductSummary --> "Owner" ProductOwner
-class ProductAddedToDiary {
+CreateRequest o-> "Days<CreateDaily>" "List`1"
+class BaseGenerateMenuConfiguration {
 }
-DomainEvent <|-- ProductAddedToDiary
-ProductAddedToDiary o-> "AddedProduct" ProductId
-ProductAddedToDiary o-> "UserId" UserId
-class RemoveProductCommand <<sealed>> <<record>> {
+class GenerateMenuConfiguration {
+    + DayCount : int <<get>> <<set>>
+}
+class SectionMenuFilter {
+}
+class NutrientFilterType {
+    + TargetCalories : decimal? <<get>> <<set>>
+    + TargetProtein : decimal? <<get>> <<set>>
+    + TargetFats : decimal? <<get>> <<set>>
+    + TargetCarbohydrates : decimal? <<get>> <<set>>
+}
+class "Dictionary`2"<T1,T2> {
+}
+BaseGenerateMenuConfiguration --> "NutrientFilter" NutrientFilterType
+BaseGenerateMenuConfiguration <|-- GenerateMenuConfiguration
+GenerateMenuConfiguration --> "Breakfast" SectionMenuFilter
+GenerateMenuConfiguration --> "Lunch" SectionMenuFilter
+GenerateMenuConfiguration --> "Dinner" SectionMenuFilter
+BaseGenerateMenuConfiguration +-- SectionMenuFilter
+BaseGenerateMenuConfiguration <|-- SectionMenuFilter
+BaseGenerateMenuConfiguration +-- NutrientFilterType
+NutrientFilterType o-> "Other<string,decimal>" "Dictionary`2"
+interface IEdamamMenuApi {
+    + GetMenu(AppId:string, body:EdamamMenuRequest) : Task<ApiResponse<EdamamMenuResponse>>
+}
+class EdamamMenuRequest {
+    + Size : int <<get>> <<set>>
+}
+class EdamamMenuResponse {
+    + Status : string <<get>> <<set>>
+}
+class Range {
+    + Min : int? <<get>> <<set>>
+    + Max : int? <<get>> <<set>>
+}
+class MainPredicate {
+}
+class Predicate {
+}
+class MenuPlan {
+}
+class SelectionType {
+}
+class "Dictionary`2"<T1,T2> {
+}
+class Section {
+    + Assigned : string? <<get>> <<set>>
+}
+EdamamMenuRequest o-> "Plan" MenuPlan
+EdamamMenuRequest +-- Range
+EdamamMenuRequest +-- MainPredicate
+MainPredicate --> "All<Predicate>" "List`1"
+MainPredicate --> "Any<Predicate>" "List`1"
+MainPredicate --> "Not<Predicate>" "List`1"
+EdamamMenuRequest +-- Predicate
+EdamamMenuRequest +-- MenuPlan
+MenuPlan --> "Accept" MainPredicate
+MenuPlan --> "Fit<string,Range>" "Dictionary`2"
+MenuPlan --> "Sections<string,MenuPlan>" "Dictionary`2"
+EdamamMenuResponse +-- SelectionType
+SelectionType o-> "Sections<string,Section>" "Dictionary`2"
+SelectionType +-- Section
+Section --> "Sections<string,Section>" "Dictionary`2"
+interface IEdamamRecipeApi {
+    + GetByUrl(uri:string[], appId:string, appKey:string, field:string[], type:string) : Task<ApiResponse<EdamamRecipeResponse>>
+}
+class EdamamRecipeResponse {
+    + From : int <<get>> <<set>>
+    + To : int <<get>> <<set>>
+    + Count : int <<get>> <<set>>
+}
+class Hit {
+}
+class RecipeType {
+    + Uri : string <<get>> <<set>>
+    + Label : string <<get>> <<set>>
+    + Yield : decimal <<get>> <<set>>
+    + Source : string <<get>> <<set>>
+    + Url : string <<get>> <<set>>
+    + ShareAs : string <<get>> <<set>>
+    + Calories : decimal <<get>> <<set>>
+    + TotalWeight : decimal <<get>> <<set>>
+}
+class NutrientItem {
+    + Label : string <<get>> <<set>>
+    + Quantity : decimal <<get>> <<set>>
+    + Unit : string <<get>> <<set>>
+}
+class "List`1"<T> {
+}
+class "Dictionary`2"<T1,T2> {
+}
+EdamamRecipeResponse +-- Hit
+Hit o-> "Recipe" RecipeType
+Hit +-- RecipeType
+RecipeType o-> "IngredientLines<string>" "List`1"
+RecipeType o-> "TotalNutrients<string,NutrientItem>" "Dictionary`2"
+RecipeType +-- NutrientItem
+class EdamamConverter {
+    + Convert(response:EdamamRecipeResponse.Hit.RecipeType, consumptionNumber:int) : UserMenuItem
+    + Convert(hits:List<EdamamRecipeResponse.Hit>, menu:EdamamMenuResponse, userId:Guid) : UserMenu
+    - CreateFromSections(section:EdamamMenuResponse.SelectionType[], hits:List<EdamamRecipeResponse.Hit>) : IEnumerable<UserDailyMenu>
+    - CreateFromSections(section:EdamamMenuResponse.SelectionType.Section, hits:List<EdamamRecipeResponse.Hit>, i:int, cn:int) : IEnumerable<UserMenuItem>
+    + GetLinks(sections:Dictionary<string, EdamamMenuResponse.SelectionType.Section>) : IEnumerable<string>
+}
+class "ILogger`1"<T> {
+}
+class UserMenuItemConf {
+    + Configure(builder:EntityTypeBuilder<UserMenuItem>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<UserMenuItem>" <|-- UserMenuItemConf
+class UserMenuConf {
+    + Configure(builder:EntityTypeBuilder<UserMenu>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<UserMenu>" <|-- UserMenuConf
+class UserDailyMenuConf {
+    + Configure(builder:EntityTypeBuilder<UserDailyMenu>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<UserDailyMenu>" <|-- UserDailyMenuConf
+class ProductIdentityExtensions <<static>> {
+    + {static} For(productIdentity:ProductIdentity, func:Func<T, TRes>) : ProductIdentityFunctionBuilder<TRes>
+}
+class "ProductIdentityFunctionBuilder`1"<TRes> {
+    - <<readonly>> function : Func<ProductIdentity, TRes>? = null
+    + ProductIdentityFunctionBuilder(action:Func<ProductIdentity, TRes>, identity:ProductIdentity, type:Type)
+    + ProductIdentityFunctionBuilder(prev:ProductIdentityFunctionBuilder<TRes>, next:Func<ProductIdentity, TRes>, type:Type)
+    + Build() : TRes?
+}
+class ProductIdentityFunctionBuilderExtensions <<static>> {
+    + {static} For(productIdentityFunctionBuilder:ProductIdentityFunctionBuilder<TRes>, func:Func<T, TRes>) : ProductIdentityFunctionBuilder<TRes>
+}
+"ProductIdentityFunctionBuilder`1" --> "identity" ProductIdentity
+class EdamamProductIdentity {
+    + Url : string <<get>> <<set>>
+}
+ProductIdentity <|-- EdamamProductIdentity
+EdamamProductIdentity --> "Type" ProductIdentityType
+abstract class ProductIdentity {
+    + <<virtual>> For(action:Action<T>) : void
+}
+ProductIdentity --> "Id" Guid
+ProductIdentity --> "Type" ProductIdentityType
+class UsdaProductIdentity {
+    + Code : string <<get>> <<set>>
+}
+ProductIdentity <|-- UsdaProductIdentity
+UsdaProductIdentity --> "Type" ProductIdentityType
+class BarcodeProductIdentity {
+    + Barcode : string <<get>> <<set>>
+}
+ProductIdentity <|-- BarcodeProductIdentity
+BarcodeProductIdentity --> "Type" ProductIdentityType
+class SystemProductIdentity {
+}
+ProductIdentity <|-- SystemProductIdentity
+SystemProductIdentity --> "Guid" Guid
+SystemProductIdentity --> "Type" ProductIdentityType
+class ProductIdentityConfiguration {
+    + Configure(builder:EntityTypeBuilder<ProductIdentity>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<ProductIdentity>" <|-- ProductIdentityConfiguration
+class Roles <<static>> {
+    + {static} <<readonly>> Plain : string = "plain"
+    + {static} <<readonly>> Guest : string = "guest"
+    + {static} <<readonly>> Admin : string = "admin"
+}
+class UserRefreshConf {
+    + Configure(builder:EntityTypeBuilder<UserRefresh>) : void
+}
+class "IEntityTypeConfiguration`1"<T> {
+}
+"IEntityTypeConfiguration`1" "<UserRefresh>" <|-- UserRefreshConf
+class UserRefresh {
+    + Ip : string <<get>> <<set>>
+    + DeviceHash : string <<get>> <<set>>
+    + RT : string? <<get>> <<set>>
+}
+UserRefresh o-> "UserId" Guid
+UserRefresh o-> "DateAdded" DateTime
+class RegRequest {
+    + Login : string <<get>> <<set>> = ""
+    + Password : string <<get>> <<set>> = ""
+}
+class UserService {
+    + <<async>> GenerateGuestToken(httpCtx:HttpContext) : Task<(string jwt, string rt)?>
+    + <<async>> RefreshToken(expiredToken:string, rt:string, httpCtx:HttpContext) : Task<(string jwt, string rt)?>
+    + <<async>> FirstGeneration(login:string, password:string, httpCtx:HttpContext) : Task<Result<(string jwt, string rt)>>
+    + <<async>> Registration(login:string, password:string) : Task<Result>
+    - {static} GetDeviceHash(httpCtx:HttpContext) : string
+    - {static} GetIpAddress(httpCtx:HttpContext) : string
+    - {static} GenerateHash(str:string) : string
+}
+class "ILogger`1"<T> {
+}
+UserService o-> "tg" TokenGenerator
+UserService o-> "logger<UserService>" "ILogger`1"
+UserService o-> "ctx" AppCtx
+class TokenGenerator {
+    + GenerateTokens(id:Guid, login:string, role:string) : (string jwt, string rt)
+    + ParseExpiredLogin(jwt:string) : (Guid id, string login, string role)?
+    - GenerateJwt(id:string, login:string, role:string) : string
+    - {static} GenerateRefreshToken() : string
+    - {static} GenerateKey(cfg:IConfiguration) : SymmetricSecurityKey
+    - {static} CreateExpiredAt(now:DateTime, cfg:IConfiguration) : DateTime
+    - CreateSecureTokenDescriptor(id:string, name:string, role:string, expiredAt:DateTime) : SecurityTokenDescriptor
+    - CreateExpiredTokenVP() : TokenValidationParameters
+}
+class TokenDto {
+    + Jwt : string <<get>> <<set>>
+    + Rt : string <<get>> <<set>>
+}
+class LoginRequest {
+    + Login : string <<get>> <<set>> = ""
+    + Password : string <<get>> <<set>> = ""
+}
+class OpenFoodFactsConverter <<static>> {
+    + {static} Convert(res:OpenApiSearchResponse?) : List<Product>?
+    + {static} Convert(product:OpenFoodFactsProduct?) : Product?
+    + {static} Convert(product:OpenApiSearchResponse.OpenApiSearchProduct) : Product
+    - {static} GetTypeMacronutrients(product:OpenFoodFactsProduct) : MacronutrientsSnapshot
+    - {static} GetTypeMacronutrients(nutrients:Nutrients) : MacronutrientsSnapshot
+}
+interface IOpenFoodFactsSearchApi {
+    + Search(searchTerms:string, page:int) : Task<ApiResponse<OpenApiSearchResponse>>
+}
+class OpenApiSearchResponse {
+    + Page : int <<get>> <<set>>
+    + PageCount : int <<get>> <<set>>
+}
+class OpenApiSearchProduct {
+    + Code : string <<get>> <<set>>
+    + ProductName : string <<get>> <<set>>
+}
+OpenApiSearchResponse +-- OpenApiSearchProduct
+OpenApiSearchProduct o-> "Nutriments" Nutrients
+interface IOpenFoodFactsApi {
+    + GetByBarcode(barcode:string, cc:string, lc:string) : Task<ApiResponse<OpenFoodFactsProduct>>
+}
+class OpenFoodFactsProduct {
+    + Code : string <<get>> <<set>>
+    + Status : string <<get>> <<set>>
+}
+class ProductInfo {
+    + ProductName : string <<get>> <<set>>
+}
+class Nutrients {
+    + Carbohydrates : decimal <<get>> <<set>>
+    + Carbohydrates100g : decimal <<get>> <<set>>
+    + CarbohydratesServing : decimal <<get>> <<set>>
+    + CarbohydratesUnit : string <<get>> <<set>>
+    + CarbohydratesValue : decimal <<get>> <<set>>
+    + Energy : decimal <<get>> <<set>>
+    + EnergyKcal : decimal <<get>> <<set>>
+    + EnergyKcal100g : decimal <<get>> <<set>>
+    + EnergyKcalServing : decimal <<get>> <<set>>
+    + EnergyKcalUnit : string <<get>> <<set>>
+    + EnergyKcalValue : decimal <<get>> <<set>>
+    + EnergyKcalValueComputed : decimal <<get>> <<set>>
+    + Fat : decimal <<get>> <<set>>
+    + Fat100g : decimal <<get>> <<set>>
+    + FatServing : decimal <<get>> <<set>>
+    + FatUnit : string <<get>> <<set>>
+    + FatValue : decimal <<get>> <<set>>
+    + Fiber : decimal <<get>> <<set>>
+    + Fiber100g : decimal <<get>> <<set>>
+    + FiberServing : decimal <<get>> <<set>>
+    + FiberUnit : string <<get>> <<set>>
+    + FiberValue : decimal <<get>> <<set>>
+    + Proteins : decimal <<get>> <<set>>
+    + Proteins100g : decimal <<get>> <<set>>
+    + ProteinsServing : decimal <<get>> <<set>>
+    + ProteinsUnit : string <<get>> <<set>>
+    + ProteinsValue : decimal <<get>> <<set>>
+    + Salt : decimal <<get>> <<set>>
+    + Salt100g : decimal <<get>> <<set>>
+    + SaltServing : decimal <<get>> <<set>>
+    + SaltUnit : string <<get>> <<set>>
+    + SaltValue : decimal <<get>> <<set>>
+    + Sugars : decimal <<get>> <<set>>
+    + Sugars100g : decimal <<get>> <<set>>
+    + SugarsServing : decimal <<get>> <<set>>
+    + SugarsUnit : string <<get>> <<set>>
+    + SugarsValue : decimal <<get>> <<set>>
+}
+class ResultInfo {
+    + Id : string <<get>> <<set>>
+    + LcName : string <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+}
+OpenFoodFactsProduct o-> "Product" ProductInfo
+OpenFoodFactsProduct o-> "Result" ResultInfo
+ProductInfo o-> "Nutriments" Nutrients
+class ProductSummaryExtensions <<static>> {
+    + {static} FromSnapshot(snapshot:ProductSummarySnapshot) : ProductSummary
+}
+class ProductSnapshotExtensions <<static>> {
+    + {static} GetParam(product:ProductSnapshot) : Dictionary<string, object?>
+}
+class FavoriteProductSnapshot {
+}
+FavoriteProductSnapshot o-> "UserId" Guid
+FavoriteProductSnapshot o-> "ProductId" Guid
+FavoriteProductSnapshot o-> "AddedAt" DateTime
+interface IUsdaApi {
+    + Get(id:string) : Task<ApiResponse<string>>
+    + Get(query:string, pageNumber:int, pageSize:int) : Task<ApiResponse<UsdaSearchResult>>
+}
+class UsdaSearchResult {
+    + CurrentPage : int <<get>> <<set>>
+    + TotalPages : int <<get>> <<set>>
+}
+class BaseUsdaProductItem {
+    + Id : int <<get>> <<set>>
+    + DataType : string <<get>> <<set>>
+}
+class AbridgedFoodNutrient {
+    + Number : string <<get>> <<set>>
+    + NutrientNumber : string <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+    + Amount : decimal <<get>> <<set>>
+    + Value : decimal <<get>> <<set>>
+    + UnitName : string <<get>> <<set>>
+}
+class SearchResultFood {
+    + FdcId : int <<get>> <<set>>
+    + DataType : string <<get>> <<set>>
+    + Description : string <<get>> <<set>>
+}
+UsdaSearchResult +-- AbridgedFoodNutrient
+UsdaSearchResult +-- SearchResultFood
+class UsdaConverter {
+    - <<const>> CaloriesMacronutrientNumber : string = "208"
+    - <<const>> ProteinMacronutrientNumber : string = "203"
+    - <<const>> FatMacronutrientNumber : string = "204"
+    - <<const>> CarbohydratesMacronutrientNumber : string = "205"
+    + TryConvert(results:UsdaSearchResult?) : List<Product>?
+    + TryConvert(productJson:string?) : Product?
+    + TryConvert(usdaProduct:BrandedFoodInfo) : Product?
+    + TryConvert(foundationProduct:FoundationFoodItem) : Product?
+    + TryConvert(product:UsdaSearchResult.SearchResultFood) : Product?
+    - TryGetName(usdaProduct:BrandedFoodInfo) : Result<string>
+    - TryGetName(usdaProduct:FoundationFoodItem) : Result<string>
+    - {static} IsNull(value:T?) : bool
+    - TryGetMacronutrients(usdaProduct:BrandedFoodInfo) : Result<MacronutrientsSnapshot>
+    - TryGetMacronutrients(usdaProduct:FoundationFoodItem) : Result<MacronutrientsSnapshot>
+    + {static} TryGetMacronutrients(foodNutrient:FoodNutrient[]) : Result<MacronutrientsSnapshot>
+    + {static} TryGetMacronutrients(foodNutrient:UsdaSearchResult.AbridgedFoodNutrient[]) : Result<MacronutrientsSnapshot>
+}
+class "ILogger`1"<T> {
+}
+class FavoriteTable <<static>> {
+    + <<const>> table : string = "favorite_product"
+    + <<const>> user : string = "user_id"
+    + <<const>> product : string = "product_id"
+    + <<const>> addedAt : string = "added_at"
+}
+class UserStatisticsTable <<static>> {
+    + <<const>> table : string = "user_product_statistics"
+    + <<const>> userId : string = "user_id"
+    + <<const>> productId : string = "product_id"
+    + <<const>> viewCount : string = "view_count"
+    + <<const>> addCount : string = "add_count"
+}
+class ProductTable <<static>> {
+    + <<const>> table : string = "product"
+    + <<const>> num : string = "num"
+    + <<const>> id : string = "id"
+    + <<const>> name : string = "name"
+    + <<const>> calories : string = "calories"
+    + <<const>> proteins : string = "proteins"
+    + <<const>> fats : string = "fats"
+    + <<const>> carbohydrates : string = "carbohydrates"
+    + <<const>> owner : string = "owner"
+    + <<const>> externalSource : string = "external_source"
+    + <<const>> externalSourceType : string = "external_source_type"
+    + <<const>> createdAt : string = "created_at"
+    + <<const>> updatedAt : string = "updated_at"
+    + <<const>> viewCount : string = "view_count"
+    + <<const>> addCount : string = "add_count"
+}
+class ProductSummarySnapshot {
+    + Name : string <<get>> <<set>>
+    + ExternalSource : string? <<get>> <<set>>
+    + ViewCount : int <<get>> <<set>>
+    + AddCount : int <<get>> <<set>>
+}
+ProductSummarySnapshot --> "Id" Guid
+ProductSummarySnapshot o-> "Macronutrients" MacronutrientsSnapshot
+ProductSummarySnapshot --> "ExternalSourceType" ExternalSourceType
+ProductSummarySnapshot --> "Owner" Guid
+class ProductSummaryRepository {
+    - <<readonly>> pageSize : int = 20
+    + <<async>> AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
+    + <<async>> AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
+    + <<async>> GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + <<async>> GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + <<async>> GetById(id:ProductId) : Task<ProductSummary?>
+    - {static} <<async>> HasStatisticsRow(userId:Guid, productId:Guid, transaction:DbTransaction) : Task<bool>
+    - {static} <<async>> AddViewToUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> AddUserToUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> UpdateViewInUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> UpdateUseInUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> CreateUserStatistics(snapshot:UserStatisticsSnapshot, transaction:DbTransaction) : Task
+    + <<async>> GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
+}
+class "ILogger`1"<T> {
+}
+IProductSummaryRepository <|-- ProductSummaryRepository
+ProductSummaryRepository o-> "sqlConnectionProvider" ISqlConnectionProvider
+ProductSummaryRepository o-> "noSqlConnectionProvider" INoSqlConnectionProvider
+class CreateProductCommandHandler <<sealed>> {
+    + Handle(request:CreateProductCommand, cancellationToken:CancellationToken) : Task<Result<Guid>>
+    - OnSuccess(product:Product) : Func<Task<Guid>>
+}
+class "ILogger`1"<T> {
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<CreateProductCommand,Result<Guid>>" <|-- CreateProductCommandHandler
+CreateProductCommandHandler o-> "productRepository" IProductRepository
+CreateProductCommandHandler o-> "logger<CreateProductCommandHandler>" "ILogger`1"
+class CreateProductCommand <<sealed>> <<record>> {
+    + UserId : Guid? <<get>> <<init>>
+    + ProductName : string <<get>> <<init>>
+    + Calories : decimal <<get>> <<init>>
+    + Proteins : decimal <<get>> <<init>>
+    + Fats : decimal <<get>> <<init>>
+    + Carbohydrates : decimal <<get>> <<init>>
 }
 class "IRequest`1"<T> {
 }
-"IRequest`1" "<Result>" <|-- RemoveProductCommand
-RemoveProductCommand --> "UserId" Guid
-RemoveProductCommand --> "UserRole" UserRole
-RemoveProductCommand --> "ProductId" Guid
-class RemoveProductCommandHandler <<sealed>> {
-    + <<async>> Handle(request:RemoveProductCommand, cancellationToken:CancellationToken) : Task<Result>
+"IRequest`1" "<Result<Guid>>" <|-- CreateProductCommand
+CreateProductCommand --> "UserRole" UserRole
+class ExternalSourceIdentitySummary <<record>> {
+    + Type : string <<get>> <<init>>
+    + Value : string <<get>> <<init>>
 }
-class "ILogger`1"<T> {
+class ProductListItemDto <<record>> {
+    + Name : string <<get>> <<init>>
+    + Owner : ProductOwnerDto? <<get>> <<init>>
+    + ExternalSource : ExternalSourceIdentitySummary? <<get>> <<init>>
 }
-class "IRequestHandler`2"<T1,T2> {
+ProductListItemDto --> "Id" Guid
+class ProductOwnerDto <<record>> {
+    + OwnerType : string <<get>> <<init>>
+    + OwnerIdentity : string? <<get>> <<init>>
 }
-"IRequestHandler`2" "<RemoveProductCommand,Result>" <|-- RemoveProductCommandHandler
-class UpdateProductCommandHandler <<sealed>> {
-    + Handle(request:UpdateProductCommand, cancellationToken:CancellationToken) : Task<Result>
-}
-class "ILogger`1"<T> {
-}
-class "IRequestHandler`2"<T1,T2> {
-}
-"IRequestHandler`2" "<UpdateProductCommand,Result>" <|-- UpdateProductCommandHandler
 class UpdateProductCommand <<sealed>> <<record>> {
     + NewName : string <<get>> <<init>>
     + Calories : decimal <<get>> <<init>>
@@ -323,129 +1225,472 @@ class "IRequest`1"<T> {
 UpdateProductCommand --> "UserId" Guid
 UpdateProductCommand --> "UserRole" UserRole
 UpdateProductCommand --> "ProductId" Guid
-class CreateProductCommand <<sealed>> <<record>> {
-    + ProductName : string <<get>> <<init>>
-    + Calories : decimal <<get>> <<init>>
-    + Proteins : decimal <<get>> <<init>>
-    + Fats : decimal <<get>> <<init>>
-    + Carbohydrates : decimal <<get>> <<init>>
-}
-class "IRequest`1"<T> {
-}
-"IRequest`1" "<Result<Guid>>" <|-- CreateProductCommand
-CreateProductCommand --> "UserId" Guid
-CreateProductCommand --> "UserRole" UserRole
-class CreateProductCommandHandler <<sealed>> {
-    + Handle(request:CreateProductCommand, cancellationToken:CancellationToken) : Task<Result<Guid>>
+class UpdateProductCommandHandler <<sealed>> {
+    + Handle(request:UpdateProductCommand, cancellationToken:CancellationToken) : Task<Result>
+    - OnSuccess(request:UpdateProductCommand, user:User) : Func<Product, Task<Result>>
+    - {static} UpdateProduct(product:Product, newName:string, macronutrients:Macronutrients, user:User) : Func<Result>
 }
 class "ILogger`1"<T> {
 }
 class "IRequestHandler`2"<T1,T2> {
 }
-"IRequestHandler`2" "<CreateProductCommand,Result<Guid>>" <|-- CreateProductCommandHandler
-class ProductSummaryRepository {
-    + <<async>> AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
-    + <<async>> AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
-    + <<async>> GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
-    + <<async>> GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
-    + <<async>> GetById(id:ProductId) : Task<ProductSummary?>
-    + <<async>> GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
+"IRequestHandler`2" "<UpdateProductCommand,Result>" <|-- UpdateProductCommandHandler
+UpdateProductCommandHandler o-> "productRepository" IProductRepository
+UpdateProductCommandHandler o-> "logger<UpdateProductCommandHandler>" "ILogger`1"
+class RemoveProductCommandHandler <<sealed>> {
+    + <<async>> Handle(request:RemoveProductCommand, cancellationToken:CancellationToken) : Task<Result>
+    - OnSuccess(user:User) : Func<Product, Task<Result>>
+    - OnSuccess(product:Product, user:User, isInFavorite:bool) : Task<Result>
+    - {static} RemoveProduct(product:Product, user:User, isInFavorite:bool) : Func<Result>
 }
-IProductSummaryRepository <|-- ProductSummaryRepository
-class ProductSummarySnapshot {
-    + Name : string <<get>> <<set>>
-    + ViewCount : int <<get>> <<set>>
-    + AddCount : int <<get>> <<set>>
-}
-ProductSummarySnapshot --> "Id" Guid
-ProductSummarySnapshot o-> "Macronutrients" MacronutrientsSnapshot
-ProductSummarySnapshot --> "Owner" Guid
-class ProductSummaryExtensions <<static>> {
-    + {static} FromSnapshot(snapshot:ProductSummarySnapshot) : ProductSummary
-}
-class ProductSnapshotExtensions <<static>> {
-    + {static} GetParam(product:ProductSnapshot) : Dictionary<string, object?>
-}
-class FavoriteProductSnapshot {
-}
-FavoriteProductSnapshot o-> "UserId" Guid
-FavoriteProductSnapshot o-> "ProductId" Guid
-FavoriteProductSnapshot o-> "AddedAt" DateTime
-class UserStatisticsTable <<static>> {
-    + <<const>> table : string = "user_product_statistics"
-    + <<const>> userId : string = "user_id"
-    + <<const>> productId : string = "product_id"
-    + <<const>> viewCount : string = "view_count"
-    + <<const>> addCount : string = "add_count"
-}
-class FavoriteTable <<static>> {
-    + <<const>> table : string = "favorite_product"
-    + <<const>> user : string = "user_id"
-    + <<const>> product : string = "product_id"
-    + <<const>> addedAt : string = "added_at"
-}
-class ProductTable <<static>> {
-    + <<const>> table : string = "product"
-    + <<const>> num : string = "num"
-    + <<const>> id : string = "id"
-    + <<const>> name : string = "name"
-    + <<const>> calories : string = "calories"
-    + <<const>> proteins : string = "proteins"
-    + <<const>> fats : string = "fats"
-    + <<const>> carbohydrates : string = "carbohydrates"
-    + <<const>> owner : string = "owner"
-    + <<const>> createdAt : string = "created_at"
-    + <<const>> updatedAt : string = "updated_at"
-    + <<const>> viewCount : string = "view_count"
-    + <<const>> addCount : string = "add_count"
-}
-class ProductRemovedFromFavoriteList {
-}
-DomainEvent <|-- ProductRemovedFromFavoriteList
-ProductRemovedFromFavoriteList o-> "User" UserId
-ProductRemovedFromFavoriteList o-> "Product" ProductId
-class ProductAddedToFavorite {
-}
-DomainEvent <|-- ProductAddedToFavorite
-ProductAddedToFavorite o-> "User" UserId
-ProductAddedToFavorite o-> "Product" ProductId
-class GetProductList <<sealed>> <<record>> {
-    + Query : string <<get>> <<init>>
-    + LastProduct : Guid? <<get>> <<init>>
-}
-class "IRequest`1"<T> {
-}
-"IRequest`1" "<List<ProductListSummary>>" <|-- GetProductList
-GetProductList --> "User" Guid
-GetProductList --> "UserRole" UserRole
-class GetProductListHandler <<sealed>> {
-    + <<async>> Handle(request:GetProductList, cancellationToken:CancellationToken) : Task<List<ProductListSummary>>
+class "ILogger`1"<T> {
 }
 class "IRequestHandler`2"<T1,T2> {
 }
-"IRequestHandler`2" "<GetProductList,List<ProductListSummary>>" <|-- GetProductListHandler
-class GetProductByIdQueryHandler <<sealed>> {
-    + <<async>> Handle(request:GetProductByIdQuery, cancellationToken:CancellationToken) : Task<ProductSummary?>
-}
-class "IRequestHandler`2"<T1,T2> {
-}
-"IRequestHandler`2" "<GetProductByIdQuery,ProductSummary?>" <|-- GetProductByIdQueryHandler
-class GetProductByIdQuery <<sealed>> <<record>> {
+"IRequestHandler`2" "<RemoveProductCommand,Result>" <|-- RemoveProductCommandHandler
+RemoveProductCommandHandler o-> "productRepository" IProductRepository
+RemoveProductCommandHandler o-> "logger<RemoveProductCommandHandler>" "ILogger`1"
+class RemoveProductCommand <<sealed>> <<record>> {
 }
 class "IRequest`1"<T> {
 }
-"IRequest`1" "<ProductSummary?>" <|-- GetProductByIdQuery
-GetProductByIdQuery --> "ProductId" Guid
-GetProductByIdQuery --> "UserId" Guid
-GetProductByIdQuery --> "UserRole" UserRole
-class ProductListSummaryExtensions <<static>> {
-    + {static} To(snapshot:ProductListSummarySnapshot) : ProductListSummary
+"IRequest`1" "<Result>" <|-- RemoveProductCommand
+RemoveProductCommand --> "UserId" Guid
+RemoveProductCommand --> "UserRole" UserRole
+RemoveProductCommand --> "ProductId" Guid
+class ProductListSummary <<record>> {
+    + Name : string <<get>> <<init>>
+    + ExternalSource : ExternalSourceIdentity? <<get>> <<init>>
 }
-class ProductListSummarySnapshot {
+ProductListSummary --> "Id" ProductId
+ProductListSummary --> "Owner" ProductOwner
+class ProductSummary <<record>> {
+    + Name : string <<get>> <<init>>
+    + ExternalSourceIdentity : ExternalSourceIdentity? <<get>> <<init>>
+    + ViewCount : int <<get>> <<init>>
+    + UseCount : int <<get>> <<init>>
+}
+ProductSummary --> "Id" ProductId
+ProductSummary --> "Macronutrients" Macronutrients
+ProductSummary --> "Owner" ProductOwner
+class ProductReceived {
+}
+DomainEvent <|-- ProductReceived
+ProductReceived o-> "ReceivedProduct" ProductId
+ProductReceived o-> "User" UserId
+interface IProductSummaryRepository {
+    + GetById(id:ProductId) : Task<ProductSummary?>
+    + GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
+    + GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
+    + AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
+    + AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
+}
+enum ExternalSourceType {
+    USDA,
+    Barcode,
+}
+class ProductCreated {
+}
+DomainEvent <|-- ProductCreated
+ProductCreated o-> "CreatedProduct" Product
+class ProductCreatedEvent <<record>> {
+    + Name : string <<get>> <<init>>
+    + Owner : ProductOwner? <<get>> <<init>>
+}
+ProductCreatedEvent --> "ProductId" ProductId
+ProductCreatedEvent --> "Macronutrients" Macronutrients
+class ProductFavoriteService {
+    + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
+    + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+    - AddProductToFavoriteList(user:User, product:Product, timeAdded:DateTime) : Func<Task>
+    - RemoveProductFromFavoriteList(user:User, product:Product) : Func<Task>
+    - DispatchEvent(e:DomainEvent) : Func<Task>
+}
+IProductFavoriteService <|-- ProductFavoriteService
+ProductFavoriteService o-> "productRepository" IProductRepository
+ProductFavoriteService o-> "eventDispatcher" IEventDispatcher
+interface IProductFavoriteService {
+    + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
+    + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+}
+class ProductUpdated {
+    + OldName : string <<get>> <<init>>
+}
+DomainEvent <|-- ProductUpdated
+ProductUpdated o-> "OldMacronutrients" Macronutrients
+ProductUpdated o-> "TargetProduct" Product
+class ProductAddedToDiary {
+}
+DomainEvent <|-- ProductAddedToDiary
+ProductAddedToDiary o-> "AddedProduct" ProductId
+ProductAddedToDiary o-> "UserId" UserId
+class ProductRemoved {
+}
+DomainEvent <|-- ProductRemoved
+ProductRemoved o-> "RemovedProduct" Product
+class DetailsDay {
+    + DayNumber : int <<get>> <<set>>
+}
+class "List`1"<T> {
+}
+DetailsDay o-> "Breakfast<MenuItemDetails>" "List`1"
+DetailsDay o-> "Lunch<MenuItemDetails>" "List`1"
+DetailsDay o-> "Dinner<MenuItemDetails>" "List`1"
+class Details {
+}
+class "List`1"<T> {
+}
+Details --> "Id" Guid
+Details --> "Date" DateTime
+Details o-> "DailyMenus<DetailsDay>" "List`1"
+class MenuItemDetails {
+    + ProductName : string <<get>> <<set>> = ""
+    + ProductId : string <<get>> <<set>>
+    + Weight : decimal <<get>> <<set>>
+}
+MenuItemDetails --> "Id" Guid
+MenuItemDetails --> "ProductIdentityType" ProductIdentityType
+MenuItemDetails o-> "Macronutrients" Macronutrients
+class CuisineType <<static>> {
+    + <<const>> american : string = "american"
+    + <<const>> asian : string = "asian"
+    + <<const>> british : string = "british"
+    + <<const>> caribbean : string = "caribbean"
+    + <<const>> centralEurope : string = "central europe"
+    + <<const>> chinese : string = "chinese"
+    + <<const>> easternEurope : string = "eastern europe"
+    + <<const>> french : string = "french"
+    + <<const>> greek : string = "greek"
+    + <<const>> indian : string = "indian"
+    + <<const>> italian : string = "italian"
+    + <<const>> japanese : string = "japanese"
+    + <<const>> korean : string = "korean"
+    + <<const>> kosher : string = "kosher"
+    + <<const>> mediterranean : string = "mediterranean"
+    + <<const>> mexican : string = "mexican"
+    + <<const>> middleEastern : string = "middle eastern"
+    + <<const>> nordic : string = "nordic"
+    + <<const>> southAmerican : string = "south american"
+    + <<const>> southEastAsian : string = "south east asian"
+    + <<const>> world : string = "world"
+}
+class NutrientType <<static>> {
+    + <<const>> AddedSugar : string = "SUGAR.added"
+    + <<const>> Calcium : string = "CA"
+    + <<const>> CarbohydrateNet : string = "CHOCDF.net"
+    + <<const>> Carbohydrate : string = "CHOCDF"
+    + <<const>> Cholesterol : string = "CHOLE"
+    + <<const>> Energy : string = "ENERC_KCAL"
+    + <<const>> FattyAcidsTotalMonounsaturated : string = "FAMS"
+    + <<const>> FattyAcidsTotalPolyunsaturated : string = "FAPU"
+    + <<const>> FattyAcidsTotalSaturated : string = "FASAT"
+    + <<const>> FattyAcidsTotalTrans : string = "FATRN"
+    + <<const>> Fiber : string = "FIBTG"
+    + <<const>> Folate : string = "FOLDFE"
+    + <<const>> FolateFood : string = "FOLFD"
+    + <<const>> FolicAcid : string = "FOLAC"
+    + <<const>> Iron : string = "FE"
+    + <<const>> Magnesium : string = "MG"
+    + <<const>> Niacin : string = "NIA"
+    + <<const>> Phosphorus : string = "P"
+    + <<const>> Potassium : string = "K"
+    + <<const>> Protein : string = "PROCNT"
+    + <<const>> Riboflavin : string = "RIBF"
+    + <<const>> Sodium : string = "NA"
+    + <<const>> SugarAlcohols : string = "Sugar.alcohol"
+    + <<const>> Sugars : string = "SUGAR"
+    + <<const>> Thiamin : string = "THIA"
+    + <<const>> Fat : string = "FAT"
+    + <<const>> VitaminA : string = "VITA_RAE"
+    + <<const>> VitaminB12 : string = "VITB12"
+    + <<const>> VitaminB6 : string = "VITB6A"
+    + <<const>> VitaminC : string = "VITC"
+    + <<const>> VitaminD : string = "VITD"
+    + <<const>> VitaminE : string = "TOCPHA"
+    + <<const>> VitaminK : string = "VITK1"
+    + <<const>> Water : string = "WATER"
+    + <<const>> Zinc : string = "ZN"
+}
+class DishTypes <<static>> {
+    + <<const>> alcoholCocktail : string = "alcohol cocktail"
+    + <<const>> biscuitsAndCookies : string = "biscuits and cookies"
+    + <<const>> bread : string = "bread"
+    + <<const>> cereals : string = "cereals"
+    + <<const>> condimentsAndSauces : string = "condiments and sauces"
+    + <<const>> desserts : string = "desserts"
+    + <<const>> drinks : string = "drinks"
+    + <<const>> egg : string = "egg"
+    + <<const>> iceCreamAndCustard : string = "ice cream and custard"
+    + <<const>> mainCourse : string = "main course"
+    + <<const>> pancake : string = "pancake"
+    + <<const>> pasta : string = "pasta"
+    + <<const>> pastry : string = "pastry"
+    + <<const>> piesAndTarts : string = "pies and tarts"
+    + <<const>> pizza : string = "pizza"
+    + <<const>> preps : string = "preps"
+    + <<const>> preserve : string = "preserve"
+    + <<const>> salad : string = "salad"
+    + <<const>> sandwiches : string = "sandwiches"
+    + <<const>> seafood : string = "seafood"
+    + <<const>> sideDish : string = "side dish"
+    + <<const>> soup : string = "soup"
+    + <<const>> specialOccasions : string = "special occasions"
+    + <<const>> starter : string = "starter"
+    + <<const>> sweets : string = "sweets"
+}
+class MealTypes <<static>> {
+    + <<const>> breakfast : string = "breakfast"
+    + <<const>> brunch : string = "brunch"
+    + <<const>> lunchDinner : string = "lunch/dinner"
+    + <<const>> snack : string = "snack"
+    + <<const>> teatime : string = "teatime"
+}
+class HealthType <<static>> {
+    + <<const>> AlcoholCocktail : string = "alcohol-cocktail"
+    + <<const>> AlcoholCocktailDescription : string = "Describes an alcoholic cocktail"
+    + <<const>> AlcoholFree : string = "alcohol-free"
+    + <<const>> AlcoholFreeDescription : string = "No alcohol used or contained"
+    + <<const>> CeleryFree : string = "celery-free"
+    + <<const>> CeleryFreeDescription : string = "Does not contain celery or derivatives"
+    + <<const>> CrustceanFree : string = "crustacean-free"
+    + <<const>> CrustceanFreeDescription : string = "Does not contain crustaceans (shrimp, lobster etc.) or derivatives"
+    + <<const>> DairyFree : string = "dairy-free"
+    + <<const>> DairyFreeDescription : string = "No dairy; no lactose"
+    + <<const>> DASH : string = "DASH"
+    + <<const>> DASHDescription : string = "Dietary Approaches to Stop Hypertension diet"
+    + <<const>> EggFree : string = "egg-free"
+    + <<const>> EggFreeDescription : string = "No eggs or products containing eggs"
+    + <<const>> FishFree : string = "fish-free"
+    + <<const>> FishFreeDescription : string = "No fish or fish derivatives"
+    + <<const>> FODMAPFree : string = "fodmap-free"
+    + <<const>> FODMAPFreeDescription : string = "Does not contain FODMAP foods"
+    + <<const>> GlutenFree : string = "gluten-free"
+    + <<const>> GlutenFreeDescription : string = "No ingredients containing gluten"
+    + <<const>> ImmunoSupportive : string = "immuno-supportive"
+    + <<const>> ImmunoSupportiveDescription : string = "Recipes which fit a science-based approach to eating to strengthen the immune system"
+    + <<const>> KetoFriendly : string = "keto-friendly"
+    + <<const>> KetoFriendlyDescription : string = "Maximum 7 grams of net carbs per serving"
+    + <<const>> KidneyFriendly : string = "kidney-friendly"
+    + <<const>> KidneyFriendlyDescription : string = "Per serving – phosphorus less than 250 mg AND potassium less than 500 mg AND sodium less than 500 mg"
+    + <<const>> Kosher : string = "kosher"
+    + <<const>> KosherDescription : string = "Contains only ingredients allowed by the kosher diet. However it does not guarantee kosher preparation of the ingredients themselves"
+    + <<const>> LowPotassium : string = "low-potassium"
+    + <<const>> LowPotassiumDescription : string = "Less than 150mg per serving"
+    + <<const>> LowSugar : string = "low-sugar"
+    + <<const>> LowSugarDescription : string = "No simple sugars – glucose, dextrose, galactose, fructose, sucrose, lactose, maltose"
+    + <<const>> LupineFree : string = "lupine-free"
+    + <<const>> LupineFreeDescription : string = "Does not contain lupine or derivatives"
+    + <<const>> Mediterranean : string = "Mediterranean"
+    + <<const>> MediterraneanDescription : string = "Mediterranean diet"
+    + <<const>> MolluskFree : string = "mollusk-free"
+    + <<const>> MolluskFreeDescription : string = "No mollusks"
+    + <<const>> MustardFree : string = "mustard-free"
+    + <<const>> MustardFreeDescription : string = "Does not contain mustard or derivatives"
+    + <<const>> NoOilAdded : string = "No-oil-added"
+    + <<const>> NoOilAddedDescription : string = "No oil added except to what is contained in the basic ingredients"
+    + <<const>> Paleo : string = "paleo"
+    + <<const>> PaleoDescription : string = "Excludes what are perceived to be agricultural products; grains, legumes, dairy products, potatoes, refined salt, refined sugar, and processed oils"
+    + <<const>> PeanutFree : string = "peanut-free"
+    + <<const>> PeanutFreeDescription : string = "No peanuts or products containing peanuts"
+    + <<const>> Pescatarian : string = "pecatarian"
+    + <<const>> PescatarianDescription : string = "Does not contain meat or meat based products, can contain dairy and fish"
+    + <<const>> PorkFree : string = "pork-free"
+    + <<const>> PorkFreeDescription : string = "Does not contain pork or derivatives"
+    + <<const>> RedMeatFree : string = "red-meat-free"
+    + <<const>> RedMeatFreeDescription : string = "Does not contain beef, lamb, pork, duck, goose, game, horse, and other types of red meat or products containing red meat."
+    + <<const>> SesameFree : string = "sesame-free"
+    + <<const>> SesameFreeDescription : string = "Does not contain sesame seed or derivatives"
+    + <<const>> ShellfishFree : string = "shellfish-free"
+    + <<const>> ShellfishFreeDescription : string = "No shellfish or shellfish derivatives"
+    + <<const>> SoyFree : string = "soy-free"
+    + <<const>> SoyFreeDescription : string = "No soy or products containing soy"
+    + <<const>> SugarConscious : string = "sugar-conscious"
+    + <<const>> SugarConsciousDescription : string = "Less than 4g of sugar per serving"
+    + <<const>> SulfiteFree : string = "sulfite-free"
+    + <<const>> SulfiteFreeDescription : string = "No Sulfites"
+    + <<const>> TreeNutFree : string = "tree-nut-free"
+    + <<const>> TreeNutFreeDescription : string = "No tree nuts or products containing tree nuts"
+    + <<const>> Vegan : string = "vegan"
+    + <<const>> VeganDescription : string = "No meat, poultry, fish, dairy, eggs or honey"
+    + <<const>> Vegetarian : string = "vegetarian"
+    + <<const>> VegetarianDescription : string = "No meat, poultry, or fish"
+    + <<const>> WheatFree : string = "wheat-free"
+    + <<const>> WheatFreeDescription : string = "No wheat, can have gluten though"
+}
+class DietType <<static>> {
+    + <<const>> Balanced : string = "balanced"
+    + <<const>> HighFiber : string = "high-fiber"
+    + <<const>> HighProtein : string = "high-protein"
+    + <<const>> LowCarb : string = "low-carb"
+    + <<const>> LowFat : string = "low-fat"
+    + <<const>> LowSodium : string = "low-sodium"
+}
+class SRLegacyFoodItem {
+    + FdcId : int <<get>> <<set>>
+    + DataType : string <<get>> <<set>>
+    + Description : string <<get>> <<set>>
+    + FoodClass : string? <<get>> <<set>>
+    + IsHistoricalReference : bool? <<get>> <<set>>
+    + NdbNumber : int? <<get>> <<set>>
+    + PublicationDate : string? <<get>> <<set>>
+    + ScientificName : string? <<get>> <<set>>
+}
+SRLegacyFoodItem --> "FoodCategory" FoodCategory
+class FoodAttribute {
+    + Id : int <<get>> <<set>>
+    + SequenceNumber : int <<get>> <<set>>
+    + Value : string <<get>> <<set>>
+}
+class SampleFoodItem {
+    + FdcId : int <<get>> <<set>>
+    + DataType : string <<get>> <<set>>
+    + Description : string <<get>> <<set>>
+    + FoodClass : string? <<get>> <<set>>
+    + PublicationDate : string? <<get>> <<set>>
+}
+class InputFoodFoundation {
+    + Id : int <<get>> <<set>>
+    + FoodDescription : string <<get>> <<set>>
+}
+InputFoodFoundation o-> "InputFood" SampleFoodItem
+class FoodPortion {
+    + Id : int <<get>> <<set>>
+    + Amount : decimal <<get>> <<set>>
+    + DataPoints : int <<get>> <<set>>
+    + GramWeight : decimal <<get>> <<set>>
+    + MinYearAcquired : int <<get>> <<set>>
+    + Modifier : string <<get>> <<set>>
+    + PortionDescription : string <<get>> <<set>>
+    + SequenceNumber : int <<get>> <<set>>
+}
+FoodPortion o-> "MeasureUnit" MeasureUnit
+class InputFoodSurvey {
+    + Id : int <<get>> <<set>>
+    + Amount : decimal? <<get>> <<set>>
+    + FoodDescription : string <<get>> <<set>>
+    + IngredientCode : int <<get>> <<set>>
+    + IngredientDescription : string <<get>> <<set>>
+    + IngredientWeight : decimal <<get>> <<set>>
+    + PortionCode : string? <<get>> <<set>>
+    + PortionDescription : string? <<get>> <<set>>
+    + SequenceNumber : int? <<get>> <<set>>
+    + SurveyFlag : int? <<get>> <<set>>
+    + Unit : string? <<get>> <<set>>
+}
+InputFoodSurvey --> "InputFood" SurveyFoodItem
+InputFoodSurvey --> "RetentionFactor" RetentionFactor
+class FoodComponent {
+    + Id : int <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+    + DataPoints : int <<get>> <<set>>
+    + GramWeight : int <<get>> <<set>>
+    + IsRefuse : bool <<get>> <<set>>
+    + MinYearAcquired : int <<get>> <<set>>
+    + PercentWeight : float <<get>> <<set>>
+}
+class SurveyFoodItem {
+    + fdcId : int <<get>> <<set>>
+    + datatype : string <<get>> <<set>>
+    + description : string <<get>> <<set>>
+    + endDate : string? <<get>> <<set>>
+    + foodClass : string? <<get>> <<set>>
+    + foodCode : string? <<get>> <<set>>
+    + publicationDate : string? <<get>> <<set>>
+    + startDate : string? <<get>> <<set>>
+}
+SurveyFoodItem --> "wweiaFoodCategory" WweiaFoodCategory
+class RetentionFactor {
+    + Id : int <<get>> <<set>>
+    + Code : int <<get>> <<set>>
+    + Description : string <<get>> <<set>>
+}
+class WweiaFoodCategory {
+    + WweiaFoodCategoryCode : int <<get>> <<set>>
+    + WweiaFoodCategoryDescription : string <<get>> <<set>>
+}
+class LabelFoodNutrients {
+}
+class NutrientValue {
+    + Value : decimal <<get>> <<set>>
+}
+LabelFoodNutrients --> "Fat" NutrientValue
+LabelFoodNutrients --> "SaturatedFat" NutrientValue
+LabelFoodNutrients --> "TransFat" NutrientValue
+LabelFoodNutrients --> "Cholesterol" NutrientValue
+LabelFoodNutrients --> "Sodium" NutrientValue
+LabelFoodNutrients --> "Carbohydrates" NutrientValue
+LabelFoodNutrients --> "Fiber" NutrientValue
+LabelFoodNutrients --> "Sugars" NutrientValue
+LabelFoodNutrients --> "Protein" NutrientValue
+LabelFoodNutrients --> "Calcium" NutrientValue
+LabelFoodNutrients --> "Iron" NutrientValue
+LabelFoodNutrients --> "Potassium" NutrientValue
+LabelFoodNutrients --> "Calories" NutrientValue
+LabelFoodNutrients +-- NutrientValue
+class FoodCategory {
+    + Id : int <<get>> <<set>>
+    + Code : string <<get>> <<set>>
+    + Description : string <<get>> <<set>>
+}
+class BrandedFoodInfo {
+    + FdcId : int <<get>> <<set>>
+    + DataType : string <<get>> <<set>>
+    + Description : string <<get>> <<set>>
+    + FoodCode : string <<get>> <<set>>
+    + BrandOwner : string <<get>> <<set>>
+    + DataSource : string? <<get>> <<set>>
+    + FoodType : string <<get>> <<set>>
+    + GtinUpc : string? <<get>> <<set>>
+    + HouseholdServingFullText : string? <<get>> <<set>>
+    + NbdNumber : int <<get>> <<set>>
+    + Ingredients : string? <<get>> <<set>>
+    + ModifiedDate : string? <<get>> <<set>>
+    + PublicationDate : string? <<get>> <<set>>
+    + ServingSize : float? <<get>> <<set>>
+    + ServingSizeUnit : string? <<get>> <<set>>
+    + PreparationStateCode : string? <<get>> <<set>>
+    + BrandedFoodCategory : string? <<get>> <<set>>
+    + TradeChannel : string? <<get>> <<set>>
+    + GpcClassCode : int? <<get>> <<set>>
+}
+BrandedFoodInfo --> "LabelFoodNutrients" LabelFoodNutrients
+class MeasureUnit {
+    + Id : int <<get>> <<set>>
+    + Abbreviation : string <<get>> <<set>>
     + Name : string <<get>> <<set>>
 }
-ProductListSummarySnapshot --> "Id" Guid
-ProductListSummarySnapshot --> "Owner" Guid
+class NutrientConversionFactor {
+    + Type : string <<get>> <<set>>
+    + Value : decimal <<get>> <<set>>
+}
+class Nutrient {
+    + Id : int <<get>> <<set>>
+    + Number : string <<get>> <<set>>
+    + Name : string <<get>> <<set>>
+    + Rank : int <<get>> <<set>>
+    + UnitName : string <<get>> <<set>>
+}
+class FoodNutrient {
+    + Id : int <<get>> <<set>>
+    + Type : string <<get>> <<set>>
+    + Amount : decimal <<get>> <<set>>
+    + Min : decimal? <<get>> <<set>>
+    + Max : decimal? <<get>> <<set>>
+}
+FoodNutrient o-> "Nutrient" Nutrient
+class FoundationFoodItem {
+    + FdcId : int <<get>> <<set>>
+    + DataType : string <<get>> <<set>>
+    + Description : string <<get>> <<set>>
+    + FoodClass : string? <<get>> <<set>>
+    + FootNote : string? <<get>> <<set>>
+    + IsHistoricalReference : bool? <<get>> <<set>>
+    + NdbNumber : int? <<get>> <<set>>
+    + PublicationDate : string? <<get>> <<set>>
+    + ScientificName : string? <<get>> <<set>>
+}
+FoundationFoodItem --> "FoodCategory" FoodCategory
 class AddedProductSnapshot {
 }
 AddedProductSnapshot --> "UserId" Guid
@@ -464,4 +1709,103 @@ ViewedProductSnapshot --> "UserId" Guid
 ViewedProductSnapshot --> "ProductId" Guid
 ViewedProductSnapshot --> "Id" Guid
 ViewedProductSnapshot --> "ViewedAt" DateTime
+class ProductListSummarySnapshot {
+    + Name : string <<get>> <<set>>
+    + ExternalSource : string? <<get>> <<set>>
+}
+ProductListSummarySnapshot --> "Id" Guid
+ProductListSummarySnapshot --> "Owner" Guid
+ProductListSummarySnapshot --> "ExternalSourceType" ExternalSourceType
+class ProductListSummaryExtensions <<static>> {
+    + {static} To(snapshot:ProductListSummarySnapshot) : ProductListSummary
+}
+class GetProductByIdQueryHandler <<sealed>> {
+    + <<async>> Handle(request:GetProductByIdQuery, cancellationToken:CancellationToken) : Task<ProductSummary?>
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<GetProductByIdQuery,ProductSummary?>" <|-- GetProductByIdQueryHandler
+GetProductByIdQueryHandler o-> "productSummaryRepository" IProductSummaryRepository
+GetProductByIdQueryHandler o-> "eventDispatcher" IEventDispatcher
+class GetProductByIdQuery <<sealed>> <<record>> {
+    + UserId : Guid? <<get>> <<init>>
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<ProductSummary?>" <|-- GetProductByIdQuery
+GetProductByIdQuery --> "ProductId" Guid
+GetProductByIdQuery --> "UserRole" UserRole
+class ProductSearchHandler {
+    + <<async>> Handle(request:ProductSearch, cancellationToken:CancellationToken) : Task<Result<List<ProductListItemDto>>>
+}
+class "ILogger`1"<T> {
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<ProductSearch,Result<List<ProductListItemDto>>>" <|-- ProductSearchHandler
+class ProductSearch <<record>> {
+    + Query : string <<get>> <<init>>
+    + UserId : Guid? <<get>> <<init>>
+    + Page : int? <<get>> <<init>> = default
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<Result<List<ProductListItemDto>>>" <|-- ProductSearch
+ProductSearch --> "UserRole" UserRole
+class GetProductList <<sealed>> <<record>> {
+    + Query : string <<get>> <<init>>
+    + LastProduct : Guid? <<get>> <<init>>
+}
+class "IRequest`1"<T> {
+}
+"IRequest`1" "<List<ProductListSummary>>" <|-- GetProductList
+GetProductList --> "User" Guid
+GetProductList --> "UserRole" UserRole
+class GetProductListHandler <<sealed>> {
+    + <<async>> Handle(request:GetProductList, cancellationToken:CancellationToken) : Task<List<ProductListSummary>>
+}
+class "IRequestHandler`2"<T1,T2> {
+}
+"IRequestHandler`2" "<GetProductList,List<ProductListSummary>>" <|-- GetProductListHandler
+GetProductListHandler o-> "productSummaryRepository" IProductSummaryRepository
+class ProductIdentityExtensions <<static>> {
+    + {static} For(productIdentity:ExternalSourceIdentity, func:Func<T, TRes>) : ProductIdentityFunctionBuilder<TRes>
+}
+class "ProductIdentityFunctionBuilder`1"<TRes> {
+    - <<readonly>> function : Func<ExternalSourceIdentity, TRes>? = null
+    + ProductIdentityFunctionBuilder(action:Func<ExternalSourceIdentity, TRes>, identity:ExternalSourceIdentity, type:Type)
+    + ProductIdentityFunctionBuilder(prev:ProductIdentityFunctionBuilder<TRes>, next:Func<ExternalSourceIdentity, TRes>, type:Type)
+    + Build() : TRes?
+}
+class ProductIdentityFunctionBuilderExtensions <<static>> {
+    + {static} For(productIdentityFunctionBuilder:ProductIdentityFunctionBuilder<TRes>, func:Func<T, TRes>) : ProductIdentityFunctionBuilder<TRes>
+}
+"ProductIdentityFunctionBuilder`1" --> "identity" ExternalSourceIdentity
+abstract class ExternalSourceIdentity {
+    + {static} CreateFromBarcode(barcode:string) : BarcodeProductIdentity
+    + {static} CreateFromUsdaCode(code:string) : UsdaProductIdentity
+    + {static} Create(t:ExternalSourceType, value:string) : ExternalSourceIdentity?
+}
+ExternalSourceIdentity --> "Type" ExternalSourceType
+class UsdaProductIdentity {
+    + Code : string <<get>>
+}
+ExternalSourceIdentity <|-- UsdaProductIdentity
+UsdaProductIdentity --> "Type" ExternalSourceType
+class BarcodeProductIdentity {
+    + Barcode : string <<get>> <<set>>
+    + BarcodeProductIdentity(barcode:string)
+}
+ExternalSourceIdentity <|-- BarcodeProductIdentity
+BarcodeProductIdentity --> "Type" ExternalSourceType
+class ProductAddedToFavorite {
+}
+DomainEvent <|-- ProductAddedToFavorite
+ProductAddedToFavorite o-> "User" UserId
+ProductAddedToFavorite o-> "Product" ProductId
+class ProductRemovedFromFavoriteList {
+}
+DomainEvent <|-- ProductRemovedFromFavoriteList
+ProductRemovedFromFavoriteList o-> "User" UserId
+ProductRemovedFromFavoriteList o-> "Product" ProductId
 @enduml

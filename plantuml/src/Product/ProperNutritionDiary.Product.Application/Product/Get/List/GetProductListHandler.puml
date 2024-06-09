@@ -5,4 +5,5 @@ class GetProductListHandler <<sealed>> {
 class "IRequestHandler`2"<T1,T2> {
 }
 "IRequestHandler`2" "<GetProductList,List<ProductListSummary>>" <|-- GetProductListHandler
+GetProductListHandler o-> "productSummaryRepository" IProductSummaryRepository
 @enduml

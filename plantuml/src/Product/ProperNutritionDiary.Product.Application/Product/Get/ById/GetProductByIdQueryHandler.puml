@@ -5,4 +5,6 @@ class GetProductByIdQueryHandler <<sealed>> {
 class "IRequestHandler`2"<T1,T2> {
 }
 "IRequestHandler`2" "<GetProductByIdQuery,ProductSummary?>" <|-- GetProductByIdQueryHandler
+GetProductByIdQueryHandler o-> "productSummaryRepository" IProductSummaryRepository
+GetProductByIdQueryHandler o-> "eventDispatcher" IEventDispatcher
 @enduml

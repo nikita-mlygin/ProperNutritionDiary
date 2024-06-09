@@ -1,7 +1,9 @@
 @startuml
 class ProductListSummarySnapshot {
     + Name : string <<get>> <<set>>
+    + ExternalSource : string? <<get>> <<set>>
 }
 ProductListSummarySnapshot --> "Id" Guid
 ProductListSummarySnapshot --> "Owner" Guid
+ProductListSummarySnapshot --> "ExternalSourceType" ExternalSourceType
 @enduml

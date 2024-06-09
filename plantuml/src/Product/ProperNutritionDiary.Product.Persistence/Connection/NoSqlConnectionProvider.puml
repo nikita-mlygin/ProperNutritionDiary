@@ -1,6 +1,8 @@
 @startuml
 class NoSqlConnectionProvider {
+    - <<readonly>> keySpace : string
     + Get() : Task<IMapper>
 }
 INoSqlConnectionProvider <|-- NoSqlConnectionProvider
+NoSqlConnectionProvider o-> "cluster" Cluster
 @enduml

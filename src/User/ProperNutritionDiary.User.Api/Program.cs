@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProperNutritionDiary.User.Api.Database;
 using ProperNutritionDiary.User.Api.User.Tokens;
+using Serilog;
 
 const string MainCorsPolicy = "mainCors";
 
@@ -22,12 +23,18 @@ var config = builder
     .Build();
 
 Console.WriteLine(config.GetConnectionString("mssql"));
+Console.WriteLine(env);
+Console.WriteLine($"appsettings.{env}.json");
 
 builder.Services.AddDbContext<AppCtx>(conf =>
 {
     conf.UseSqlServer(builder.Configuration.GetConnectionString("mssql"));
     conf.EnableSensitiveDataLogging();
 });
+
+builder.Host.UseSerilog(
+    (context, configuration) => configuration.ReadFrom.Configuration(context.Configuration)
+);
 
 builder.Services.AddScoped<TokenGenerator>();
 builder.Services.AddScoped<UserService>();
@@ -112,10 +119,10 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:5173")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowCredentials()
+                .SetIsOriginAllowed(origin => true);
         }
     );
 });

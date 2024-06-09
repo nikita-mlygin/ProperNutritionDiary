@@ -15,6 +15,7 @@ interface ValueableAutocompleteProps<T> {
   onDishChange: (newValue: Valueable<T>[]) => void;
   // Функция-преобразователь для преобразования строки в значение типа T
   parseValueFn: (value: string) => T | null;
+  label: string;
 }
 
 const ValueableAutocomplete = <T extends string | number>({
@@ -23,6 +24,7 @@ const ValueableAutocomplete = <T extends string | number>({
   onDishDelete,
   onDishChange,
   parseValueFn,
+  label,
 }: ValueableAutocompleteProps<T>) => {
   const [editedIndex, setEditedIndex] = useState(-1);
 
@@ -110,7 +112,7 @@ const ValueableAutocomplete = <T extends string | number>({
                 e.stopPropagation();
               }
             }}
-            label="Dish"
+            label={label}
             fullWidth
           />
         )}

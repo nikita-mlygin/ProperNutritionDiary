@@ -8,6 +8,10 @@
 
   <ItemGroup>
     <PackageReference Include="CassandraCSharpDriver" Version="3.20.0" />
+    <PackageReference Include="EasyCaching.Core" Version="1.9.2" />
+    <PackageReference Include="EasyCaching.Redis" Version="1.9.2" />
+    <PackageReference Include="EasyCaching.Serialization.Json" Version="1.9.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Refit" Version="7.0.0" />
     <PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
     <PackageReference Include="Scrutor" Version="4.2.2" />

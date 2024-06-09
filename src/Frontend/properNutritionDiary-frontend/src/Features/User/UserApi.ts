@@ -3,11 +3,11 @@ import { TokenResponse } from "./Token/TokenResponse";
 import { LoginRequest } from "./Login/LoginRequest";
 import { RegRequest } from "./Reg/RegRequest";
 
-const baseUrl = "https://localhost:8081/user-api/";
+const baseUrl = "https://localhost:8086/api/";
 
 export const userApi = createApi({
   reducerPath: "userApi",
-  baseQuery: fetchBaseQuery({ baseUrl }),
+  baseQuery: fetchBaseQuery({ baseUrl, credentials: "include" }),
   endpoints: (builder) => ({
     getGuest: builder.query<TokenResponse, void>({
       query: () => "guest",
@@ -30,7 +30,10 @@ export const userApi = createApi({
       query: (eJwt) => ({
         url: "r",
         method: "POST",
-        body: eJwt,
+        body: `"${eJwt}"`,
+        headers: {
+          "Content-Type": "application/json",
+        },
       }),
     }),
   }),

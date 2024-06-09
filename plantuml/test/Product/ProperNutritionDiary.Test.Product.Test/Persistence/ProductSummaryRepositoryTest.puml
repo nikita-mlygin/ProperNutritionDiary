@@ -7,5 +7,7 @@ class ProductSummaryRepositoryTest {
     + <<async>> GetAllPopular_MustExec_WhenUserPopular() : Task
     + <<async>> GetList_MustExec() : Task
 }
+ProductSummaryRepositoryTest --> "productSummaryRepository" IProductSummaryRepository
+ProductSummaryRepositoryTest --> "productRepository" IProductRepository
 ProductSummaryRepositoryTest --> "ServiceProvider" ServiceProvider
 @enduml

@@ -1,7 +1,17 @@
 @startuml
 class UpdateProductHandlerTest {
+    - <<const>> newName : string = "newName"
     + UpdateProductHandlerTest()
     + <<async>> Handle_MustReturnFailed_WhenErrInCommand() : Task
     + <<async>> Handle_MustExec() : Task
 }
+class "ILogger`1"<T> {
+}
+UpdateProductHandlerTest --> "productRepository" IProductRepository
+UpdateProductHandlerTest --> "logger<UpdateProductCommandHandler>" "ILogger`1"
+UpdateProductHandlerTest --> "handler" UpdateProductCommandHandler
+UpdateProductHandlerTest o-> "newMacronutrients" Macronutrients
+UpdateProductHandlerTest o-> "user" User
+UpdateProductHandlerTest --> "product" Product
+UpdateProductHandlerTest --> "command" UpdateProductCommand
 @enduml

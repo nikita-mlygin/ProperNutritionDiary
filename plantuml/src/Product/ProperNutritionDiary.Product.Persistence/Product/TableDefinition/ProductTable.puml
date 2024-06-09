@@ -9,6 +9,8 @@ class ProductTable <<static>> {
     + <<const>> fats : string = "fats"
     + <<const>> carbohydrates : string = "carbohydrates"
     + <<const>> owner : string = "owner"
+    + <<const>> externalSource : string = "external_source"
+    + <<const>> externalSourceType : string = "external_source_type"
     + <<const>> createdAt : string = "created_at"
     + <<const>> updatedAt : string = "updated_at"
     + <<const>> viewCount : string = "view_count"

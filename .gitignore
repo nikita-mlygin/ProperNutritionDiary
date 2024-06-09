@@ -556,3 +556,7 @@ appsettings.json
 appsettings.Release.json
 appsettings.Development.json
 .env
+plantuml/*
+plantuml
+venv
+seq

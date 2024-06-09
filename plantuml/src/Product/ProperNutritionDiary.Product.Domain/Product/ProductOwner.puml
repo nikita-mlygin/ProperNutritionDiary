@@ -1,5 +1,7 @@
 @startuml
 class ProductOwner <<record>> {
+    - ProductOwner(isUser:bool, owner:UserId?)
+    - <<readonly>> isUser : bool
     + IsUser : bool <<get>>
     + IsSystem : bool <<get>>
     + {static} ByUser(user:UserId) : ProductOwner

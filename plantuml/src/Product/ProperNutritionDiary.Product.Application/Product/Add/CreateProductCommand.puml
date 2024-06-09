@@ -1,5 +1,6 @@
 @startuml
 class CreateProductCommand <<sealed>> <<record>> {
+    + UserId : Guid? <<get>> <<init>>
     + ProductName : string <<get>> <<init>>
     + Calories : decimal <<get>> <<init>>
     + Proteins : decimal <<get>> <<init>>
@@ -9,6 +10,5 @@ class CreateProductCommand <<sealed>> <<record>> {
 class "IRequest`1"<T> {
 }
 "IRequest`1" "<Result<Guid>>" <|-- CreateProductCommand
-CreateProductCommand --> "UserId" Guid
 CreateProductCommand --> "UserRole" UserRole
 @enduml

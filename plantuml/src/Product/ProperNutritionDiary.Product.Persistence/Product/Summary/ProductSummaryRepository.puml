@@ -1,11 +1,22 @@
 @startuml
 class ProductSummaryRepository {
+    - <<readonly>> pageSize : int = 20
     + <<async>> AddUse(user:UserId, product:ProductId, addedAt:DateTime) : Task
     + <<async>> AddView(viewer:UserId, product:ProductId, viewedAt:DateTime) : Task
     + <<async>> GetAllPopular(pageNumber:int) : Task<IEnumerable<ProductSummary>>
     + <<async>> GetAllPopular(user:UserId, pageNumber:int) : Task<IEnumerable<ProductSummary>>
     + <<async>> GetById(id:ProductId) : Task<ProductSummary?>
+    - {static} <<async>> HasStatisticsRow(userId:Guid, productId:Guid, transaction:DbTransaction) : Task<bool>
+    - {static} <<async>> AddViewToUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> AddUserToUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> UpdateViewInUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> UpdateUseInUserStatistics(userId:Guid, productId:Guid, transaction:DbTransaction) : Task
+    - {static} <<async>> CreateUserStatistics(snapshot:UserStatisticsSnapshot, transaction:DbTransaction) : Task
     + <<async>> GetProductList(nameFilter:string, lastProduct:ProductId?) : Task<List<ProductListSummary>>
 }
+class "ILogger`1"<T> {
+}
 IProductSummaryRepository <|-- ProductSummaryRepository
+ProductSummaryRepository o-> "sqlConnectionProvider" ISqlConnectionProvider
+ProductSummaryRepository o-> "noSqlConnectionProvider" INoSqlConnectionProvider
 @enduml

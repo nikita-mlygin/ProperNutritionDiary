@@ -3,4 +3,10 @@ class GetProductByIdHandlerTest {
     + GetProductByIdHandlerTest()
     + <<async>> Handle_MustExec() : Task
 }
+GetProductByIdHandlerTest --> "productRepository" IProductSummaryRepository
+GetProductByIdHandlerTest --> "eventDispatcher" IEventDispatcher
+GetProductByIdHandlerTest --> "handler" GetProductByIdQueryHandler
+GetProductByIdHandlerTest --> "productSummary" ProductSummary
+GetProductByIdHandlerTest --> "query" GetProductByIdQuery
+GetProductByIdHandlerTest o-> "user" User
 @enduml

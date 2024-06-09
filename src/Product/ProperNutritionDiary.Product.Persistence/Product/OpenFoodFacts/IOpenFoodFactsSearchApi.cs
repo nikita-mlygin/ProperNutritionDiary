@@ -5,7 +5,7 @@ namespace ProperNutritionDiary.Product.Persistence.Product.OpenFoodFacts;
 
 public interface IOpenFoodFactsSearchApi
 {
-    [Get("/cgi/search.pl?json=1&search_simple=1&search_terms={searchTerms}&page=1&page_size=200")]
+    [Get("/cgi/search.pl?json=1&search_simple=1&search_terms={searchTerms}&page=1&page_size=20")]
     public Task<ApiResponse<OpenApiSearchResponse>> Search(string searchTerms, int page = 1);
 }
 

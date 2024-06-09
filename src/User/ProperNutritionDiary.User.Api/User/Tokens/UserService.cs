@@ -67,7 +67,7 @@ public class UserService(AppCtx ctx, TokenGenerator tg, ILogger<UserService> log
         if (oldRt == null)
             return null;
 
-        logger.LogInformation("Old rt received {oldRt}, now rt is {rt}", oldRt.RT, rt);
+        logger.LogInformation("Old rt received {OldRt}, now rt is {Rt}", oldRt.RT, rt);
 
         if (oldRt.RT != rt)
         {
@@ -84,6 +84,17 @@ public class UserService(AppCtx ctx, TokenGenerator tg, ILogger<UserService> log
         oldRt.RT = nTokens.rt;
 
         await ctx.SaveChangesAsync();
+
+        httpCtx.Response.Cookies.Append(
+            "rt",
+            nTokens.rt,
+            new CookieOptions()
+            {
+                HttpOnly = true,
+                Secure = true, // Ensure this matches your deployment (use false for local development if necessary)
+                SameSite = SameSiteMode.None
+            }
+        );
 
         return nTokens;
     }
@@ -133,6 +144,19 @@ public class UserService(AppCtx ctx, TokenGenerator tg, ILogger<UserService> log
                 await updateCtx(user!, tokens.Value.rt);
 
                 await ctx.SaveChangesAsync();
+            })
+            .After(() =>
+            {
+                httpCtx.Response.Cookies.Append(
+                    "rt",
+                    tokens.Value.rt,
+                    new CookieOptions()
+                    {
+                        HttpOnly = true,
+                        Secure = true, // Ensure this matches your deployment (use false for local development if necessary)
+                        SameSite = SameSiteMode.None
+                    }
+                );
             })
             .Build();
     }

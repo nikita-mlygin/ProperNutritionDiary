@@ -4,4 +4,12 @@ class RemoveProductHandlerTest {
     + <<async>> Handle_MustReturnFailed_WhenErrInCommand() : Task
     + <<async>> Handle_MustExec() : Task
 }
+class "ILogger`1"<T> {
+}
+RemoveProductHandlerTest --> "productRepository" IProductRepository
+RemoveProductHandlerTest --> "logger<RemoveProductCommandHandler>" "ILogger`1"
+RemoveProductHandlerTest --> "handler" RemoveProductCommandHandler
+RemoveProductHandlerTest --> "product" Product
+RemoveProductHandlerTest --> "command" RemoveProductCommand
+RemoveProductHandlerTest o-> "user" User
 @enduml

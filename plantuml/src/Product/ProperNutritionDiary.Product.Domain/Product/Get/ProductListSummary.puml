@@ -1,6 +1,7 @@
 @startuml
 class ProductListSummary <<record>> {
     + Name : string <<get>> <<init>>
+    + ExternalSource : ExternalSourceIdentity? <<get>> <<init>>
 }
 ProductListSummary --> "Id" ProductId
 ProductListSummary --> "Owner" ProductOwner

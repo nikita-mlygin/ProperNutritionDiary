@@ -6,6 +6,7 @@ import {
   refreshFailed,
   refreshJwtStart,
   refreshJwtSuccess,
+  loginGuest,
 } from "../UserSlice";
 
 export const baseQueryWithReauthBuilder = (
@@ -20,22 +21,36 @@ export const baseQueryWithReauthBuilder = (
 
     if (result.error && result.error.status === 401) {
       // try to get a new token
-      if (!store.getState().user.jwt) return result;
-
-      const refreshResult = await store.dispatch(
-        userApi.endpoints.refresh.initiate(store.getState().user.jwt!)
-      );
+      const currentJwt = store.getState().user.jwt;
+      if (!currentJwt) return result;
 
       store.dispatch(refreshJwtStart());
+
+      const refreshResult = await store.dispatch(
+        userApi.endpoints.refresh.initiate(currentJwt)
+      );
 
       if (refreshResult.data) {
         // store the new token in the store or wherever you keep it
         store.dispatch(refreshJwtSuccess(refreshResult.data.jwt));
-        // retry the initial query
+        // retry the initial query with new token
         result = await baseQuery(args, api, extraOptions);
       } else {
-        // refresh failed - do something like redirect to login or show a "retry" button
-        api.dispatch(refreshFailed());
+        // refresh failed - try to get a guest token
+        store.dispatch(refreshFailed());
+
+        const guestResult = await store.dispatch(
+          userApi.endpoints.getGuest.initiate()
+        );
+
+        if (guestResult.data) {
+          // store the guest token in the store or wherever you keep it
+          store.dispatch(loginGuest(guestResult.data.jwt));
+          localStorage.setItem("jwt", guestResult.data.jwt); // store guest jwt in local storage
+
+          // retry the initial query with guest token
+          result = await baseQuery(args, api, extraOptions);
+        }
       }
     }
     return result;

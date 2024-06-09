@@ -1,11 +1,30 @@
 @startuml
 class ProductRepositoryTest {
+    - <<const>> name : string = "name"
+    - <<const>> newName : string = "new name"
+    <<const>> - usdaCode : string = "2677671"
+    <<const>> - barcode : string = "3017620422003"
     + ProductRepositoryTest(context:PersistenceContext, output:ITestOutputHelper)
     + <<async>> CreateAndGetByIdAsync_MustExec() : Task
     + <<async>> FavoriteListActions_MustExec() : Task
     + <<async>> IsInFavoriteList_MustReturnFalse_WhenIsNotInFavoriteList() : Task
     + <<async>> IsInFavoriteList_MustReturnTrue_WhenIsInFavoriteList() : Task
     + <<async>> GetUserWhichFavoriteListContainsProduct_MustReturnUsers() : Task
+    + <<async>> TestExternalSource() : Task
+    + <<async>> TestSearchOpenApi() : Task
 }
+class "ILogger`1"<T> {
+}
+ProductRepositoryTest o-> "id" ProductId
+ProductRepositoryTest o-> "macronutrients" Macronutrients
+ProductRepositoryTest o-> "plainUserCreator" User
+ProductRepositoryTest o-> "newMacronutrients" Macronutrients
+ProductRepositoryTest --> "productRepository" IProductRepository
+ProductRepositoryTest o-> "createdAt" DateTime
+ProductRepositoryTest o-> "updatedAt" DateTime
+ProductRepositoryTest --> "converter" UsdaConverter
+ProductRepositoryTest --> "searchApi" IOpenFoodFactsSearchApi
+ProductRepositoryTest --> "logger<ProductRepositoryTest>" "ILogger`1"
+ProductRepositoryTest --> "externalProductRepository" IExternalProductRepository
 ProductRepositoryTest --> "ServiceProvider" ServiceProvider
 @enduml

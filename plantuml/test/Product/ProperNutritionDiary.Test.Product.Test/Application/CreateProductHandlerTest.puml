@@ -1,8 +1,16 @@
 @startuml
 class CreateProductHandlerTest {
+    - <<const>> productName : string = "productName"
     + CreateProductHandlerTest()
     + <<async>> Handle_MustReturnFailed_WhenMacronutrientsHasError() : Task
     + <<async>> Handle_MustReturnFailed_WhenProductHasError() : Task
     + <<async>> Handle_MustExec() : Task
 }
+class "ILogger`1"<T> {
+}
+CreateProductHandlerTest --> "productSummaryRepository" IProductRepository
+CreateProductHandlerTest --> "logger<CreateProductCommandHandler>" "ILogger`1"
+CreateProductHandlerTest --> "command" CreateProductCommand
+CreateProductHandlerTest o-> "user" User
+CreateProductHandlerTest o-> "macronutrients" Macronutrients
 @enduml

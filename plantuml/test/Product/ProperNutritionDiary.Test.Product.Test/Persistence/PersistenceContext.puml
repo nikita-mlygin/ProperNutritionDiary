@@ -1,8 +1,12 @@
 @startuml
 class PersistenceContext {
+    - <<const>> host : string = "localhost"
+    - <<const>> keySpace : string = "product"
+    - <<const>> name : string = "user"
     + PersistenceContext()
     + InjectLogging(output:ITestOutputHelper) : void
 }
 PersistenceContext --> "provider" ServiceProvider
 PersistenceContext --> "ServiceProvider" ServiceProvider
+PersistenceContext --> "Services" IServiceCollection
 @enduml

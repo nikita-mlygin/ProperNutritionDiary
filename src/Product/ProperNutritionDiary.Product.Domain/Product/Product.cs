@@ -160,6 +160,13 @@ public class Product : Entity<ProductId>, IAuditable
 
     public ProductSnapshot ToSnapshot()
     {
+        string? externalSource = null;
+
+        if (this.ExternalSource is not null)
+            externalSource = this
+                .ExternalSource.For((UsdaProductIdentity id) => id.Code)
+                .For((BarcodeProductIdentity id) => id.Barcode);
+
         return new ProductSnapshot()
         {
             Id = this.Id.Value,
@@ -167,6 +174,8 @@ public class Product : Entity<ProductId>, IAuditable
             FromExternalSource = this.Owner is null,
             Owner = this.Owner is null ? null : this.Owner.Owner?.Value,
             Macronutrients = this.Macronutrients.ToSnapshot(),
+            ExternalSource = externalSource,
+            ExternalSourceType = this.ExternalSource?.Type,
             CreatedAt = this.CreatedAt,
             UpdatedAt = this.UpdatedAt,
         };

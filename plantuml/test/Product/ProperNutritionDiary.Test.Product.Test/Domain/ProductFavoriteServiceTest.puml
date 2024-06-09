@@ -5,4 +5,10 @@ class ProductFavoriteServiceTest {
     + <<async>> AddToFavoriteList_ShouldFailed_WhenProductAlreadyInFavoriteList() : Task
     + <<async>> AddToFavoriteList_ShouldSuccess_WhenOk() : Task
 }
+ProductFavoriteServiceTest --> "productFavoriteService" ProductFavoriteService
+ProductFavoriteServiceTest --> "productRepository" IProductRepository
+ProductFavoriteServiceTest --> "eventDispatcher" IEventDispatcher
+ProductFavoriteServiceTest o-> "adminUser" User
+ProductFavoriteServiceTest o-> "plainUser" User
+ProductFavoriteServiceTest --> "testProduct" Product
 @enduml

@@ -2,4 +2,6 @@
 class MacronutrientsTest {
     + SumOfTwoMacronutrients_ShouldReturnSumOfLeftAndRight() : void
 }
+MacronutrientsTest o-> "left" Macronutrients
+MacronutrientsTest o-> "right" Macronutrients
 @enduml

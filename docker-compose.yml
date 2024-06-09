@@ -9,6 +9,7 @@ services:
     image: ${DOCKER_REGISTRY-}propernutritiondiaryapigateway
     container_name: api.gateway
     environment:
+      - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
@@ -22,6 +23,14 @@ services:
     volumes:
       - ~/.certs:/https:ro
       - ~./:/src/gateway/api.gateway/appsettings.json:/app/appsettings.json
+    networks:
+      - backend-proxy
+
+  product.redis:
+    image: redis:latest
+    container_name: product.redis
+    ports:
+      - "6379:6379"
     networks:
       - backend-proxy
 
@@ -40,6 +49,19 @@ services:
     expose:
       - "3306"
     restart: always
+
+  seq:
+    image: datalust/seq
+    container_name: seq
+    environment:
+     - ACCEPT_EULA=Y
+    volumes:
+      - ./seq:/data
+    ports:
+      - 8092:80
+      - 5341:5341
+    networks:
+      - backend-proxy
     
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
@@ -56,7 +78,7 @@ services:
     depends_on:
       - product.mysql
     ports:
-      - 9010:80
+      - 9099:80
 
   product.cassandra:
     image: cassandra:latest
@@ -87,6 +109,8 @@ services:
     depends_on:
       - product.cassandra
       - product.mysql
+      - product.redis
+      - seq
     networks:
       - backend-proxy
     build:
@@ -97,6 +121,7 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
       - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+      - ASPNETCORE_ENVIRONMENT=Release
       - PROPER_NUTRITION_DIARY__PRODUCT_MYSQL_PASSWORD=${PROPER_NUTRITION_DIARY__PRODUCT_MYSQL_PASSWORD}
       - PROPER_NUTRITION_DIARY__PRODUCT_CASSANDRA_PASSWORD=${PROPER_NUTRITION_DIARY__PRODUCT_CASSANDRA_PASSWORD}
       - PROPER_NUTRITION_DIARY__PRODUCT_USDA_API_KEY=${PROPER_NUTRITION_DIARY__PRODUCT_USDA_API_KEY}
@@ -106,6 +131,35 @@ services:
     ports:
       - 8087:8080
       - 8088:8081
+
+  external.product.api:
+    image: ${DOCKER_REGISTRY-}propernutritiondiaryexternalproductapi
+    container_name: external.product.api
+    depends_on:
+      - seq
+    networks:
+      - backend-proxy
+    build:
+      context: .
+      dockerfile: src/ExternalProduct/productExternalSourceApi/Dockerfile
+    environment:
+      - USDA_API_KEY=${PROPER_NUTRITION_DIARY__PRODUCT_USDA_API_KEY}
+      - USDA_API_URL=https://api.nal.usda.gov/fdc/v1
+      - OPEN_FOOD_FACTS_API_URL=https://world.openfoodfacts.net/api/v3
+      - OPEN_FOOD_FACTS_SEARCH_API_URL=https://world.openfoodfacts.org/cgi/search.pl
+      - SEQ_URL=http://seq:5341
+      - SSL_KEY_PASSWORD=pass
+      - EDAMAM_RECIPE_APP_ID=792e94e6
+      - EDAMAM_RECIPE_APP_KEY=a2b0e59657cf91565709d6247b8e1b03
+      - EDAMAM_FOOD_DATABASE_ID=7e5c629c
+      - EDAMAM_FOOD_DATABASE_KEY=d40aca94639747608ef50cfd4c996895
+    volumes:
+      - ./src/ExternalProduct/productExternalSourceApi:/app
+      - ./externalProduct/logs:/logs
+      - ~/.certs:/certs:ro
+    ports:
+      - 8095:8081
+      - 8094:8080
 
   user.sql-server:
     image: mcr.microsoft.com/mssql/server:latest
@@ -122,6 +176,7 @@ services:
     image: ${DOCKER_REGISTRY-}propernutritiondiaryuserapi
     container_name: user.api
     environment:
+      - ASPNETCORE_ENVIRONMENT=Release
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
@@ -189,6 +244,7 @@ services:
     image: ${DOCKER_REGISTRY-}propernutritiondiaryusermenuapi
     container_name: user.menu.api
     environment:
+      - ASPNETCORE_HTTP_PORTS=Release
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
@@ -211,3 +267,4 @@ services:
       - user-menu.sql-server
     networks:
       - backend-proxy
+

@@ -1,9 +1,13 @@
 @startuml
 class Product {
+    - Product(id:ProductId, name:string, macronutrients:Macronutrients, owner:ProductOwner?, createdAt:DateTime, updatedAt:DateTime?, externalSource:ExternalSourceIdentity?)
     + {static} Create(id:ProductId, name:string, macronutrients:Macronutrients, creator:User, createdAt:DateTime) : Result<Product>
     + Update(name:string, macronutrients:Macronutrients, updater:User, updateTime:DateTime) : Result
     + Remove(remover:User, isInFavoriteList:bool) : Result
     + Name : string <<get>>
+    + IsExternalSourceProduct : bool <<get>>
+    - CheckUpdater(updater:User) : bool
+    - CheckRemover(remover:User) : bool
     + {static} FromSnapshot(product:ProductSnapshot) : Product
     + ToSnapshot() : ProductSnapshot
 }
@@ -13,6 +17,7 @@ class "Entity`1"<T> {
 IAuditable <|-- Product
 Product --> "Macronutrients" Macronutrients
 Product --> "Owner" ProductOwner
+Product --> "ExternalSource" ExternalSourceIdentity
 Product --> "CreatedAt" DateTime
 Product --> "UpdatedAt" DateTime
 @enduml

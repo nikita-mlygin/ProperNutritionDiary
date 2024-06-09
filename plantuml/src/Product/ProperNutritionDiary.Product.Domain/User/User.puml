@@ -4,6 +4,7 @@ class User {
 enum UserRole {
     Guest,
     Admin,
+    App,
     PlainUser,
 }
 class "Entity`1"<T> {

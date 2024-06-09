@@ -1,5 +1,6 @@
 @startuml
 class ProductTest {
+    - <<const>> name : string = "ProductTestName"
     + CreateProduct_MustReturnFailed_WhenNameIsNullOrEmpty() : void
     + CreateProduct_MustReturnSuccessAndRaiseEvent_WhenOk() : void
     + UpdateProduct_MustReturnFailed_WhenUpdateSystemProductWithNotAdminUpdater() : void
@@ -11,4 +12,11 @@ class ProductTest {
     + UpdateProduct_MustReturnFailed_WhenUpdateProductWithNullOrEmptyName() : void
     + UpdateProduct_MustReturnSuccessAndRaiseEvent_WhenProductUpdateOk() : void
 }
+ProductTest o-> "productId" ProductId
+ProductTest o-> "createdAt" DateTime
+ProductTest o-> "updatedAt" DateTime
+ProductTest o-> "macronutrients" Macronutrients
+ProductTest o-> "plainUser" User
+ProductTest o-> "adminUser" User
+ProductTest o-> "anotherPlainUser" User
 @enduml

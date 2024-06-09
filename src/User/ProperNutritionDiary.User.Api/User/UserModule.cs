@@ -31,7 +31,16 @@ public class UserModule() : CarterModule("api/")
 
         (var jwt, var rt) = tokens.Value;
 
-        httpCtx.Response.Cookies.Append("rt", rt);
+        httpCtx.Response.Cookies.Append(
+            "rt",
+            rt,
+            new CookieOptions()
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.None,
+                Secure = false
+            }
+        );
 
         return TypedResults.Ok(new TokenDto(jwt, rt));
     }
@@ -64,9 +73,13 @@ public class UserModule() : CarterModule("api/")
     private static async Task<Results<Ok<TokenDto>, ForbidHttpResult>> Refresh(
         [FromBody] string eJwt,
         HttpContext httpContext,
-        UserService uS
+        UserService uS,
+        ILogger<UserModule> logger
     )
     {
+        logger.LogInformation("Refresh start");
+        logger.LogInformation("Cookies: {Cookies}", httpContext.Request.Cookies);
+
         return (await uS.RefreshToken(eJwt, httpContext.Request.Cookies["rt"]!, httpContext)).Match(
             res =>
                 (Results<Ok<TokenDto>, ForbidHttpResult>)
@@ -77,8 +90,6 @@ public class UserModule() : CarterModule("api/")
 
     private static TokenDto OnSuccess((string jwt, string rt) res, HttpContext ctx)
     {
-        ctx.Response.Cookies.Append("rt", res.rt);
-
         return new TokenDto(res.jwt, res.rt);
     }
 }

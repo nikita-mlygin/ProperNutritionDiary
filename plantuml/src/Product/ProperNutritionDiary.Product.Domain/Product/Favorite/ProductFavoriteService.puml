@@ -2,6 +2,11 @@
 class ProductFavoriteService {
     + AddProductToFavoriteList(user:User, product:Product, isProductInFavoriteList:bool, timeAdded:DateTime) : Task<Result>
     + RemoveProductFromFavoriteList(user:User, product:Product, isProductInFavoriteList:bool) : Task<Result>
+    - AddProductToFavoriteList(user:User, product:Product, timeAdded:DateTime) : Func<Task>
+    - RemoveProductFromFavoriteList(user:User, product:Product) : Func<Task>
+    - DispatchEvent(e:DomainEvent) : Func<Task>
 }
 IProductFavoriteService <|-- ProductFavoriteService
+ProductFavoriteService o-> "productRepository" IProductRepository
+ProductFavoriteService o-> "eventDispatcher" IEventDispatcher
 @enduml

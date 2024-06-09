@@ -1,5 +1,8 @@
 @startuml
 class DependencyInjection <<static>> {
-    + {static} AddPersistence(services:IServiceCollection, mysqlConnectionString:string, cassandraHost:string, cassandraKeySpace:string, cassandraUserName:string, cassandraPassword:string) : IServiceCollection
+    - <<const>> UsdaPath : string = "https://api.nal.usda.gov/fdc/v1"
+    - <<const>> OpenApiPath : string = "https://world.openfoodfacts.net/api/v3/"
+    - <<const>> OpenApiSearchPath : string = "https://world.openfoodfacts.org/"
+    + {static} AddPersistence(services:IServiceCollection, mysqlConnectionString:string, cassandraHost:string, cassandraKeySpace:string, cassandraUserName:string, cassandraPassword:string, usdaClientApiKey:string) : IServiceCollection
 }
 @enduml

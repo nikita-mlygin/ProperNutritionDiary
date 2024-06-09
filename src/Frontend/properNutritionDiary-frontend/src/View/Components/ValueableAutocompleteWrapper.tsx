@@ -6,6 +6,7 @@ interface ValueableAutocompleteWrapperProps<T> {
   initValues: Valueable<T>[];
   onChange: (newValues: { valueName: string; value: T | null }[]) => void;
   parseValueFn: <T extends number>(value: string) => T | null;
+  label: string;
 }
 
 const ValueableAutocompleteWrapper = <T extends number>({
@@ -13,6 +14,7 @@ const ValueableAutocompleteWrapper = <T extends number>({
   onChange,
   parseValueFn,
   initValues = [],
+  label,
 }: ValueableAutocompleteWrapperProps<T>) => {
   const convertedDishOptions = dishOptions.map((option) => ({
     label: option.label,
@@ -46,6 +48,7 @@ const ValueableAutocompleteWrapper = <T extends number>({
 
   return (
     <ValueableAutocomplete
+      label={label}
       dishOptions={convertedDishOptions}
       selectedDishes={convertedSelectedDishes}
       onDishChange={onDishChange}
