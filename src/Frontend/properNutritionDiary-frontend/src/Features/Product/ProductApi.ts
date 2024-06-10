@@ -21,16 +21,11 @@ export const productApi = createApi({
       query: (id) => `/product/${id}`,
     }),
     searchProducts: builder.query<
-      ProductSummaryDto[],
-      { query: string; page: number }
+      { products: ProductSummaryDto[]; next: string | null },
+      { query: string; next: string | null }
     >({
-      query: ({ query, page }) =>
-        query == ""
-          ? `/product/s/?page=${page}`
-          : `/product/s/${query}?page=${page}`,
-      providesTags: (result, error, { query, page }) => [
-        { type: "Search", id: `${query}-${page}` },
-      ],
+      query: ({ query, next }) =>
+        `/product/s/${query}${next == null ? "" : `?next=${next}`}`,
     }),
     createProduct: builder.mutation<void, CreateProductRequest>({
       query: (newProduct) => ({

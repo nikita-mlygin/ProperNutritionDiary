@@ -75,13 +75,13 @@ def search_open_food_facts(query: str, page: int) -> tuple[List[StandardFood], i
     for product in products:
         nutrients = extract_nutrients_from_open_food_facts(product)
 
-        serving_size_value = product.get("serving_quantity", None)
+        serving_size_value = product.get("serving_quantity", 100)
         serving_size_unit = product.get("serving_quantity_unit", "g")
 
         return_data.append(
             StandardFood(
                 id=product["_id"],
-                name=product["product_name"],
+                name=product.get("product_name", "UNDEFINED"),
                 brand=product.get("brands", ""),
                 nutrients=nutrients,
                 ingredients=parse_ingredients(product.get("ingredients_text", "")),
@@ -94,7 +94,10 @@ def search_open_food_facts(query: str, page: int) -> tuple[List[StandardFood], i
             )
         )
 
-    return (return_data, ceil(response.get("count", -1) / response.get("page_size", 1)))
+    return (
+        return_data,
+        min(ceil(response.get("count", -1) / response.get("page_size", 1)), 1000),
+    )
 
 
 def fetch_open_food_facts(barcode: str) -> StandardFood:

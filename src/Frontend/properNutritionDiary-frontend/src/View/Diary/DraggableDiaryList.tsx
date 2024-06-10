@@ -35,7 +35,7 @@ const DraggableDiaryList: FC<DraggableDiaryListProps> = ({
         >
           {items.map((item, index) => (
             <DraggableDiaryItem
-              key={item.product.id}
+              key={item.product.id.value}
               item={item}
               index={index}
               editId={editId}

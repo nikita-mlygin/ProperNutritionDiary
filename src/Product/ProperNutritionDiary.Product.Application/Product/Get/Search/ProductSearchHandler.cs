@@ -9,18 +9,26 @@ namespace ProperNutritionDiary.Product.Application.Product.Get.Search;
 public class ProductSearchHandler(
     IExternalProductRepository productRepository,
     ILogger<ProductSearchHandler> logger
-) : IRequestHandler<ProductSearch, Result<List<ProductSearchItemDto>>>
+) : IRequestHandler<ProductSearch, Result<SearchResult>>
 {
-    public async Task<Result<List<ProductSearchItemDto>>> Handle(
+    public async Task<Result<SearchResult>> Handle(
         ProductSearch request,
         CancellationToken cancellationToken
     )
     {
         IExternalProductRepository.Next? nextRequest = null;
 
-        if (request.Next is not null)
+        if (
+            request.Next is not null
+            && request.Next.Split(",", 3)
+                is [var nextUsdaPage, var nextOpenFoodFactsPage, var nextRecipePage]
+        )
         {
-            [var a1, var a2, var a3] = request.Next.Split(",", 3);
+            nextRequest = new IExternalProductRepository.Next(
+                int.Parse(nextUsdaPage),
+                int.Parse(nextOpenFoodFactsPage),
+                nextRecipePage
+            );
         }
 
         var (products, next) = await productRepository.Search(request.Query, nextRequest);
@@ -30,12 +38,26 @@ public class ProductSearchHandler(
         var res = products
             .Select(x =>
             {
-                return new ProductSearchItemDto(x.Id.To(), x.Name, x.Macronutrients, null);
+                return new ProductSearchItemDto(
+                    x.Id.To(),
+                    x.Name,
+                    x.Macronutrients,
+                    null,
+                    ServingSize: x.ServingSize
+                );
             })
             .ToList();
 
         logger.LogInformation("End adapt product list");
 
-        return res;
+        string? nextStr = null;
+
+        if (next is not null)
+        {
+            nextStr =
+                $"{next.NextUsdaPage},{next.NextOpenFoodFactsPage},{next.NextEdamamRecipePage}";
+        }
+
+        return new SearchResult(res, nextStr);
     }
 }

@@ -16,17 +16,29 @@ public interface IExternalProductApi
         public Dictionary<string, decimal> Nutrients { get; set; } = [];
         public List<string> Ingredients { get; set; } = [];
         public List<string> Allergens { get; set; } = [];
-        public float ServingSize { get; set; }
+        public decimal ServingSize { get; set; }
         public string ServingSizeUnit { get; set; } = "g";
     }
 
     public class FoodWithRecipe : StandardFood
     {
-        public string RecipeLink { get; set; }
+        public string RecipeLink { get; set; } = string.Empty;
+    }
+
+    public class SearchResult
+    {
+        public List<StandardFood> ProductList { get; set; } = [];
+        public List<int> PageNumbers { get; set; } = [];
+    }
+
+    public class RecipeSearchResult
+    {
+        public List<FoodWithRecipe> ProductList { get; set; } = [];
+        public string? Next { get; set; }
     }
 
     [Get("/api/search")]
-    Task<(List<StandardFood>, List<int>)> SearchFoodAsync(
+    Task<SearchResult> SearchFoodAsync(
         [Query] string q,
         [Query] int page = 1,
         [Query] string? source = null,
@@ -38,7 +50,7 @@ public interface IExternalProductApi
     Task<StandardFood> GetFoodAsync([Query] string id, [Query] string source);
 
     [Get("/api/recipe/s")]
-    Task<(List<FoodWithRecipe>, string)> SearchEdamamRecipesAsync(
+    Task<RecipeSearchResult> SearchEdamamRecipesAsync(
         [Query] string q,
         [Query] string? cont = null
     );

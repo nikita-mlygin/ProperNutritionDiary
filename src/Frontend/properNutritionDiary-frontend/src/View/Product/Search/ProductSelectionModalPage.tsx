@@ -147,9 +147,9 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
               >
                 {visibleResults.map((result) => (
                   <ProductSearchItem
-                    key={result.id}
+                    key={result.id.value}
                     name={result.name}
-                    source={result.externalSource.type}
+                    source={result.id.type}
                     calories={result.macronutrients.calories}
                     proteins={result.macronutrients.proteins}
                     fats={result.macronutrients.fats}

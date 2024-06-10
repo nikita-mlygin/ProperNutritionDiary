@@ -3,7 +3,7 @@ import { TokenResponse } from "./Token/TokenResponse";
 import { LoginRequest } from "./Login/LoginRequest";
 import { RegRequest } from "./Reg/RegRequest";
 
-const baseUrl = "https://localhost:8086/api/";
+const baseUrl = "https://localhost:8081/user-api/";
 
 export const userApi = createApi({
   reducerPath: "userApi",

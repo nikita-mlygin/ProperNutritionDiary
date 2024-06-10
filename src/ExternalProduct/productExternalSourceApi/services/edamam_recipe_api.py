@@ -103,7 +103,7 @@ def search_recipes(query: str, cont: str | None) -> tuple[List[FoodWithRecipe], 
         recipe_info = extract_recipe_info(recipe)
         return_data.append(recipe_info)
 
-    next_url = response_json["_links"].get("next", None).get("href", None)
+    next_url = response_json.get("_links", {}).get("next", {}).get("href", None)
 
     if next_url is not None:
         parsed_url = urlparse(next_url)

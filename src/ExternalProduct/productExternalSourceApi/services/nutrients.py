@@ -10,43 +10,40 @@ def extract_nutrients_from_usda(food_data: Dict) -> Dict[str, float]:
         )
     )
 
-    def get_nutrient_amount(nutrient_list, nutrient_number):
-        for nutrient in nutrient_list:
-            if (
-                "nutrient" in nutrient
-                and nutrient["nutrient"].get("number") == nutrient_number
-            ):
-                return nutrient["amount"]
-            elif (
-                "nutrientNumber" in nutrient
-                and nutrient["nutrientNumber"] == nutrient_number
-            ):
-                return nutrient["value"]
-        return 0
-
-    nutrients = {
-        "calories": get_nutrient_amount(food_data["foodNutrients"], "208"),
-        "protein": get_nutrient_amount(food_data["foodNutrients"], "203"),
-        "fat": get_nutrient_amount(food_data["foodNutrients"], "204"),
-        "carbohydrates": get_nutrient_amount(food_data["foodNutrients"], "205"),
-        "sugar": get_nutrient_amount(food_data["foodNutrients"], "269"),
-        "fiber": get_nutrient_amount(food_data["foodNutrients"], "291"),
-        "sodium": get_nutrient_amount(food_data["foodNutrients"], "307"),
-        "cholesterol": get_nutrient_amount(food_data["foodNutrients"], "601"),
-        "calcium": get_nutrient_amount(food_data["foodNutrients"], "301"),
-        "iron": get_nutrient_amount(food_data["foodNutrients"], "303"),
-        "potassium": get_nutrient_amount(food_data["foodNutrients"], "306"),
-        "vitamin_a": get_nutrient_amount(food_data["foodNutrients"], "318"),
-        "vitamin_c": get_nutrient_amount(food_data["foodNutrients"], "401"),
-        "vitamin_d": get_nutrient_amount(food_data["foodNutrients"], "324"),
-        "vitamin_e": get_nutrient_amount(food_data["foodNutrients"], "323"),
-        "vitamin_k": get_nutrient_amount(food_data["foodNutrients"], "430"),
-        "vitamin_b6": get_nutrient_amount(food_data["foodNutrients"], "415"),
-        "vitamin_b12": get_nutrient_amount(food_data["foodNutrients"], "418"),
-        "magnesium": get_nutrient_amount(food_data["foodNutrients"], "304"),
-        "phosphorus": get_nutrient_amount(food_data["foodNutrients"], "305"),
-        "zinc": get_nutrient_amount(food_data["foodNutrients"], "309"),
+    nutrient_map = {
+        "208": "calories",
+        "203": "protein",
+        "204": "fat",
+        "205": "carbohydrates",
+        "269": "sugar",
+        "291": "fiber",
+        "307": "sodium",
+        "601": "cholesterol",
+        "301": "calcium",
+        "303": "iron",
+        "306": "potassium",
+        "318": "vitamin_a",
+        "401": "vitamin_c",
+        "324": "vitamin_d",
+        "323": "vitamin_e",
+        "430": "vitamin_k",
+        "415": "vitamin_b6",
+        "418": "vitamin_b12",
+        "304": "magnesium",
+        "305": "phosphorus",
+        "309": "zinc",
     }
+
+    nutrients = {v: 0 for v in nutrient_map.values()}
+
+    for nutrient in food_data["foodNutrients"]:
+        nutrient_number = nutrient.get("nutrientNumber") or nutrient.get(
+            "nutrient", {}
+        ).get("number")
+        if nutrient_number in nutrient_map:
+            nutrient_name = nutrient_map[nutrient_number]
+            amount = nutrient.get("amount") or nutrient.get("value", 0)
+            nutrients[nutrient_name] = amount
 
     logger.info(
         _(

@@ -71,15 +71,19 @@ public sealed class ProductModule() : CarterModule("/api/product")
         );
     }
 
-    private static async Task<Results<Ok<List<ProductSearchItemDto>>, BadRequest>> Search(
+    private static async Task<Results<Ok<SearchResult>, BadRequest>> Search(
         [FromRoute] string? query,
-        [FromQuery] int? page,
+        [FromQuery] string? next,
         ClaimsPrincipal u,
         IMediator mediator
     )
     {
         return TypedResults.Ok(
-            (await mediator.Send(new ProductSearch(query, u.GetUserId(), UserRole.App, page))).Value
+            (
+                await mediator.Send(
+                    new ProductSearch(query ?? "", u.GetUserId(), UserRole.App, next)
+                )
+            ).Value
         );
     }
 

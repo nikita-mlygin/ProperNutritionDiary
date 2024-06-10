@@ -552,11 +552,13 @@ obj/
 !test/Packages/*
 
 Aboba/
+aboba/
 appsettings.json
 appsettings.Release.json
 appsettings.Development.json
 .env
 plantuml/*
 plantuml
+plantuml/**
 venv
 seq

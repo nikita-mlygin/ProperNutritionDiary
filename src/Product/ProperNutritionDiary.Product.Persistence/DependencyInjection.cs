@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ProperNutritionDiary.BuildingBlocks.PersistencePackages;
 using ProperNutritionDiary.Product.Domain.Product;
+using ProperNutritionDiary.Product.Domain.Product.External;
 using ProperNutritionDiary.Product.Domain.Product.Get;
 using ProperNutritionDiary.Product.Persistence.Connection;
 using ProperNutritionDiary.Product.Persistence.ExternalProduct;
@@ -23,6 +24,7 @@ namespace ProperNutritionDiary.Product.Persistence;
 public static class DependencyInjection
 {
     private const string UsdaPath = "https://api.nal.usda.gov/fdc/v1";
+    private const string externalSourcePath = "https://external.product.api:8081";
     private const string OpenApiPath = "https://world.openfoodfacts.net/api/v3/";
     private const string OpenApiSearchPath = "https://world.openfoodfacts.org/";
 
@@ -66,6 +68,23 @@ public static class DependencyInjection
             .AddHttpMessageHandler(serviceProvider => new HttpLoggingHandler(
                 serviceProvider.GetRequiredService<ILogger<HttpLoggingHandler>>()
             ));
+
+        services
+            .AddRefitClient<IExternalProductApi>()
+            .ConfigureHttpClient(cfg =>
+            {
+                cfg.BaseAddress = new Uri(externalSourcePath);
+            })
+            .AddHttpMessageHandler(serviceProvider => new HttpLoggingHandler(
+                serviceProvider.GetRequiredService<ILogger<HttpLoggingHandler>>()
+            ))
+            .ConfigurePrimaryHttpMessageHandler(
+                () =>
+                    new HttpClientHandler()
+                    {
+                        ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
+                    }
+            );
 
         services
             .AddRefitClient<IOpenFoodFactsApi>()
@@ -133,7 +152,7 @@ public static class DependencyInjection
             });
         });
 
-        services.Decorate<IExternalProductRepository, CachedExternalProductRepository>();
+        // services.Decorate<IExternalProductRepository, CachedExternalProductRepository>();
 
         MappingConfiguration.Global.Define<GlobalMappingsDefinition>();
 

@@ -6,5 +6,6 @@ public record ProductSearchItemDto(
     ExternalSourceIdentitySummary? Id,
     string Name,
     Macronutrients Macronutrients,
-    ProductOwnerDto? Owner
+    ProductOwnerDto? Owner,
+    decimal ServingSize
 );

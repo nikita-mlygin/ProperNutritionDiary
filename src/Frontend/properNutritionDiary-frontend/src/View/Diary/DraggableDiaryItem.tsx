@@ -41,7 +41,7 @@ const DraggableDiaryItem: React.FC<DraggableDiaryItemProps> = ({
   const theme = useTheme();
 
   return (
-    <Draggable draggableId={item.product.id} index={index}>
+    <Draggable draggableId={item.product.id.value} index={index}>
       {(provided, snapshot) => (
         <Stack
           key={item.product.id}

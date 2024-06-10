@@ -5,31 +5,58 @@ import { useLazySearchProductsQuery } from "../ProductApi";
 
 const RESULTS_PER_PAGE = 10;
 
+function tryUpdateVisibleResultsFromCurrentCache(
+  startIndex: number,
+  cache: ProductSummaryDto[]
+) {
+  return cache.slice(startIndex, startIndex + RESULTS_PER_PAGE);
+}
+
 const useProductSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
-
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useDebounce(
+    searchTerm,
+    500
+  );
   const [visibleResults, setVisibleResults] = useState<ProductSummaryDto[]>([]);
-  const pageRef = useRef(1);
-  const lastIndexRef = useRef(0);
-  const lastLoadedPage = useRef(-1);
   const [endApiList, setEndApiList] = useState(false);
-  const [triggerApiCall, setTriggerApiCall] = useState(false);
-  const [searchReason, setSearchReason] = useState("initial");
 
+  const lastIndexRef = useRef(0);
   const cacheRef = useRef<ProductSummaryDto[]>([]);
+  const next = useRef<string | null>(null);
+  const endApi = useRef<boolean>(false);
 
   const [
     executeSearch,
     { data: searchData, isLoading, isFetching, error, isSuccess },
   ] = useLazySearchProductsQuery();
 
-  const tryUpdateVisibleResultsFromCurrentCache = useCallback(
-    (startIndex: number) => {
-      return cacheRef.current.slice(startIndex, startIndex + RESULTS_PER_PAGE);
-    },
-    []
-  );
+  const loadMore = useCallback(() => {
+    console.log(
+      "Load more. Must update visible results from cache. If not, need load more results. If api end, set state api end, else update. Disable if loading or fetching"
+    );
+
+    if (isFetching || isLoading || endApiList) return;
+
+    const newData = tryUpdateVisibleResultsFromCurrentCache(
+      lastIndexRef.current,
+      cacheRef.current
+    );
+    lastIndexRef.current += newData.length;
+    setVisibleResults((prev) => [...prev, ...newData]);
+
+    if (newData.length < RESULTS_PER_PAGE)
+      executeSearch({ query: debouncedSearchTerm, next: next.current });
+  }, [debouncedSearchTerm, endApiList, executeSearch, isFetching, isLoading]);
+
+  useEffect(() => {
+    console.log("debounced state changed. Must rerender visible results");
+    setVisibleResults([]);
+    next.current = null;
+    endApi.current = false;
+    setEndApiList(false);
+    executeSearch({ query: debouncedSearchTerm, next: null });
+  }, [debouncedSearchTerm, executeSearch]);
 
   const updateCacheWithApiPage = useCallback(
     (newValues: ProductSummaryDto[]) => {
@@ -44,81 +71,43 @@ const useProductSearch = () => {
   );
 
   useEffect(() => {
-    pageRef.current = 1;
-    lastIndexRef.current = 0;
-    setVisibleResults([]);
-    setEndApiList(false);
-    setTriggerApiCall(true);
-    setSearchReason("newSearch");
-  }, [debouncedSearchTerm]);
-
-  useEffect(() => {
-    console.log(endApiList, triggerApiCall);
-    if (triggerApiCall && !endApiList) {
-      executeSearch({ query: debouncedSearchTerm, page: pageRef.current });
-    }
-  }, [triggerApiCall, endApiList, executeSearch, debouncedSearchTerm]);
-
-  const loadMore = useCallback(() => {
-    const newResults = tryUpdateVisibleResultsFromCurrentCache(
-      lastIndexRef.current
+    console.log(
+      "If data is null, return. Data is loaded. If page is next, must add results to cache. Else rewrite cache"
     );
 
-    setVisibleResults((prev) => [...prev, ...newResults]);
-    lastIndexRef.current += newResults.length;
-
-    console.log("loadMore");
-
-    if (
-      newResults.length < RESULTS_PER_PAGE &&
-      !(triggerApiCall && searchReason === "loadMore")
-    ) {
-      pageRef.current = lastLoadedPage.current + 1;
-      console.log(pageRef.current);
-      setTriggerApiCall(true);
-      setSearchReason("loadMore");
+    if (!searchData || !isSuccess) {
+      console.log("return");
+      return;
     }
-  }, [searchReason, triggerApiCall, tryUpdateVisibleResultsFromCurrentCache]);
+
+    next.current = searchData.next;
+    if (!next.current) endApi.current = true;
+
+    if (!next.current) {
+      cacheRef.current = searchData.products;
+      const newResults = tryUpdateVisibleResultsFromCurrentCache(
+        0,
+        cacheRef.current
+      );
+      lastIndexRef.current = newResults.length;
+      setVisibleResults(newResults);
+      return;
+    }
+
+    updateCacheWithApiPage(searchData.products);
+    const newData = tryUpdateVisibleResultsFromCurrentCache(
+      lastIndexRef.current,
+      cacheRef.current
+    );
+    lastIndexRef.current += newData.length;
+    setVisibleResults((prev) => [...prev, ...newData]);
+  }, [isSuccess, searchData, updateCacheWithApiPage]);
 
   useEffect(() => {
-    if (isLoading || isFetching) return;
-
-    if (searchData && isSuccess) {
-      lastLoadedPage.current = pageRef.current;
-
-      if (pageRef.current === 1 && searchReason === "newSearch") {
-        cacheRef.current = searchData;
-        const newResults = tryUpdateVisibleResultsFromCurrentCache(0);
-        setVisibleResults(newResults);
-        lastIndexRef.current = newResults.length;
-
-        if (searchData.length < RESULTS_PER_PAGE) {
-          setEndApiList(true);
-        }
-      } else if (searchReason === "loadMore") {
-        updateCacheWithApiPage(searchData);
-        const newResults = tryUpdateVisibleResultsFromCurrentCache(
-          lastIndexRef.current
-        );
-        setVisibleResults((prev) => [...prev, ...newResults]);
-        lastIndexRef.current += newResults.length;
-
-        if (searchData.length < RESULTS_PER_PAGE) {
-          setEndApiList(true);
-        }
-      }
-
-      setTriggerApiCall(false);
-    }
-  }, [
-    isLoading,
-    isFetching,
-    isSuccess,
-    searchData,
-    tryUpdateVisibleResultsFromCurrentCache,
-    updateCacheWithApiPage,
-    searchReason,
-  ]);
+    if (!error) return;
+    setEndApiList(true);
+    console.log("set end api list while error");
+  }, [error]);
 
   return {
     searchTerm,

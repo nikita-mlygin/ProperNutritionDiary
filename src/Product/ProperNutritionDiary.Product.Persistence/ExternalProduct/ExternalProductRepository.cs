@@ -72,9 +72,9 @@ public class ExternalProductRepository(
         IExternalProductRepository.Next? next = null
     )
     {
-        var nextUsdaPage = next.NextUsdaPage;
-        var nextOpenFoodFacts = next.NextOpenFoodFactsPage;
-        var nextEdamamRecipePage = next.NextEdamamRecipePage;
+        var nextUsdaPage = next?.NextUsdaPage ?? 1;
+        var nextOpenFoodFacts = next?.NextOpenFoodFactsPage ?? 1;
+        var nextEdamamRecipePage = next?.NextEdamamRecipePage;
 
         try
         {
@@ -91,13 +91,15 @@ public class ExternalProductRepository(
                     source: "usda"
                 );
 
+                logger.LogInformation("Results received (usda), {@Result}", usdaResult);
+
                 results =
                 [
                     ..results,
-                    ..usdaResult.Item1.Select(x => ToExternalProduct(x, ExternalSourceType.USDA))
+                    ..usdaResult.ProductList.Select(x => ToExternalProduct(x, ExternalSourceType.USDA))
                 ];
 
-                lastUsdaPage = usdaResult.Item2[0];
+                lastUsdaPage = usdaResult.PageNumbers[0];
             }
 
             if (nextOpenFoodFacts != -1)
@@ -108,24 +110,31 @@ public class ExternalProductRepository(
                     source: "openfoodfacts"
                 );
 
+                logger.LogInformation(
+                    "Results received (openFoodFacts), {@Result}",
+                    openFoodFactsResult
+                );
+
                 results =
                 [
                     ..results,
-                    ..openFoodFactsResult.Item1.Select(x => ToExternalProduct(x, ExternalSourceType.Barcode))
+                    ..openFoodFactsResult.ProductList.Select(x => ToExternalProduct(x, ExternalSourceType.Barcode))
                 ];
 
-                lastOpenFoodFactsPage = openFoodFactsResult.Item2[0];
+                lastOpenFoodFactsPage = openFoodFactsResult.PageNumbers[0];
             }
 
-            if (nextEdamamRecipePage is not null)
+            if (next is null || nextEdamamRecipePage is not null)
             {
                 var edamamRecipeResult = await api.SearchEdamamRecipesAsync(
                     query,
                     cont: nextEdamamRecipePage
                 );
 
-                results = [..results, ..edamamRecipeResult.Item1.Select( ToExternalProduct)];
-                lastEdamamRecipePage = edamamRecipeResult.Item2;
+                logger.LogInformation("Results received (edamam), {@Result}", edamamRecipeResult);
+
+                results = [..results, ..edamamRecipeResult.ProductList.Select( ToExternalProduct)];
+                lastEdamamRecipePage = edamamRecipeResult.Next;
             }
 
             return new ExternalProductRepositorySearchResult(
@@ -158,16 +167,16 @@ public class ExternalProductRepository(
         return new ExternalProduct(
             ExternalSourceIdentity.Create(type, food.Id) ?? throw new Exception(),
             food.Name,
-            Macronutrients
-                .Create(
+            Macronutrients.FromSnapshot(
+                new MacronutrientsSnapshot(
                     food.Nutrients.GetValueOrDefault("calories", 0),
                     food.Nutrients.GetValueOrDefault("protein", 0),
                     food.Nutrients.GetValueOrDefault("fat", 0),
                     food.Nutrients.GetValueOrDefault("carbohydrates", 0)
                 )
-                .Value,
+            ),
             food.Nutrients,
-            (decimal)food.ServingSize,
+            food.ServingSize,
             food.Allergens,
             food.Ingredients
         );
@@ -179,16 +188,16 @@ public class ExternalProductRepository(
             ExternalSourceIdentity.Create(ExternalSourceType.EdamamRecipe, food.Id)
                 ?? throw new Exception(),
             food.Name,
-            Macronutrients
-                .Create(
+            Macronutrients.FromSnapshot(
+                new MacronutrientsSnapshot(
                     food.Nutrients.GetValueOrDefault("calories", 0),
                     food.Nutrients.GetValueOrDefault("protein", 0),
                     food.Nutrients.GetValueOrDefault("fat", 0),
                     food.Nutrients.GetValueOrDefault("carbohydrates", 0)
                 )
-                .Value,
+            ),
             food.Nutrients,
-            (decimal)food.ServingSize,
+            food.ServingSize,
             food.Allergens,
             food.Ingredients
         );

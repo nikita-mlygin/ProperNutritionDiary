@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Query, HTTPException
 from typing import Dict, List, Optional
+
+from pydantic import BaseModel, Field
 from services.edamam_recipe_api import (
     fetch_all_recipes_from_edamam,
     fetch_recipe_from_edamam,
@@ -13,21 +15,39 @@ from logger import logger, _
 app = FastAPI()
 
 
-@app.get("/api/search", response_model=tuple[List[StandardFood], List[int]])
+class SearchResult(BaseModel):
+    product_list: List[StandardFood] = Field(alias="productList")
+    page_numbers: List[int] = Field(alias="pageNumbers")
+
+    class Config:
+        allow_population_by_field_name = True
+        populate_by_name = True
+        use_enum_values = True
+
+
+class RecipeSearchResult(BaseModel):
+    product_list: List[FoodWithRecipe] = Field(alias="productList")
+    next: str | None = Field(alias="next")
+
+    class Config:
+        allow_population_by_field_name = True
+        populate_by_name = True
+        use_enum_values = True
+
+
+@app.get("/api/search", response_model=SearchResult)
 async def search_food(
-    q: str,
+    q: str | None = None,
     page: int = 1,
     source: Optional[str] = None,
-    min_calories: Optional[float] = 0,
-    max_calories: Optional[float] = Query(float("inf")),
 ):
+    q = q if q is not None else ""
+
     logger.info(
         "Search request received 2",
         extra={
             "query": q,
             "source": source,
-            "minCalories": min_calories,
-            "maxCalories": max_calories,
         },
     )
     try:
@@ -45,7 +65,7 @@ async def search_food(
 
         logger.info(_("Results received, {results}", results=results))
 
-        return results
+        return SearchResult(product_list=results[0], page_numbers=results[1])
     except Exception as e:
         logger.error(_("Failed to fetch data, {error}", error=e))
         raise HTTPException(status_code=500, detail="Failed to fetch data")
@@ -84,11 +104,11 @@ async def get_food(
         raise HTTPException(status_code=500, detail="Failed to fetch data")
 
 
-@app.get("/api/recipe/s", response_model=tuple[List[FoodWithRecipe], str])
-async def search_edamam_recipes(
-    q: str, cont: str | None = None
-) -> tuple[List[FoodWithRecipe], str]:
-    return search_recipes(q, cont)
+@app.get("/api/recipe/s", response_model=RecipeSearchResult)
+async def search_edamam_recipes(q: str | None = None, cont: str | None = None):
+    q = q if q is not None else ""
+    res = search_recipes(q, cont)
+    return RecipeSearchResult(product_list=res[0], next=res[1])
 
 
 @app.get("/api/by-uri", response_model=List[FoodWithRecipe])
