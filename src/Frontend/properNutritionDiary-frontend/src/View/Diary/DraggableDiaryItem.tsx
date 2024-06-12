@@ -20,12 +20,13 @@ import { DiaryItem } from "../../Features/Diary/DiaryItem";
 export type DraggableDiaryItemProps = {
   item: DiaryItem;
   index: number;
-  editId: string | null;
+  editId: { type: string; value: string } | null;
   newWeight: number | null;
-  handleEdit: (id: string, weight: number) => void;
-  handleSave: (id: string) => void;
-  handleDelete: (id: string) => void;
+  handleEdit: (id: { type: string; value: string }, weight: number) => void;
+  handleSave: (id: { type: string; value: string }) => void;
+  handleDelete: (id: { type: string; value: string }) => void;
   setNewWeight: (weight: number | null) => void;
+  onClick: () => void;
 };
 
 const DraggableDiaryItem: React.FC<DraggableDiaryItemProps> = ({
@@ -37,14 +38,24 @@ const DraggableDiaryItem: React.FC<DraggableDiaryItemProps> = ({
   handleSave,
   handleDelete,
   setNewWeight,
+  onClick,
 }) => {
   const theme = useTheme();
 
+  const handleInnerClick = (event) => {
+    // Останавливаем распространение события клика к родительскому элементу
+    event.stopPropagation();
+  };
+
   return (
-    <Draggable draggableId={item.product.id.value} index={index}>
+    <Draggable
+      draggableId={item.product.id.type + "_" + item.product.id.value}
+      index={index}
+    >
       {(provided, snapshot) => (
         <Stack
-          key={item.product.id}
+          onClick={onClick}
+          key={item.product.id.type + "_" + item.product.id.value}
           direction="row"
           spacing={2}
           alignItems="center"
@@ -81,9 +92,10 @@ const DraggableDiaryItem: React.FC<DraggableDiaryItemProps> = ({
               </Typography>
             </Stack>
           </Box>
-          <Box>
+          <Box onClick={handleInnerClick}>
             {editId === item.product.id ? (
               <TextField
+                onClick={handleInnerClick}
                 type="number"
                 value={newWeight}
                 onChange={(e) => setNewWeight(parseFloat(e.target.value))}
@@ -94,7 +106,7 @@ const DraggableDiaryItem: React.FC<DraggableDiaryItemProps> = ({
               <Typography>{item.weight} g</Typography>
             )}
           </Box>
-          <Box>
+          <Box onClick={handleInnerClick}>
             {editId === item.product.id ? (
               <IconButton onClick={() => handleSave(item.product.id)}>
                 <CheckIcon />

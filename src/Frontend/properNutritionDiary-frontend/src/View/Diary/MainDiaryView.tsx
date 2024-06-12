@@ -1,4 +1,4 @@
-import { FC, useState, useMemo, useCallback } from "react";
+import { FC, useState, useMemo, useCallback, useRef } from "react";
 import {
   Stack,
   Typography,
@@ -21,6 +21,8 @@ import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import DraggableDiaryList from "./DraggableDiaryList";
 import { DiaryMenuItems } from "./Menu/DiaryMenuItems";
 import DiaryMenuItemList from "./Menu/DiaryMenuItemList";
+import ProductDialog from "../Product/View/ProductDialog";
+import { cloneDeep } from "lodash";
 
 const initialTargetMacros = [203, 90, 270];
 
@@ -64,9 +66,11 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
     dinner: [],
     other: [],
   });
+
   const [editId, setEditId] = useState<string | null>(null);
   const [newWeight, setNewWeight] = useState<number | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
+
   const [expandedSections, setExpandedSections] = useState({
     breakfast: true,
     lunch: true,
@@ -95,6 +99,12 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
       );
   }, [items]);
 
+  const [modalProduct, setModalProduct] = useState<ProductSummaryDto | null>(
+    null
+  );
+
+  const products = useRef<Map<string, ProductSummaryDto>>(new Map());
+
   const handleAddProduct = (
     selectedProduct: ProductSummaryDto,
     weight: number,
@@ -107,6 +117,12 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
       },
       weight,
     };
+
+    products.current.set(
+      selectedProduct.id.type + "_" + selectedProduct.id.value,
+      cloneDeep(selectedProduct)
+    );
+
     setItems((prevItems) => ({
       ...prevItems,
       [section]: [...prevItems[section], newProduct],
@@ -115,6 +131,16 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
   };
 
   const currentCalories = useMemo(() => {
+    console.log(
+      Object.values(items)
+        .flat()
+        .reduce(
+          (acc, item) =>
+            acc + (item.product.macros.calories * item.weight) / 100,
+          0
+        )
+    );
+
     return Object.values(items)
       .flat()
       .reduce(
@@ -223,6 +249,10 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
           section={section}
           editId={editId}
           newWeight={newWeight}
+          onItemClick={(elmId) => {
+            if (products.current.has(elmId))
+              setModalProduct(products.current.get(elmId) ?? null);
+          }}
           handleEdit={handleEdit}
           handleSave={handleSave}
           handleDelete={handleDelete}
@@ -263,6 +293,10 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
         open={isModalOpen}
         onClose={() => setModalOpen(false)}
         onSave={(product, weight) => handleAddProduct(product, weight, "other")}
+      />
+      <ProductDialog
+        onClose={() => setModalProduct(null)}
+        product={modalProduct}
       />
     </Box>
   );

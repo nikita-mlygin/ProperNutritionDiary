@@ -1,12 +1,11 @@
 import { Macronutrients } from "../Macronutrients/Macronutrients";
 
 export interface DiaryProductItem {
-  id: string;
+  id: {
+    value: string;
+    type: string;
+  };
   name: string;
   macros: Macronutrients;
-  source?: {
-    type: string;
-    value: string;
-  };
   owner: string | null;
 }

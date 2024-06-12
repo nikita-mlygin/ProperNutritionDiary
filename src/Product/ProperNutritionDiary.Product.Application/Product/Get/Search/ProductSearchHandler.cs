@@ -42,7 +42,10 @@ public class ProductSearchHandler(
                     x.Id.To(),
                     x.Name,
                     x.Macronutrients,
+                    x.Other,
                     null,
+                    x.Allergens,
+                    x.Ingredients,
                     ServingSize: x.ServingSize
                 );
             })

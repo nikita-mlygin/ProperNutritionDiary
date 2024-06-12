@@ -111,6 +111,9 @@ services:
       - product.mysql
       - product.redis
       - seq
+      - api.gateway
+      - user.api
+      - external.product.api
     networks:
       - backend-proxy
     build:

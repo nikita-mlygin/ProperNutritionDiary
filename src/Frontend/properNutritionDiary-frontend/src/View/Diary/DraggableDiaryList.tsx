@@ -13,6 +13,7 @@ export type DraggableDiaryListProps = {
   handleSave: (id: string) => void;
   handleDelete: (id: string) => void;
   setNewWeight: (weight: number | null) => void;
+  onItemClick: (id: string) => void;
 };
 
 const DraggableDiaryList: FC<DraggableDiaryListProps> = ({
@@ -24,6 +25,7 @@ const DraggableDiaryList: FC<DraggableDiaryListProps> = ({
   handleSave,
   handleDelete,
   setNewWeight,
+  onItemClick,
 }) => {
   return (
     <Droppable droppableId={section}>
@@ -35,7 +37,7 @@ const DraggableDiaryList: FC<DraggableDiaryListProps> = ({
         >
           {items.map((item, index) => (
             <DraggableDiaryItem
-              key={item.product.id.value}
+              key={item.product.id.type + "_" + item.product.id.value}
               item={item}
               index={index}
               editId={editId}
@@ -44,6 +46,9 @@ const DraggableDiaryList: FC<DraggableDiaryListProps> = ({
               handleSave={handleSave}
               handleDelete={handleDelete}
               setNewWeight={setNewWeight}
+              onClick={() =>
+                onItemClick(item.product.id.type + "_" + item.product.id.value)
+              }
             />
           ))}
           {provided.placeholder}

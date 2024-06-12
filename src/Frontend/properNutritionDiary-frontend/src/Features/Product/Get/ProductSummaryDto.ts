@@ -3,11 +3,12 @@ import { Macronutrients } from "../../Macronutrients/Macronutrients";
 export interface ProductSummaryDto {
   name: string;
   macronutrients: Macronutrients;
+  otherNutrients: { [key: string]: number };
   owner: string | null;
-  viewCount: number;
   id: {
     type: string;
     value: string;
   };
-  useCount: number;
+  allergens: string[];
+  ingredients: string[];
 }

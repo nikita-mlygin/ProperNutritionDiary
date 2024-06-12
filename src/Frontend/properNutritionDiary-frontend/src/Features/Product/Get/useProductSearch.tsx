@@ -54,6 +54,7 @@ const useProductSearch = () => {
     setVisibleResults([]);
     next.current = null;
     endApi.current = false;
+    cacheRef.current = [];
     setEndApiList(false);
     executeSearch({ query: debouncedSearchTerm, next: null });
   }, [debouncedSearchTerm, executeSearch]);
@@ -80,9 +81,6 @@ const useProductSearch = () => {
       return;
     }
 
-    next.current = searchData.next;
-    if (!next.current) endApi.current = true;
-
     if (!next.current) {
       cacheRef.current = searchData.products;
       const newResults = tryUpdateVisibleResultsFromCurrentCache(
@@ -91,8 +89,15 @@ const useProductSearch = () => {
       );
       lastIndexRef.current = newResults.length;
       setVisibleResults(newResults);
+
+      next.current = searchData.next;
+      if (!next.current) endApi.current = true;
+
       return;
     }
+
+    next.current = searchData.next;
+    if (!next.current) endApi.current = true;
 
     updateCacheWithApiPage(searchData.products);
     const newData = tryUpdateVisibleResultsFromCurrentCache(

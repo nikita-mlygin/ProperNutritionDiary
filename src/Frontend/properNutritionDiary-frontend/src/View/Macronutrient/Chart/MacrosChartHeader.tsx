@@ -77,6 +77,12 @@ const MacrosChartHeader: React.FC<MacrosChartProps> = ({
     );
 
     chartRef.current.data = dataRef.current;
+
+    console.log(
+      Math.min((targetCalories / currentCalories) * 180, 180),
+      Math.min((currentCalories / targetCalories) * 180, 180)
+    );
+
     chartRef.current.update();
   }, [currentCalories, currentMacros, targetCalories, targetMacros]);
 
