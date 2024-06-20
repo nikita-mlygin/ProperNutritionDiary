@@ -29,31 +29,33 @@ namespace ProperNutritionDiary.DiaryApi.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DiaryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdType = table.Column<int>(type: "int", nullable: false),
+                    IdValue = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProductName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Macronutrients_Calories = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Macronutrients_Proteins = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Macronutrients_Fats = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Macronutrients_Carbohydrates = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Weight = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ConsumptionTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DiaryEntryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ConsumptionType = table.Column<int>(type: "int", nullable: false, defaultValue: 3)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DiaryEntries", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DiaryEntries_Diaries_DiaryEntryId",
-                        column: x => x.DiaryEntryId,
+                        name: "FK_DiaryEntries_Diaries_DiaryId",
+                        column: x => x.DiaryId,
                         principalTable: "Diaries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DiaryEntries_DiaryEntryId",
+                name: "IX_DiaryEntries_DiaryId",
                 table: "DiaryEntries",
-                column: "DiaryEntryId");
+                column: "DiaryId");
         }
 
         /// <inheritdoc />

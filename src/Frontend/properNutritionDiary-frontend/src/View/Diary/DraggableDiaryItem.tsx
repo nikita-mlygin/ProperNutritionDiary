@@ -1,10 +1,6 @@
 import * as React from "react";
 import { Draggable } from "react-beautiful-dnd";
 import {
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Avatar,
   IconButton,
   TextField,
   Box,
@@ -16,15 +12,19 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
 import { DiaryItem } from "../../Features/Diary/DiaryItem";
+import { ProductIdentityType } from "../../Features/UserMenu/Get/UserMenuDetails";
 
 export type DraggableDiaryItemProps = {
   item: DiaryItem;
   index: number;
-  editId: { type: string; value: string } | null;
+  editId: { type: ProductIdentityType; value: string } | null;
   newWeight: number | null;
-  handleEdit: (id: { type: string; value: string }, weight: number) => void;
-  handleSave: (id: { type: string; value: string }) => void;
-  handleDelete: (id: { type: string; value: string }) => void;
+  handleEdit: (
+    id: { type: ProductIdentityType; value: string },
+    weight: number
+  ) => void;
+  handleSave: (id: { type: ProductIdentityType; value: string }) => void;
+  handleDelete: (id: { type: ProductIdentityType; value: string }) => void;
   setNewWeight: (weight: number | null) => void;
   onClick: () => void;
 };
@@ -42,7 +42,7 @@ const DraggableDiaryItem: React.FC<DraggableDiaryItemProps> = ({
 }) => {
   const theme = useTheme();
 
-  const handleInnerClick = (event) => {
+  const handleInnerClick = (event: React.MouseEvent) => {
     // Останавливаем распространение события клика к родительскому элементу
     event.stopPropagation();
   };
@@ -52,7 +52,7 @@ const DraggableDiaryItem: React.FC<DraggableDiaryItemProps> = ({
       draggableId={item.product.id.type + "_" + item.product.id.value}
       index={index}
     >
-      {(provided, snapshot) => (
+      {(provided) => (
         <Stack
           onClick={onClick}
           key={item.product.id.type + "_" + item.product.id.value}

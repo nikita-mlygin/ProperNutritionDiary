@@ -3,13 +3,23 @@
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.ProductGlobals\ProperNutritionDiary.BuildingBlocks.ProductGlobals.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.EfBuildingBlocks\ProperNutritionDiary.BuildingBlocks.EfBuildingBlocks.csproj" />
+    <ProjectReference Include="..\..\Diary\ProperNutritionDiary.DiaryContracts\ProperNutritionDiary.DiaryContracts.csproj" />
+    <ProjectReference Include="..\ProperNutritionDiary.UserStatsContracts\ProperNutritionDiary.UserStatsContracts.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.PresentationPackages\ProperNutritionDiary.BuildingBlocks.PresentationPackages.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.2.3" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.2.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="LanguageExt.Core" Version="4.4.8" />
+    <PackageReference Include="LanguageExt.FSharp" Version="4.4.8" />
+    <PackageReference Include="LanguageExt.Rx" Version="4.4.8" />
+    <PackageReference Include="LanguageExt.Sys" Version="4.4.8" />
+    <PackageReference Include="LanguageExt.Transformers" Version="4.4.8" />
   </ItemGroup>
 
   <PropertyGroup>

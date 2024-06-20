@@ -1,4 +1,5 @@
 import { Macronutrients } from "../../Macronutrients/Macronutrients";
+import { ProductIdentityType } from "../../UserMenu/Get/UserMenuDetails";
 
 export interface ProductSummaryDto {
   name: string;
@@ -6,7 +7,7 @@ export interface ProductSummaryDto {
   otherNutrients: { [key: string]: number };
   owner: string | null;
   id: {
-    type: string;
+    type: ProductIdentityType;
     value: string;
   };
   allergens: string[];

@@ -1,19 +1,23 @@
-import React, { FC } from "react";
-import { Droppable, OnDragEndResponder } from "react-beautiful-dnd";
+import { FC } from "react";
+import { Droppable } from "react-beautiful-dnd";
 import { DiaryItem } from "../../Features/Diary/DiaryItem";
 import DraggableDiaryItem from "./DraggableDiaryItem";
 import { Box } from "@mui/material";
+import { ProductIdentityType } from "../../Features/UserMenu/Get/UserMenuDetails";
 
 export type DraggableDiaryListProps = {
   items: DiaryItem[];
   section: string;
-  editId: string | null;
+  editId: { type: ProductIdentityType; value: string } | null;
   newWeight: number | null;
-  handleEdit: (id: string, weight: number) => void;
-  handleSave: (id: string) => void;
-  handleDelete: (id: string) => void;
+  handleEdit: (
+    id: { type: ProductIdentityType; value: string },
+    weight: number
+  ) => void;
+  handleSave: (id: { type: ProductIdentityType; value: string }) => void;
+  handleDelete: (id: { type: ProductIdentityType; value: string }) => void;
   setNewWeight: (weight: number | null) => void;
-  onItemClick: (id: string) => void;
+  onItemClick: (id: { type: ProductIdentityType; value: string }) => void;
 };
 
 const DraggableDiaryList: FC<DraggableDiaryListProps> = ({
@@ -46,9 +50,7 @@ const DraggableDiaryList: FC<DraggableDiaryListProps> = ({
               handleSave={handleSave}
               handleDelete={handleDelete}
               setNewWeight={setNewWeight}
-              onClick={() =>
-                onItemClick(item.product.id.type + "_" + item.product.id.value)
-              }
+              onClick={() => onItemClick(item.product.id)}
             />
           ))}
           {provided.placeholder}

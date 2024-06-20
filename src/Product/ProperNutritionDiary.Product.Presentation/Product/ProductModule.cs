@@ -14,6 +14,7 @@ using ProperNutritionDiary.BuildingBlocks.PresentationPackages;
 using ProperNutritionDiary.Product.Application.Product.Add;
 using ProperNutritionDiary.Product.Application.Product.Get;
 using ProperNutritionDiary.Product.Application.Product.Get.ById;
+using ProperNutritionDiary.Product.Application.Product.Get.ByIdentity;
 using ProperNutritionDiary.Product.Application.Product.Get.Search;
 using ProperNutritionDiary.Product.Domain.Macronutrients;
 using ProperNutritionDiary.Product.Domain.Product.Get;
@@ -29,6 +30,7 @@ public sealed class ProductModule() : CarterModule("/api/product")
         app.MapGet("{id}", GetById).RequireAuthorization("canViewProduct");
         app.MapGet("s/{query?}", Search).RequireAuthorization("canViewProduct");
         app.MapPost("", CreateProduct).RequireAuthorization("canCreateProduct");
+        app.MapPost("get", GetProductsByIds).RequireAuthorization("canViewProduct");
     }
 
     private static Results<Ok, ForbidHttpResult> Test()
@@ -119,6 +121,24 @@ public sealed class ProductModule() : CarterModule("/api/product")
             err => TypedResults.BadRequest(err.Message)
         );
     }
+
+    private static async Task<Results<Ok<List<ProductSearchItemDto>>, BadRequest>> GetProductsByIds(
+        [FromBody] GetProductsRequest request,
+        ClaimsPrincipal u,
+        IMediator mediator
+    )
+    {
+        if (request.ProductIds.Count == 0)
+        {
+            return TypedResults.Ok<List<ProductSearchItemDto>>([]);
+        }
+
+        var query = new GetProductsByIdentitiesQuery(request.ProductIds, u.GetUserId());
+
+        var products = await mediator.Send(query);
+
+        return TypedResults.Ok(products);
+    }
 }
 
 public class CreateProductRequest
@@ -138,4 +158,9 @@ public class ProductSummaryDto
     public Guid? Owner { get; set; }
     public int ViewCount { get; set; }
     public int UseCount { get; set; }
+}
+
+public class GetProductsRequest
+{
+    public List<ProductIdDto> ProductIds { get; set; } = [];
 }

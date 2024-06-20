@@ -26,6 +26,28 @@ services:
     networks:
       - backend-proxy
 
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - backend-proxy
+
+  seq:
+    image: datalust/seq
+    container_name: seq
+    environment:
+     - ACCEPT_EULA=Y
+    volumes:
+      - ./seq:/data
+    ports:
+      - 8010:80
+      - 5341:5341
+    networks:
+      - backend-proxy
+
   product.redis:
     image: redis:latest
     container_name: product.redis
@@ -49,36 +71,6 @@ services:
     expose:
       - "3306"
     restart: always
-
-  seq:
-    image: datalust/seq
-    container_name: seq
-    environment:
-     - ACCEPT_EULA=Y
-    volumes:
-      - ./seq:/data
-    ports:
-      - 8092:80
-      - 5341:5341
-    networks:
-      - backend-proxy
-    
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: phpmyadmin
-    links:
-      - product.mysql
-    environment:
-      PMA_HOST: product.mysql
-      PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-    networks:
-      - backend-proxy
-    restart: always
-    depends_on:
-      - product.mysql
-    ports:
-      - 9099:80
 
   product.cassandra:
     image: cassandra:latest
@@ -210,6 +202,32 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
 
+  diary.api:
+    image: ${DOCKER_REGISTRY-}propernutritiondiarydiaryapi
+    container_name: diary.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+      - PROPER_NUTRITION_DIARY__USER_SQL_PASSWORD=${PROPER_NUTRITION_DIARY__USER_SQL_PASSWORD}
+      - PROPER_NUTRITION_DIARY__JWT_KEY=${PROPER_NUTRITION_DIARY__JWT_KEY}
+    build:
+      context: .
+      dockerfile: src/Diary/ProperNutritionDiary.DiaryApi/Dockerfile
+    ports:
+      - 8092:8080
+      - 8093:8081
+    volumes:
+      - ~/.certs:/https:ro
+    depends_on:
+      - diary.sql-server
+      - seq
+      - api.gateway
+    networks:
+      - backend-proxy
+
   user-plan.sql-server:
     image: mcr.microsoft.com/mssql/server:latest
     container_name: user-plan.sql-server
@@ -231,6 +249,33 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=STRONG!Passw0rd1
+
+  user-stats.api:
+    image: ${DOCKER_REGISTRY-}propernutritiondiaryuserstatsapi
+    container_name: user-stats.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Release
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dt.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pass
+      - PROPER_NUTRITION_DIARY__USER_SQL_PASSWORD=${PROPER_NUTRITION_DIARY__USER_SQL_PASSWORD}
+      - PROPER_NUTRITION_DIARY__JWT_KEY=${PROPER_NUTRITION_DIARY__JWT_KEY}
+    build:
+      context: .
+      dockerfile: src/UserStats/ProperNutritionDiary.UserStatsApi/Dockerfile
+    ports:
+      - 8096:8080
+      - 8097:8081
+    volumes:
+      - ~/.certs:/https:ro
+    depends_on:
+      - user-stats.sql-server
+      - seq
+      - api.gateway
+    networks:
+      - backend-proxy
+
 
   user-menu.sql-server:
     image: mcr.microsoft.com/mssql/server:latest
@@ -271,3 +316,13 @@ services:
     networks:
       - backend-proxy
 
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: src/Frontend/properNutritionDiary-frontend/Dockerfile
+    volumes:
+     - ~/.certs:/app/.certs
+     - ./src/Frontend/properNutritionDiary-frontend:/app
+    ports:
+      - 5173:5173

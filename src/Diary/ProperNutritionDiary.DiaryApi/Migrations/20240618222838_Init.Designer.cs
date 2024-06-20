@@ -12,7 +12,7 @@ using ProperNutritionDiary.DiaryApi.Db;
 namespace ProperNutritionDiary.DiaryApi.Migrations
 {
     [DbContext(typeof(AppCtx))]
-    [Migration("20240405162824_Init")]
+    [Migration("20240618222838_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -51,31 +51,41 @@ namespace ProperNutritionDiary.DiaryApi.Migrations
                     b.Property<DateTime>("ConsumptionTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("DiaryEntryId")
+                    b.Property<int>("ConsumptionType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(3);
+
+                    b.Property<Guid>("DiaryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("IdType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IdValue")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("Weight")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DiaryEntryId");
+                    b.HasIndex("DiaryId");
 
                     b.ToTable("DiaryEntries");
                 });
 
             modelBuilder.Entity("ProperNutritionDiary.DiaryApi.Diary.DiaryEntry", b =>
                 {
-                    b.HasOne("ProperNutritionDiary.DiaryApi.Diary.Diary", null)
+                    b.HasOne("ProperNutritionDiary.DiaryApi.Diary.Diary", "Diary")
                         .WithMany("DiaryEntries")
-                        .HasForeignKey("DiaryEntryId")
+                        .HasForeignKey("DiaryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -103,6 +113,8 @@ namespace ProperNutritionDiary.DiaryApi.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("DiaryEntryId");
                         });
+
+                    b.Navigation("Diary");
 
                     b.Navigation("Macronutrients")
                         .IsRequired();

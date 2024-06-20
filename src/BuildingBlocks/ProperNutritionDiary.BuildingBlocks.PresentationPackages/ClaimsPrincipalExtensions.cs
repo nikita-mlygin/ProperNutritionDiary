@@ -15,4 +15,11 @@ public static class ClaimsPrincipalExtensions
     {
         return Guid.TryParse(idStr, out var res) ? res : null;
     }
+
+    public static Option<Guid> GetUserIdOpt(this ClaimsPrincipal u)
+    {
+        var res = u.GetUserId();
+
+        return res is null ? None : Some(res);
+    }
 }

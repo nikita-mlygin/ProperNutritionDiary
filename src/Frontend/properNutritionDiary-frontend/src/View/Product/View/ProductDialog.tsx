@@ -18,22 +18,29 @@ import {
 import { ProductSummaryDto } from "../../../Features/Product/Get/ProductSummaryDto";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import NutrientToggleButton from "../../Macronutrient/NutrientToggleButton";
 
 interface ProductDialogProps {
   product: ProductSummaryDto | null;
+  weight: number | null;
   onClose: () => void;
 }
 
-const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
+const ProductDialog: React.FC<ProductDialogProps> = ({
+  product,
+  onClose,
+  weight,
+}) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [isIngredientsVisible, setIngredientsVisible] = useState(true);
+  const [showPer100g, setShowPer100g] = useState(false);
 
   if (!product) {
     return null;
   }
 
-  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleTabChange = (event: React.ChangeEvent<any>, newValue: number) => {
     setTabIndex(newValue);
   };
 
@@ -41,12 +48,18 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
     setSearchTerm(event.target.value.toLowerCase());
   };
 
-  const filteredNutrients = Object.entries(product.otherNutrients).filter(
-    ([key]) => key.toLowerCase().includes(searchTerm)
-  );
-
   const toggleIngredientsVisibility = () => {
     setIngredientsVisible(!isIngredientsVisible);
+  };
+
+  const filteredNutrients = [
+    ...Object.entries(product.otherNutrients),
+    ...Object.entries(product.macronutrients),
+  ].filter(([key]) => key.toLowerCase().includes(searchTerm));
+
+  const calculatePer100g = (value: number) => {
+    if (!weight) return value;
+    return (value / weight) * 100;
   };
 
   return (
@@ -80,6 +93,20 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
             </Typography>
           </Collapse>
         </DialogContentText>
+        {weight && (
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            mt={2}
+          >
+            <Typography variant="subtitle1">Display:</Typography>
+            <NutrientToggleButton
+              onClick={(e) => setShowPer100g(e == "per100g")}
+              value={showPer100g ? "per100g" : "total"}
+            />
+          </Box>
+        )}
         <Tabs
           value={tabIndex}
           onChange={handleTabChange}
@@ -93,16 +120,34 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
             <div>
               <Typography variant="subtitle1">Macronutrients:</Typography>
               <Typography variant="body2">
-                Proteins: {product.macronutrients.proteins} g
+                Proteins:{" "}
+                {showPer100g
+                  ? calculatePer100g(product.macronutrients.proteins).toFixed(2)
+                  : product.macronutrients.proteins}{" "}
+                g
               </Typography>
               <Typography variant="body2">
-                Calories: {product.macronutrients.calories} kcal
+                Calories:{" "}
+                {showPer100g
+                  ? calculatePer100g(product.macronutrients.calories).toFixed(2)
+                  : product.macronutrients.calories}{" "}
+                kcal
               </Typography>
               <Typography variant="body2">
-                Fats: {product.macronutrients.fats} g
+                Fats:{" "}
+                {showPer100g
+                  ? calculatePer100g(product.macronutrients.fats).toFixed(2)
+                  : product.macronutrients.fats}{" "}
+                g
               </Typography>
               <Typography variant="body2">
-                Carbohydrates: {product.macronutrients.carbohydrates} g
+                Carbohydrates:{" "}
+                {showPer100g
+                  ? calculatePer100g(
+                      product.macronutrients.carbohydrates
+                    ).toFixed(2)
+                  : product.macronutrients.carbohydrates}{" "}
+                g
               </Typography>
             </div>
           )}
@@ -116,24 +161,13 @@ const ProductDialog: React.FC<ProductDialogProps> = ({ product, onClose }) => {
                 value={searchTerm}
                 onChange={handleSearchChange}
               />
-              <Typography variant="subtitle1">Macronutrients:</Typography>
-              <Typography variant="body2">
-                Proteins: {product.macronutrients.proteins} g
-              </Typography>
-              <Typography variant="body2">
-                Calories: {product.macronutrients.calories} kcal
-              </Typography>
-              <Typography variant="body2">
-                Fats: {product.macronutrients.fats} g
-              </Typography>
-              <Typography variant="body2">
-                Carbohydrates: {product.macronutrients.carbohydrates} g
-              </Typography>
               <Typography variant="subtitle1">Other Nutrients:</Typography>
               {filteredNutrients.length > 0 ? (
                 filteredNutrients.map(([key, value]) => (
                   <Typography key={key} variant="body2">
-                    {key}: {value} mg
+                    {key}:{" "}
+                    {showPer100g ? calculatePer100g(value).toFixed(2) : value}{" "}
+                    mg
                   </Typography>
                 ))
               ) : (

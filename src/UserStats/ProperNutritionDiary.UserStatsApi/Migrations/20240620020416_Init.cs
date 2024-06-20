@@ -40,6 +40,24 @@ namespace ProperNutritionDiary.UserStatsApi.Migrations
                     table.PrimaryKey("PK_StaticUserStats", x => x.Id);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TotalDailiesStats",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Day = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Calories = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Proteins = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Fats = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Carbohydrates = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalWeight = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TotalDailiesStats", x => x.Id);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_StaticUserStats_UserId",
                 table: "StaticUserStats",
@@ -55,6 +73,9 @@ namespace ProperNutritionDiary.UserStatsApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "StaticUserStats");
+
+            migrationBuilder.DropTable(
+                name: "TotalDailiesStats");
         }
     }
 }

@@ -7,10 +7,14 @@ public class DiaryConf : IEntityTypeConfiguration<Diary>
 {
     public void Configure(EntityTypeBuilder<Diary> builder)
     {
-        builder.HasKey(x => x.Id);
+        builder.HasKey(d => d.Id);
+        builder.Property(d => d.UserId).IsRequired();
+        builder.Property(d => d.Date).IsRequired();
 
-        builder.HasMany(x => x.DiaryEntries).WithOne().HasForeignKey("DiaryEntryId").IsRequired();
-
-        builder.Property(x => x.Date).IsRequired();
+        builder
+            .HasMany(d => d.DiaryEntries)
+            .WithOne(e => e.Diary)
+            .HasForeignKey(e => e.DiaryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

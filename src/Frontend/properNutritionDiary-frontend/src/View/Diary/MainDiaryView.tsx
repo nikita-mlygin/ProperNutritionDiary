@@ -23,6 +23,7 @@ import { DiaryMenuItems } from "./Menu/DiaryMenuItems";
 import DiaryMenuItemList from "./Menu/DiaryMenuItemList";
 import ProductDialog from "../Product/View/ProductDialog";
 import { cloneDeep } from "lodash";
+import { ProductIdentityType } from "../../Features/UserMenu/Get/UserMenuDetails";
 
 const initialTargetMacros = [203, 90, 270];
 
@@ -57,17 +58,30 @@ const move = (
 
 interface MainDiaryViewProps {
   menuItems: DiaryMenuItems;
+  diaryItemsInit: { [key: string]: DiaryItem[] };
+  onApiAdd: (
+    productType: ProductIdentityType,
+    productId: string,
+    weight: number,
+    section: string
+  ) => void;
 }
 
-const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
-  const [items, setItems] = useState<{ [key: string]: DiaryItem[] }>({
-    breakfast: [],
-    lunch: [],
-    dinner: [],
-    other: [],
-  });
+const MainDiaryView: FC<MainDiaryViewProps> = ({
+  menuItems,
+  onApiAdd,
+  diaryItemsInit,
+}) => {
+  console.log(diaryItemsInit);
 
-  const [editId, setEditId] = useState<string | null>(null);
+  const [items, setItems] = useState<{ [key: string]: DiaryItem[] }>(
+    diaryItemsInit
+  );
+
+  const [editId, setEditId] = useState<{
+    type: ProductIdentityType;
+    value: string;
+  } | null>(null);
   const [newWeight, setNewWeight] = useState<number | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -103,7 +117,9 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
     null
   );
 
-  const products = useRef<Map<string, ProductSummaryDto>>(new Map());
+  const products = useRef<
+    Map<{ type: ProductIdentityType; value: string }, ProductSummaryDto>
+  >(new Map());
 
   const handleAddProduct = (
     selectedProduct: ProductSummaryDto,
@@ -118,10 +134,14 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
       weight,
     };
 
-    products.current.set(
-      selectedProduct.id.type + "_" + selectedProduct.id.value,
-      cloneDeep(selectedProduct)
+    onApiAdd(
+      selectedProduct.id.type,
+      selectedProduct.id.value,
+      weight,
+      "other"
     );
+
+    products.current.set(selectedProduct.id, cloneDeep(selectedProduct));
 
     setItems((prevItems) => ({
       ...prevItems,
@@ -129,6 +149,14 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
     }));
     setModalOpen(false);
   };
+
+  function onProductModalOpen(elmId: {
+    type: ProductIdentityType;
+    value: string;
+  }) {
+    if (products.current.has(elmId))
+      setModalProduct(products.current.get(elmId) ?? null);
+  }
 
   const currentCalories = useMemo(() => {
     console.log(
@@ -149,13 +177,16 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
       );
   }, [items]);
 
-  const handleEdit = useCallback((id: string, weight: number) => {
-    setEditId(id);
-    setNewWeight(weight);
-  }, []);
+  const handleEdit = useCallback(
+    (id: { type: ProductIdentityType; value: string }, weight: number) => {
+      setEditId(id);
+      setNewWeight(weight);
+    },
+    []
+  );
 
   const handleSave = useCallback(
-    (id: string) => {
+    (id: { type: ProductIdentityType; value: string }) => {
       setItems((prevItems) => {
         const updatedItems = { ...prevItems };
         Object.keys(updatedItems).forEach((section) => {
@@ -177,17 +208,20 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
     [newWeight]
   );
 
-  const handleDelete = useCallback((id: string) => {
-    setItems((prevItems) => {
-      const updatedItems = { ...prevItems };
-      Object.keys(updatedItems).forEach((section) => {
-        updatedItems[section] = updatedItems[section].filter(
-          (item) => item.product.id !== id
-        );
+  const handleDelete = useCallback(
+    (id: { type: ProductIdentityType; value: string }) => {
+      setItems((prevItems) => {
+        const updatedItems = { ...prevItems };
+        Object.keys(updatedItems).forEach((section) => {
+          updatedItems[section] = updatedItems[section].filter(
+            (item) => item.product.id !== id
+          );
+        });
+        return updatedItems;
       });
-      return updatedItems;
-    });
-  }, []);
+    },
+    []
+  );
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
@@ -250,8 +284,7 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
           editId={editId}
           newWeight={newWeight}
           onItemClick={(elmId) => {
-            if (products.current.has(elmId))
-              setModalProduct(products.current.get(elmId) ?? null);
+            onProductModalOpen(elmId);
           }}
           handleEdit={handleEdit}
           handleSave={handleSave}
@@ -297,6 +330,7 @@ const MainDiaryView: FC<MainDiaryViewProps> = ({ menuItems }) => {
       <ProductDialog
         onClose={() => setModalProduct(null)}
         product={modalProduct}
+        weight={250}
       />
     </Box>
   );

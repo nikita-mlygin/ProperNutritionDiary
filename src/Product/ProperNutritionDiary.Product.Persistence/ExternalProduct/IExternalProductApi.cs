@@ -41,9 +41,7 @@ public interface IExternalProductApi
     Task<SearchResult> SearchFoodAsync(
         [Query] string q,
         [Query] int page = 1,
-        [Query] string? source = null,
-        [Query] float min_calories = 0,
-        [Query] float max_calories = float.PositiveInfinity
+        [Query] string? source = null
     );
 
     [Get("/api")]

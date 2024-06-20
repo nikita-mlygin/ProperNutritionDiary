@@ -12,7 +12,7 @@ using ProperNutritionDiary.UserStatsApi.Db;
 namespace ProperNutritionDiary.UserStatsApi.Migrations
 {
     [DbContext(typeof(AppCtx))]
-    [Migration("20240406105631_Init")]
+    [Migration("20240620020416_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -69,6 +69,61 @@ namespace ProperNutritionDiary.UserStatsApi.Migrations
                         .IsUnique();
 
                     b.ToTable("StaticUserStats");
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserStatsApi.UserTotalDailiesStats.UserTotalDailiesStats", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Day")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalWeight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TotalDailiesStats");
+                });
+
+            modelBuilder.Entity("ProperNutritionDiary.UserStatsApi.UserTotalDailiesStats.UserTotalDailiesStats", b =>
+                {
+                    b.OwnsOne("ProperNutritionDiary.BuildingBlocks.ProductGlobals.Macronutrients.Macronutrients", "TotalMacronutrients", b1 =>
+                        {
+                            b1.Property<Guid>("UserTotalDailiesStatsId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Calories")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Calories");
+
+                            b1.Property<decimal>("Carbohydrates")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Carbohydrates");
+
+                            b1.Property<decimal>("Fats")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Fats");
+
+                            b1.Property<decimal>("Proteins")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Proteins");
+
+                            b1.HasKey("UserTotalDailiesStatsId");
+
+                            b1.ToTable("TotalDailiesStats");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserTotalDailiesStatsId");
+                        });
+
+                    b.Navigation("TotalMacronutrients")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

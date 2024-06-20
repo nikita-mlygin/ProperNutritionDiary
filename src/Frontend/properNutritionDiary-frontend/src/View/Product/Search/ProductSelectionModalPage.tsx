@@ -23,6 +23,7 @@ import useProductSearch from "../../../Features/Product/Get/useProductSearch";
 import ProductSearchItem from "./ProductSearchItem";
 import ProductSearchHeader from "./ProductSearchHeader";
 import { ProductSummaryDto } from "../../../Features/Product/Get/ProductSummaryDto";
+import { sourceToString } from "../../../Features/Product/Get/sourceToString";
 
 interface ProductSelectionModalProps {
   open: boolean;
@@ -149,7 +150,7 @@ const ProductSelectionModal: React.FC<ProductSelectionModalProps> = ({
                   <ProductSearchItem
                     key={result.id.value}
                     name={result.name}
-                    source={result.id.type}
+                    source={sourceToString(result.id.type)}
                     calories={result.macronutrients.calories}
                     proteins={result.macronutrients.proteins}
                     fats={result.macronutrients.fats}

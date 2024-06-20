@@ -78,6 +78,14 @@ def search_open_food_facts(query: str, page: int) -> tuple[List[StandardFood], i
         serving_size_value = product.get("serving_quantity", 100)
         serving_size_unit = product.get("serving_quantity_unit", "g")
 
+        logger.info(
+            _(
+                "Serving sizes: {servingSizeValue} {servingSizeUnit}",
+                servingSizeValue=serving_size_value,
+                servingSizeUnit=serving_size_unit,
+            )
+        )
+
         return_data.append(
             StandardFood(
                 id=product["_id"],
@@ -113,8 +121,16 @@ def fetch_open_food_facts(barcode: str) -> StandardFood:
 
     nutrients = extract_nutrients_from_open_food_facts(product)
 
-    serving_size_value = product.get("serving_quantity", None)
-    serving_size_unit = product.get("serving_quantity_unit", None)
+    serving_size_value = product.get("serving_quantity", 100)
+    serving_size_unit = product.get("serving_quantity_unit", "g")
+
+    logger.info(
+        _(
+            "Serving sizes: {servingSizeValue} {servingSizeUnit}",
+            servingSizeValue=serving_size_value,
+            servingSizeUnit=serving_size_unit,
+        )
+    )
 
     return StandardFood(
         id=product["_id"],

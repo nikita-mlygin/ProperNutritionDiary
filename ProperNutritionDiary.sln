@@ -76,6 +76,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.Test.U
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.BuildingBlocks.DomainExtensions", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.DomainExtensions\ProperNutritionDiary.BuildingBlocks.DomainExtensions.csproj", "{838CDD76-8DB1-4B73-AA4F-D1F812DBA527}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.BuildingBlocks.Kafka", "src\BuildingBlocks\ProperNutritionDiary.BuildingBlocks.Kafka\ProperNutritionDiary.BuildingBlocks.Kafka.csproj", "{5C319A47-7CD4-4C8F-ACF4-A80290F54486}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiaryMessageStore", "src\DiaryMessageStore\DiaryMessageStore.csproj", "{E4CA87BB-6B10-43A4-9456-113586D034F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.DiaryContracts", "src\Diary\ProperNutritionDiary.DiaryContracts\ProperNutritionDiary.DiaryContracts.csproj", "{187ADDA5-325A-4104-8711-90236BC56676}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProperNutritionDiary.UserStatsContracts", "src\UserStats\ProperNutritionDiary.UserStatsContracts\ProperNutritionDiary.UserStatsContracts.csproj", "{9BC655FA-452A-4862-9506-0DD87BFE90A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,6 +174,22 @@ Global
 		{838CDD76-8DB1-4B73-AA4F-D1F812DBA527}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{838CDD76-8DB1-4B73-AA4F-D1F812DBA527}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{838CDD76-8DB1-4B73-AA4F-D1F812DBA527}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C319A47-7CD4-4C8F-ACF4-A80290F54486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C319A47-7CD4-4C8F-ACF4-A80290F54486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C319A47-7CD4-4C8F-ACF4-A80290F54486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C319A47-7CD4-4C8F-ACF4-A80290F54486}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4CA87BB-6B10-43A4-9456-113586D034F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4CA87BB-6B10-43A4-9456-113586D034F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4CA87BB-6B10-43A4-9456-113586D034F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4CA87BB-6B10-43A4-9456-113586D034F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{187ADDA5-325A-4104-8711-90236BC56676}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{187ADDA5-325A-4104-8711-90236BC56676}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{187ADDA5-325A-4104-8711-90236BC56676}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{187ADDA5-325A-4104-8711-90236BC56676}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BC655FA-452A-4862-9506-0DD87BFE90A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BC655FA-452A-4862-9506-0DD87BFE90A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BC655FA-452A-4862-9506-0DD87BFE90A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BC655FA-452A-4862-9506-0DD87BFE90A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -202,6 +226,10 @@ Global
 		{6E326D14-3025-4AE1-A135-F8889DEB3980} = {96F5A8A4-9965-4A2F-9CDD-89E96186E613}
 		{426236AB-AA87-4097-802E-1DF79C402C7B} = {6E326D14-3025-4AE1-A135-F8889DEB3980}
 		{838CDD76-8DB1-4B73-AA4F-D1F812DBA527} = {093C4B44-27B2-45AC-A510-DC9C9F67E9E5}
+		{5C319A47-7CD4-4C8F-ACF4-A80290F54486} = {093C4B44-27B2-45AC-A510-DC9C9F67E9E5}
+		{E4CA87BB-6B10-43A4-9456-113586D034F4} = {A313C30E-A16F-4EAE-AD8A-521B686AF737}
+		{187ADDA5-325A-4104-8711-90236BC56676} = {58F47D4A-6FFF-446A-9527-B5000CCDD0D9}
+		{9BC655FA-452A-4862-9506-0DD87BFE90A1} = {45E7AA38-96C4-49E9-8B4A-B332C090C41A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E0178E4B-CEE3-4525-B588-97EB41A57AA9}
